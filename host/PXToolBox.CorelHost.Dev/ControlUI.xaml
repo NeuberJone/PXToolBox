@@ -1,0 +1,430 @@
+<UserControl x:Class="PXToolBoxDev.ControlUI"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             MinWidth="300" MaxWidth="440"
+             Background="{DynamicResource Px.Surface0}">
+    <UserControl.Resources>
+
+        <!-- Paleta: cinza-grafite sóbrio + um único acento azul. Usado em todo o painel a
+             partir destes recursos centralizados — nenhum botão define cor localmente. -->
+        <SolidColorBrush x:Key="Px.Surface0" Color="#1E1E20" />
+        <SolidColorBrush x:Key="Px.Surface1" Color="#262629" />
+        <SolidColorBrush x:Key="Px.Surface2" Color="#2E2E32" />
+        <SolidColorBrush x:Key="Px.Border" Color="#3C3C40" />
+        <SolidColorBrush x:Key="Px.Text" Color="#E4E4E6" />
+        <SolidColorBrush x:Key="Px.TextMuted" Color="#9A9AA0" />
+        <SolidColorBrush x:Key="Px.Accent" Color="#4DA3FF" />
+        <SolidColorBrush x:Key="Px.AccentText" Color="#0B1726" />
+        <SolidColorBrush x:Key="Px.Danger" Color="#E0A33E" />
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="Px.MutedText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style x:Key="Px.SectionLabel" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,4,0,2" />
+        </Style>
+
+        <!-- Botão padrão (secundário): superfície neutra, borda sutil. -->
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="0,2,0,2" />
+            <Setter Property="Padding" Value="8,5,8,5" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Background" Value="{StaticResource Px.Surface2}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle">
+                <Setter.Value>
+                    <Style>
+                        <Setter Property="Control.Template">
+                            <Setter.Value>
+                                <ControlTemplate>
+                                    <Rectangle Margin="1" StrokeThickness="1.5" Stroke="{StaticResource Px.Accent}"
+                                               RadiusX="3" RadiusY="3" StrokeDashArray="1 1" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" SnapsToDevicePixels="True">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                               VerticalAlignment="Center" RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Surface1}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botão primário: ação mais usada da seção (ex.: Preparar Grid). Mesmo formato, cor de
+             acento — único destaque de cor do painel. -->
+        <Style x:Key="Px.PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{StaticResource Px.Accent}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.AccentText}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Padding" Value="4,3,4,3" />
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="CaretBrush" Value="{StaticResource Px.Text}" />
+            <Setter Property="SelectionBrush" Value="{StaticResource Px.Accent}" />
+        </Style>
+
+        <!-- Item da lista suspensa: o tema padrão do WPF desenha o popup sobre um fundo claro do
+             sistema, ignorando o Foreground claro do ComboBox — por isso cada item precisa do
+             próprio template, cobrindo normal, sob o mouse (IsHighlighted), selecionado e
+             desabilitado. -->
+        <Style x:Key="Px.ComboBoxItem" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="Padding" Value="6,4,6,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bg" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Surface2}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Accent}" />
+                                <Setter Property="Foreground" Value="{StaticResource Px.AccentText}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Padding" Value="6,4,6,4" />
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource Px.ComboBoxItem}" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4" SnapsToDevicePixels="True" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                               Content="{TemplateBinding SelectionBoxItem}"
+                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                               IsHitTestVisible="False" />
+                            <Path Width="8" Height="8" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Fill="{StaticResource Px.Accent}" Stretch="Uniform" Data="M 0 0 L 4 4 L 8 0 Z" IsHitTestVisible="False" />
+                            <ToggleButton x:Name="Toggle" Background="Transparent" BorderThickness="0"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          ClickMode="Press" Focusable="False">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
+                                   PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                   AllowsTransparency="True" Focusable="False" StaysOpen="False" PopupAnimation="Slide">
+                                <Border Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}"
+                                        BorderThickness="1" CornerRadius="4" Margin="0,2,0,0"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="220">
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="Separator">
+            <Setter Property="Background" Value="{StaticResource Px.Border}" />
+            <Setter Property="Margin" Value="0,6,0,6" />
+        </Style>
+
+        <!-- Expander: usado para todas as seções recolhíveis. Template próprio (não o padrão do
+             sistema) para garantir legibilidade total no tema escuro, inclusive a seta. -->
+        <Style x:Key="Px.ExpanderHeaderText" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+        </Style>
+
+        <Style TargetType="Expander">
+            <Setter Property="Margin" Value="0,0,0,6" />
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
+                            <DockPanel>
+                                <ToggleButton x:Name="Toggle" DockPanel.Dock="Top" Cursor="Hand"
+                                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                              Focusable="True">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="Transparent" Padding="8,6,8,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Path x:Name="Arrow" Grid.Column="0" Width="8" Height="8" Margin="0,0,6,0"
+                                                          Stretch="Uniform" Fill="{StaticResource Px.Accent}"
+                                                          Data="M 0 0 L 4 4 L 8 0 Z" VerticalAlignment="Center"
+                                                          RenderTransformOrigin="0.5,0.5">
+                                                        <Path.RenderTransform>
+                                                            <RotateTransform Angle="-90" />
+                                                        </Path.RenderTransform>
+                                                    </Path>
+                                                    <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
+                                                                       VerticalAlignment="Center" />
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Arrow" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="0" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                    <TextBlock Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
+                                               Style="{StaticResource Px.ExpanderHeaderText}" />
+                                </ToggleButton>
+                                <ContentPresenter x:Name="Content" DockPanel.Dock="Bottom" Margin="8,0,8,8"
+                                                   Visibility="Collapsed" />
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="Content" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Px.Badge" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource Px.Accent}" />
+            <Setter Property="CornerRadius" Value="3" />
+            <Setter Property="Padding" Value="4,1,4,1" />
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="10,8,10,8">
+
+            <!-- Cabeçalho: nome do produto + identificação DEV discreta + estado resumido do
+                 documento. O docker do CorelDRAW já mostra seu próprio título na barra lateral,
+                 então este cabeçalho não repete "PX Tool Box DEV" como legenda da janela. -->
+            <DockPanel Margin="0,0,0,6" LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                    <TextBlock Text="PX Tool Box" FontWeight="Bold" FontSize="14" VerticalAlignment="Center" />
+                    <Border Style="{StaticResource Px.Badge}" Margin="6,0,0,0" VerticalAlignment="Center"
+                            ToolTip="Build de desenvolvimento — recursos exclusivos desta distribuição (ver AGENTS.md).">
+                        <TextBlock Text="DEV" FontSize="9" FontWeight="Bold" Foreground="{StaticResource Px.AccentText}" />
+                    </Border>
+                </StackPanel>
+            </DockPanel>
+            <TextBlock x:Name="DocStateText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,8" />
+
+            <!-- Grid: seção mais usada, sempre aberta por padrão e no topo. -->
+            <Expander Header="Grid" IsExpanded="True">
+                <StackPanel>
+                    <Button Content="Preparar Grid" Click="OnPrepareGrid" Style="{StaticResource Px.PrimaryButton}"
+                            ToolTip="Prepara o Grid na grade existente do documento ativo." />
+                </StackPanel>
+            </Expander>
+
+            <!-- Códigos: NO/NU/AP/TS em grade compacta (alternância na seleção atual) + a
+                 ferramenta de remoção de página inteira, que é uma operação diferente. -->
+            <Expander Header="Códigos" IsExpanded="True">
+                <StackPanel>
+                    <TextBlock Text="Alternar na seleção atual (NO = Nome, NU = Número, AP = Apelido, TS = Tipo sanguíneo):"
+                               Style="{StaticResource Px.SectionLabel}" />
+                    <UniformGrid Columns="2" Rows="2">
+                        <Button Content="NO" Click="OnToggleNo" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'NO' e 'Texto Nome'." />
+                        <Button Content="NU" Click="OnToggleNu" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'NU' e 'Texto Número'." />
+                        <Button Content="AP" Click="OnToggleAp" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'AP' e 'Texto Apelido'." />
+                        <Button Content="TS" Click="OnToggleTs" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'TS' e 'Texto Tipo Sanguíneo'." />
+                    </UniformGrid>
+                    <Separator />
+                    <Button Content="Remover NO/NU da página" Click="OnExpandNoNu"
+                            ToolTip="Renomeia objetos NO para TextoNome e NU para TextoNumero em todas as camadas da página ativa, incluindo objetos dentro de grupos. Não altera o conteúdo dos textos." />
+                </StackPanel>
+            </Expander>
+
+            <!-- Camadas: MA/FE/C em uma linha. São ações de alternância (toggle), não um
+                 indicador de estado — não existe leitura confiável de visível/oculto/misto por
+                 camada, então o rótulo não finge mostrar um estado atual (ver
+                 LayerVisibilityService.Toggle). -->
+            <Expander Header="Camadas" IsExpanded="False">
+                <StackPanel>
+                    <TextBlock Text="Alternar visibilidade de todas as camadas MA, FE ou C da página ativa:"
+                               Style="{StaticResource Px.SectionLabel}" />
+                    <UniformGrid Columns="3">
+                        <Button Content="MA" Click="OnToggleMa" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna a visibilidade de todas as camadas 'MA' da página ativa." />
+                        <Button Content="FE" Click="OnToggleFe" Margin="2,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna a visibilidade de todas as camadas 'FE' da página ativa." />
+                        <Button Content="C" Click="OnToggleC" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                                ToolTip="Alterna a visibilidade de todas as camadas 'C' da página ativa." />
+                    </UniformGrid>
+                </StackPanel>
+            </Expander>
+
+            <!-- Preparação e saída: Preparar Grid Novo e Preparar Molde Novo não usam os campos
+                 de layout/pasta — por isso ficam antes deles. Escudo/Bandeira/Faixa de Capitão
+                 usam os dois campos, que ficam imediatamente acima apenas destes três botões
+                 (confirmado em OutputPreparationService/PrepareAndSaveOutput). -->
+            <Expander Header="Preparação e saída" IsExpanded="False">
+                <StackPanel>
+                    <Button Content="Preparar Grid Novo" Click="OnPrepareNewGrid"
+                            ToolTip="Cria uma nova grade e prepara o Grid nela." />
+                    <Button Content="Preparar Molde Novo" Click="OnPrepareNewMold"
+                            ToolTip="Prepara um novo Molde na página ativa (não usa os campos de layout/pasta abaixo)." />
+                    <Separator />
+                    <TextBlock Text="Nome do layout (opcional):" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="LayoutNameTextBox" />
+                    <TextBlock Text="Pasta de saída (opcional):" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="OutputFolderTextBox"
+                             ToolTip="Se vazio, usa a pasta padrão configurada em OutputPreparationService.DefaultOutputFolder (Z:\Neuber\Saídas)." />
+                    <TextBlock x:Name="OutputFolderPreviewText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,4"
+                               TextTrimming="CharacterEllipsis" />
+                    <Button Content="Preparar Escudo" Click="OnPrepareShield"
+                            ToolTip="Prepara e salva a saída 'Escudo' usando o layout e a pasta acima." />
+                    <Button Content="Preparar Bandeira" Click="OnPrepareFlag"
+                            ToolTip="Prepara e salva a saída 'Bandeira' usando o layout e a pasta acima." />
+                    <Button Content="Preparar Faixa de Capitão" Click="OnPrepareCaptainSash"
+                            ToolTip="Prepara e salva a saída 'Faixa De Capitão' usando o layout e a pasta acima." />
+                </StackPanel>
+            </Expander>
+
+            <!-- Outras ferramentas: dividido em Tipo de peça, Objetos e Medidas — só os comandos
+                 já implementados; nenhum botão para função inexistente. -->
+            <Expander Header="Outras ferramentas — Tipo de peça" IsExpanded="False">
+                <StackPanel>
+                    <TextBlock Text="Novo tipo de peça:" Style="{StaticResource Px.SectionLabel}" />
+                    <ComboBox x:Name="ToTypeCombo" />
+                    <Button Content="Alterar tipo dos objetos selecionados" Click="OnChangeSelectedObjectsType"
+                            ToolTip="Reconhece o tipo pelo nome de cada objeto selecionado (formato TIPO.resto) e troca só o tipo, preservando o restante do nome. Objetos com nome em outro formato são ignorados e contados à parte." />
+                    <Button Content="Alterar tipo da camada ativa" Click="OnChangeActiveLayerType"
+                            ToolTip="Atua SÓ na camada ativa (destacada no Gerenciador de Objetos) — o CorelDRAW não expõe multi-seleção de camadas por automação, então isto NÃO é 'camadas selecionadas' no plural." />
+                </StackPanel>
+            </Expander>
+
+            <Expander Header="Outras ferramentas — Objetos" IsExpanded="False">
+                <StackPanel>
+                    <TextBlock Text="Novo nome para os objetos selecionados:" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="RenameTextBox" />
+                    <Button Content="Renomear Objetos Selecionados" Click="OnRenameSelected"
+                            ToolTip="Aplica o nome acima a todos os objetos atualmente selecionados." />
+                    <Separator />
+                    <Button Content="Agrupar Interseção" Click="OnGroupIntersection"
+                            ToolTip="Agrupa automaticamente os objetos que se sobrepõem na página ativa (não depende da seleção)." />
+                </StackPanel>
+            </Expander>
+
+            <Expander Header="Outras ferramentas — Medidas" IsExpanded="False">
+                <StackPanel>
+                    <TextBlock Text="Soma de medidas dos objetos selecionados (copiada para a área de transferência):"
+                               Style="{StaticResource Px.SectionLabel}" />
+                    <Button Content="Somar Altura (m)" Click="OnSumHeightOnly"
+                            ToolTip="Soma apenas a altura dos objetos selecionados, em metros." />
+                    <Button Content="Somar Altura" Click="OnSumHeight"
+                            ToolTip="Soma a altura dos objetos selecionados na unidade do documento." />
+                    <Button Content="Somar Largura" Click="OnSumWidth"
+                            ToolTip="Soma a largura dos objetos selecionados na unidade do documento." />
+                    <Button Content="Somar Altura e Largura" Click="OnSumBoth"
+                            ToolTip="Soma altura e largura dos objetos selecionados na unidade do documento." />
+                </StackPanel>
+            </Expander>
+
+            <!-- Status do último comando: sem altura fixa, sem espaço reservado quando vazio —
+                 some por completo até a primeira mensagem. Cresce com o conteúdo (uma linha para
+                 mensagens curtas, quebra de linha para as maiores); detalhe técnico extenso fica
+                 em Diagnóstico, não aqui. -->
+            <Border x:Name="StatusPanel" Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}"
+                    BorderThickness="1" CornerRadius="4" Padding="6,4,6,4" Margin="0,0,0,6" Visibility="Collapsed">
+                <TextBlock x:Name="StatusText" TextWrapping="Wrap" />
+            </Border>
+
+            <!-- Diagnóstico técnico: versão do CorelDRAW e estado de conexão — fora do
+                 cabeçalho principal, recolhido por padrão. -->
+            <Expander Header="Diagnóstico" IsExpanded="False">
+                <StackPanel>
+                    <TextBlock x:Name="DiagnosticsText" Style="{StaticResource Px.MutedText}" />
+                </StackPanel>
+            </Expander>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

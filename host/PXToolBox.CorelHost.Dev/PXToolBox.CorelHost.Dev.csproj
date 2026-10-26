@@ -1,0 +1,70 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!-- net48: o CorelDRAW 2026 (v27) carrega add-ons do tipo "wpfhost" dentro do próprio
+         processo usando o .NET Framework 4.8 já instalado no Windows (ver docs/ARCHITECTURE.md).
+         Não é possível usar .NET 8/10 aqui — o host não carrega um add-on .NET moderno. -->
+    <TargetFramework>net48</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>PXToolBoxDev</RootNamespace>
+    <!-- AssemblyName curto e exclusivo do DEV: o .addon referencia
+         "Addons\PXToolBoxDev\PXToolBoxDev.dll,PXToolBoxDev.ControlUI". A distribuição Prod
+         (futura) usará AssemblyName "PXToolBox" e pasta "PXToolBox", nunca esta. -->
+    <AssemblyName>PXToolBoxDev</AssemblyName>
+    <Platforms>x64</Platforms>
+    <PlatformTarget>x64</PlatformTarget>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- Caminho de instalação do CorelDRAW no ambiente de desenvolvimento, usado só para
+         localizar Corel.Interop.*.dll via HintPath. Essas DLLs pertencem ao CorelDRAW SDK/
+         redistribuível do Corel e NÃO são copiadas para este repositório (ver docs/ARCHITECTURE.md,
+         "Pré-requisitos externos"). Sobrescreva com -p:CorelDrawInstallDir=... se necessário. -->
+    <CorelDrawInstallDir Condition="'$(CorelDrawInstallDir)' == ''">C:\Program Files\Corel\CorelDRAW Graphics Suite\27</CorelDrawInstallDir>
+    <CorelAssembliesDir>$(CorelDrawInstallDir)\Programs64\Assemblies</CorelAssembliesDir>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\PXToolBox.Core\PXToolBox.Core.csproj" />
+    <ProjectReference Include="..\..\src\PXToolBox.Outputs\PXToolBox.Outputs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Corel.Interop.VGCore">
+      <HintPath>$(CorelAssembliesDir)\Corel.Interop.VGCore.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Corel.Interop.CorelDRAW">
+      <HintPath>$(CorelAssembliesDir)\Corel.Interop.CorelDRAW.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Os arquivos de empacotamento do add-on (marcador .addon + XSLT de registro do docker)
+         precisam ficar na RAIZ da pasta do add-on (Addons\PXToolBoxDev\), não dentro de uma
+         subpasta "Packaging" — por isso o Link remove o prefixo da pasta de origem. -->
+    <Content Include="Packaging\CorelDrw.addon">
+      <Link>CorelDrw.addon</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Packaging\AppUI.xslt">
+      <Link>AppUI.xslt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Packaging\UserUI.xslt">
+      <Link>UserUI.xslt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <Target Name="PXToolBoxCheckCorelAssemblies" BeforeTargets="ResolveAssemblyReferences">
+    <Error
+      Condition="!Exists('$(CorelAssembliesDir)\Corel.Interop.VGCore.dll')"
+      Text="Corel.Interop.VGCore.dll não encontrado em '$(CorelAssembliesDir)'. Instale o CorelDRAW 2026 (v27) ou informe o caminho correto com -p:CorelDrawInstallDir=&quot;C:\caminho\para\CorelDRAW Graphics Suite\27&quot;." />
+  </Target>
+
+</Project>

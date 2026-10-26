@@ -1,0 +1,39 @@
+Referência/
+
+# Build outputs (gerados; preservados em disco, mas nunca versionados)
+bin/
+obj/
+dist/
+*.pdb
+
+# Visual Studio / editor
+.vs/
+*.user
+*.suo
+
+# Logs e dados locais
+*.log
+logs/
+*.local.json
+*.local.ps1
+appsettings.local.json
+secrets.json
+
+# Credenciais — nunca devem ser commitadas
+.env
+.env.*
+*.pfx
+*.snk
+*.pem
+
+# Inno Setup
+installer/*.exe
+
+# Testes
+TestResults/
+.vs-tests/
+
+# Material de referência (revisão candidata de macros, ainda não testada no Corel) —
+# mantido no disco para consulta, mas não versionado neste repositório de código.
+# Ver docs/migrated-tools.md para o que foi extraído dele.
+Referência/

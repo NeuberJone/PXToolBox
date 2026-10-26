@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/host/">
+    <Project Path="host/PXToolBox.CorelHost.Dev/PXToolBox.CorelHost.Dev.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/PXToolBox.Core/PXToolBox.Core.csproj" />
+    <Project Path="src/PXToolBox.Outputs/PXToolBox.Outputs.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PXToolBox.Tests/PXToolBox.Tests.csproj" />
+  </Folder>
+</Solution>

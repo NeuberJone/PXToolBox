@@ -1,0 +1,16 @@
+PX Tool Box DEV
+
+Este instalador grava o add-on DEV em:
+  C:\Program Files\Corel\CorelDRAW Graphics Suite\27\Programs64\Addons\PXToolBoxDev
+
+Requisitos:
+  - CorelDRAW 2026 (v27) instalado.
+  - CorelDRAW FECHADO durante a instalação.
+  - Privilégios de administrador (a pasta de destino é dentro de Program Files).
+
+Depois de instalar:
+  - Abra o CorelDRAW. Se o painel "PX Tool Box DEV" não aparecer automaticamente, reinicie o
+    CorelDRAW uma vez (o registro do docker só é aplicado ao criar/recarregar o workspace).
+  - Esta é uma distribuição DEV, separada da futura distribuição de produção (Prod). As duas
+    coexistem no mesmo CorelDRAW sem conflito: pastas, nomes de assembly e identificadores de
+    docker são exclusivos de cada uma (ver docs/ARCHITECTURE.md).

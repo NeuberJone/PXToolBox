@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>PXToolBox.Outputs</RootNamespace>
+    <AssemblyName>PXToolBox.Outputs</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PXToolBox.Core\PXToolBox.Core.csproj" />
+  </ItemGroup>
+
+</Project>
