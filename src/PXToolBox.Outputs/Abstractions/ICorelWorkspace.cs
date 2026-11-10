@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace PXToolBox.Outputs.Abstractions
 {
     /// <summary>
@@ -10,6 +12,9 @@ namespace PXToolBox.Outputs.Abstractions
         ICorelDocument? ActiveDocument { get; }
 
         ICorelSelection ActiveSelection { get; }
+
+        /// <summary>Documentos abertos agora (Application.Documents), lidos de novo a cada acesso.</summary>
+        IReadOnlyList<ICorelDocument> OpenDocuments { get; }
 
         void CopyToClipboard(string text);
     }

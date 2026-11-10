@@ -1,0 +1,98 @@
+<Window x:Class="PXToolBoxDev.ReleaseNotes.ReleaseNotesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Notas da versão"
+        Width="560" Height="520" MinWidth="340" MinHeight="340"
+        WindowStartupLocation="CenterScreen" ShowInTaskbar="False"
+        Background="#1E1E20">
+    <Window.Resources>
+        <SolidColorBrush x:Key="Px.Text" Color="#E4E4E6" />
+        <SolidColorBrush x:Key="Px.TextMuted" Color="#9A9AA0" />
+        <SolidColorBrush x:Key="Px.Accent" Color="#4DA3FF" />
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="SectionHeading" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.Accent}" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,16,0,6" />
+        </Style>
+        <Style x:Key="EmptyNotes" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <DataTemplate x:Key="NoteItem">
+            <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <!-- Estilos implícitos da Window não atravessam o limite do DataTemplate. -->
+                <TextBlock Text="•" Margin="0,0,8,0" Foreground="{StaticResource Px.Text}" />
+                <TextBlock Grid.Column="1" Text="{Binding}" TextWrapping="Wrap" Foreground="{StaticResource Px.Text}" />
+            </Grid>
+        </DataTemplate>
+        <Style TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="BorderBrush" Value="#3C3C40" />
+            <Setter Property="Padding" Value="16,6" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="1" CornerRadius="4">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#262629" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <StackPanel>
+            <TextBlock Text="Notas da versão" FontSize="22" FontWeight="SemiBold" />
+            <TextBlock x:Name="VersionText" Foreground="{StaticResource Px.TextMuted}" Margin="0,4,0,0" />
+        </StackPanel>
+        <TextBlock x:Name="NoticeText" Grid.Row="1" Margin="0,12,0,0" />
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                      Focusable="True" Margin="0,4,0,12"
+                      AutomationProperties.Name="Mudanças da versão em execução">
+            <StackPanel Margin="0,0,10,0">
+                <TextBlock Text="Implementado" Style="{StaticResource SectionHeading}" />
+                <ItemsControl x:Name="ImplementedItems" ItemTemplate="{StaticResource NoteItem}" />
+                <TextBlock x:Name="ImplementedEmptyText" Text="Nenhuma implementação registrada para esta versão." Style="{StaticResource EmptyNotes}" />
+
+                <TextBlock Text="Alterado" Style="{StaticResource SectionHeading}" />
+                <ItemsControl x:Name="ChangedItems" ItemTemplate="{StaticResource NoteItem}" />
+                <TextBlock x:Name="ChangedEmptyText" Text="Nenhuma alteração registrada para esta versão." Style="{StaticResource EmptyNotes}" />
+
+                <TextBlock Text="Removido" Style="{StaticResource SectionHeading}" />
+                <ItemsControl x:Name="RemovedItems" ItemTemplate="{StaticResource NoteItem}" />
+                <TextBlock x:Name="RemovedEmptyText" Text="Nenhuma remoção registrada para esta versão." Style="{StaticResource EmptyNotes}" />
+            </StackPanel>
+        </ScrollViewer>
+        <Button Grid.Row="3" Content="Fechar" HorizontalAlignment="Right" IsCancel="True" IsDefault="True" Click="OnClose" />
+    </Grid>
+</Window>

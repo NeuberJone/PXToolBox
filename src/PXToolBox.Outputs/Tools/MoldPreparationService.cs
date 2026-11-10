@@ -22,13 +22,17 @@ namespace PXToolBox.Outputs.Tools
     {
         private readonly LayerOrganizationService _layerOrganization = new LayerOrganizationService();
 
-        public OperationResult PrepareNewMold(ICorelPage page)
+        /// <param name="standard">Antigo (padrão): camada "CAM1.Frente.MA.Frente", como a macro.
+        /// Novo: "CAM1.MOLDE.MA.Frente" (LayerStandardService) e os logos L1..Ln mantêm o nome.</param>
+        public OperationResult PrepareNewMold(ICorelPage page, LayerStandardService.Standard standard = LayerStandardService.Standard.Old)
         {
             _layerOrganization.DeleteEmptyLayers(page);
 
             foreach (var layer in page.Layers)
             {
-                layer.Name = NormalizeToFourSegments(layer.Name);
+                layer.Name = standard == LayerStandardService.Standard.New
+                    ? NormalizeToNewStandard(layer.Name)
+                    : NormalizeToFourSegments(layer.Name);
             }
 
             var renamedSubItems = 0;
@@ -45,6 +49,11 @@ namespace PXToolBox.Outputs.Tools
 
                     foreach (var subItem in group.Shapes)
                     {
+                        if (standard == LayerStandardService.Standard.New && LayerStandardService.IsLogoName(subItem.Name))
+                        {
+                            continue;
+                        }
+
                         if (!SizeTokens.IsAllowed(subItem.Name))
                         {
                             subItem.Name = replacementName;
@@ -54,7 +63,8 @@ namespace PXToolBox.Outputs.Tools
                 }
             }
 
-            return OperationResult.Success($"Molde preparado. {renamedSubItems} subitem(ns) renomeado(s).");
+            var label = standard == LayerStandardService.Standard.New ? "padrão novo" : "padrão antigo";
+            return OperationResult.Success($"Molde preparado ({label}). {renamedSubItems} subitem(ns) renomeado(s).");
         }
 
         private static IEnumerable<ICorelShape> FindGroupsRecursive(IEnumerable<ICorelShape> shapes)
@@ -79,6 +89,21 @@ namespace PXToolBox.Outputs.Tools
             var parts = layerName.Split('.');
             return parts.Length >= 3
                 ? string.Join(".", parts[0], parts[1], parts[2], parts[1])
+                : layerName;
+        }
+
+        /// <summary>Padrão novo: "seg0.MOLDE.seg2.peça". Uma camada que já está no padrão novo fica
+        /// como está; senão a peça é o 2º segmento, como em <see cref="NormalizeToFourSegments"/>.</summary>
+        private static string NormalizeToNewStandard(string layerName)
+        {
+            var parts = layerName.Split('.');
+            if (parts.Length >= 4 && LayerStandardService.IsNewSegment(parts[1]))
+            {
+                return string.Join(".", parts[0], LayerStandardService.NewStandardSegment, parts[2], parts[3]);
+            }
+
+            return parts.Length >= 3
+                ? string.Join(".", parts[0], LayerStandardService.NewStandardSegment, parts[2], parts[1])
                 : layerName;
         }
 

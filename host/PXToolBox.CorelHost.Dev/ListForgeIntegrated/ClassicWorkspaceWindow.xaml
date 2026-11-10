@@ -1,0 +1,761 @@
+<Window x:Class="PXToolBoxDev.ListForgeIntegrated.ClassicWorkspaceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — ListForge Integrado (Clássico — em desenvolvimento)"
+        Width="1180" Height="800" MinWidth="820" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E20"
+        Closing="Window_Closing"
+        Closed="Window_Closed"
+        Loaded="Window_Loaded"
+        Activated="Window_Activated">
+    <Window.Resources>
+        <!-- Mesma paleta do docker principal (ControlUI.xaml) — cinza-grafite + acento azul. -->
+        <SolidColorBrush x:Key="Px.Surface0" Color="#1E1E20" />
+        <SolidColorBrush x:Key="Px.Surface1" Color="#262629" />
+        <SolidColorBrush x:Key="Px.Surface2" Color="#2E2E32" />
+        <SolidColorBrush x:Key="Px.Border" Color="#3C3C40" />
+        <SolidColorBrush x:Key="Px.Text" Color="#E4E4E6" />
+        <SolidColorBrush x:Key="Px.TextMuted" Color="#9A9AA0" />
+        <SolidColorBrush x:Key="Px.Accent" Color="#4DA3FF" />
+        <SolidColorBrush x:Key="Px.AccentText" Color="#0B1726" />
+        <SolidColorBrush x:Key="Px.Warn" Color="#E0A33E" />
+        <SolidColorBrush x:Key="Px.WarnBg" Color="#3A2F18" />
+
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+        </Style>
+        <Style x:Key="Px.MutedText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="0,0,6,0" />
+            <Setter Property="Padding" Value="10,5,10,5" />
+            <Setter Property="Background" Value="{StaticResource Px.Surface2}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" SnapsToDevicePixels="True">
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Surface1}" />
+                            </Trigger>
+                            <!-- Estado desabilitado: opacidade bem reduzida (não "parece igual mas não faz nada") —
+                                 mesma convenção do docker principal (ControlUI.xaml). -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4" />
+                                <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Px.PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Setter Property="Background" Value="{StaticResource Px.Accent}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.AccentText}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="CaretBrush" Value="{StaticResource Px.Text}" />
+            <Setter Property="SelectionBrush" Value="{StaticResource Px.Accent}" />
+            <Setter Property="Padding" Value="4" />
+            <Style.Triggers>
+                <!-- Só-leitura (saída/JSON gerados): levemente mais escuro, para diferenciar
+                     visualmente de um campo editável, sem parecer desabilitado/inacessível. -->
+                <Trigger Property="IsReadOnly" Value="True">
+                    <Setter Property="Background" Value="{StaticResource Px.Surface0}" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.5" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ComboBox/ComboBoxItem com template próprio (mesmo padrão do docker principal,
+             ControlUI.xaml) — o template padrão do WPF desenha o popup sobre fundo claro do
+             sistema e ignora o Foreground escuro do tema, resultando em texto claro sobre fundo
+             claro (bug corrigido aqui). Cada item cobre normal, sob o mouse, selecionado e
+             desabilitado explicitamente. -->
+        <Style x:Key="Px.ComboBoxItem" TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="Padding" Value="6,4,6,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bg" Background="Transparent" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="True">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Surface2}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Accent}" />
+                                <Setter Property="Foreground" Value="{StaticResource Px.AccentText}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+                                <Setter Property="Opacity" Value="0.5" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="6,3,6,3" />
+            <Setter Property="ItemContainerStyle" Value="{StaticResource Px.ComboBoxItem}" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="4" SnapsToDevicePixels="True" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                               Content="{TemplateBinding SelectionBoxItem}"
+                                               ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                               IsHitTestVisible="False" />
+                            <Path Width="8" Height="8" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Fill="{StaticResource Px.Accent}" Stretch="Uniform" Data="M 0 0 L 4 4 L 8 0 Z" IsHitTestVisible="False" />
+                            <ToggleButton x:Name="Toggle" Background="Transparent" BorderThickness="0"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                          ClickMode="Press" Focusable="False">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup x:Name="Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom"
+                                   PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                   AllowsTransparency="True" Focusable="False" StaysOpen="False" PopupAnimation="Slide">
+                                <Border Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}"
+                                        BorderThickness="1" CornerRadius="4" Margin="0,2,0,0"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}"
+                                        MaxHeight="260">
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4" />
+                                <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- TabItem com template próprio.
+             Causa real do contraste ruim (confirmada por precedência de propriedade, não por
+             tentativa): a versão anterior aplicava a cor via "TextElement.Foreground" (uma
+             propriedade herdada) no Border ancestral. Mas o <Style TargetType="TextBlock"> em
+             Window.Resources (acima) define Foreground como "Style setter" diretamente no
+             TextBlock que o ContentPresenter gera para o texto do cabeçalho — e um Style setter
+             no próprio elemento sempre tem precedência maior que um valor herdado de um
+             ancestral, com ou sem Trigger. Resultado: a tecla "selecionada" nunca chegava a
+             mudar a cor do texto; via sempre a cor clara do tema (Px.Text) por herança perdendo
+             para o Style, mesmo com o fundo azul do estado selecionado.
+             Correção: um TextBlock nomeado, criado diretamente dentro do próprio
+             ControlTemplate (não via ContentPresenter), ligado ao cabeçalho por
+             "{TemplateBinding Header}". Um Setter de Trigger com TargetName sobre esse TextBlock
+             tem precedência de "Template Trigger", que bate tanto o Style setter quanto o valor
+             definido diretamente no template — por isso os Setters abaixo (selecionada, sob o
+             mouse) realmente mudam a cor. -->
+        <Style TargetType="TabItem">
+            <Setter Property="Padding" Value="12,6,12,6" />
+            <Setter Property="Margin" Value="0,0,2,0" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TabItem">
+                        <Border x:Name="Bg" Background="{StaticResource Px.Surface1}"
+                                BorderBrush="{StaticResource Px.Border}" BorderThickness="1,1,1,0"
+                                CornerRadius="4,4,0,0" Padding="{TemplateBinding Padding}">
+                            <TextBlock x:Name="HeaderText" Text="{TemplateBinding Header}"
+                                       Foreground="{StaticResource Px.TextMuted}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <!-- Selecionada: fundo de acento + texto escuro (AccentText) com
+                                 contraste alto — e preserva a indicação de seleção pelo fundo,
+                                 não só pela cor do texto. -->
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Accent}" />
+                                <Setter TargetName="HeaderText" Property="Foreground" Value="{StaticResource Px.AccentText}" />
+                                <Setter TargetName="HeaderText" Property="FontWeight" Value="SemiBold" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Surface2}" />
+                                <Setter TargetName="HeaderText" Property="Foreground" Value="{StaticResource Px.Text}" />
+                            </Trigger>
+                            <!-- Não selecionada, sem mouse: texto muted (definido direto no
+                                 template, acima) — legível sobre Surface1, visualmente distinto
+                                 da aba ativa. -->
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4" />
+                            </Trigger>
+                            <!-- Foco por teclado (Ctrl+Tab entre abas): mesma cor de destaque da
+                                 borda usada em ComboBox/TextBox, para indicar foco sem depender
+                                 só da seleção. -->
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="TabControl">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
+        <Style TargetType="ListBox">
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Warn}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+        </Style>
+
+        <!-- Expander — mesmo template do docker principal (ControlUI.xaml), para "Localizar/
+             Substituir" e "Diagnóstico". -->
+        <Style x:Key="Px.ExpanderHeaderText" TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+        </Style>
+        <Style TargetType="Expander">
+            <Setter Property="Margin" Value="0,0,0,6" />
+            <Setter Property="Background" Value="{StaticResource Px.Surface1}" />
+            <Setter Property="BorderBrush" Value="{StaticResource Px.Border}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="5">
+                            <DockPanel>
+                                <ToggleButton x:Name="Toggle" DockPanel.Dock="Top" Cursor="Hand"
+                                              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                              Focusable="True">
+                                    <ToggleButton.Template>
+                                        <ControlTemplate TargetType="ToggleButton">
+                                            <Border Background="Transparent" Padding="8,6,8,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Path x:Name="Arrow" Grid.Column="0" Width="8" Height="8" Margin="0,0,6,0"
+                                                          Stretch="Uniform" Fill="{StaticResource Px.Accent}"
+                                                          Data="M 0 0 L 4 4 L 8 0 Z" VerticalAlignment="Center"
+                                                          RenderTransformOrigin="0.5,0.5">
+                                                        <Path.RenderTransform>
+                                                            <RotateTransform Angle="-90" />
+                                                        </Path.RenderTransform>
+                                                    </Path>
+                                                    <ContentPresenter Grid.Column="1" Content="{TemplateBinding Content}"
+                                                                       VerticalAlignment="Center" />
+                                                </Grid>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter TargetName="Arrow" Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="0" />
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </ToggleButton.Template>
+                                    <TextBlock Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
+                                               Style="{StaticResource Px.ExpanderHeaderText}" />
+                                </ToggleButton>
+                                <ContentPresenter x:Name="Content" DockPanel.Dock="Bottom" Margin="8,0,8,8"
+                                                   Visibility="Collapsed" />
+                            </DockPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="Content" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="10">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto" />
+        <RowDefinition Height="*" />
+      </Grid.RowDefinitions>
+
+      <!-- Alternância Clássico/PX — sempre visível, nos dois modos. O modo PX reaproveita os
+           MESMOS controles de sessão do Clássico (entrada, opções, resultado etc.) — ver
+           ClassicWorkspaceWindow.Px.cs: ao trocar de modo, os controles são MOVIDOS (não
+           duplicados) entre o layout Clássico (abaixo, "ClassicRoot") e o layout PX ("PxRoot",
+           no fim deste arquivo) — nunca duas instâncias independentes do mesmo estado. -->
+      <Border Grid.Row="0" Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}"
+              BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,0,0,8">
+        <DockPanel LastChildFill="False">
+          <TextBlock DockPanel.Dock="Left" Text="ListForge Integrado" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,16,0" />
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+            <Button x:Name="BtnModeClassic" Content="Clássico" Click="OnSwitchToClassicMode" />
+            <Button x:Name="BtnModePx" Content="PX — em desenvolvimento" Click="OnSwitchToPxMode" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <DockPanel x:Name="ClassicRoot" Grid.Row="1">
+
+        <!-- Barra de arquivo: entrada (abrir/salvar) + limpar tudo. "Abrir Lista..." aceita
+             texto puro e, via ListForge.Core.Services.FileImportService (movido do standalone
+             nesta rodada), PDF/Word/Excel — ver OnOpenInputFile/ImportDocumentAsync e
+             docs/listforge-classic-parity.md, "Importação de documentos". Imagem/OCR continua
+             exclusiva do standalone (binários nativos + tessdata). "Salvar Entrada"/"Salvar
+             Como" continuam só texto puro (sem formato de documento para salvar de volta). -->
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+            <Button x:Name="BtnOpenInputFile" Content="Abrir Lista..." Click="OnOpenInputFile"
+                    ToolTip="Texto (.txt/.csv/.list), PDF, Word (.docx) e Excel (.xlsx/.xlsm) — mesmos formatos do ListForge Standalone, exceto imagens/OCR (não disponível nesta distribuição). Confirma antes de substituir uma lista com alterações não salvas ao importar um documento." />
+            <Button Content="Salvar Entrada" Click="OnSaveInputFile" />
+            <Button Content="Salvar Como" Click="OnSaveInputFileAs" />
+            <Button Content="Extrair lista de link..." Click="OnExtractFromLink"
+                    ToolTip="Extrai uma lista de um link (mesma extração do standalone, ListForge.Core.Services.LinkListImportService) para uma nova lista ou para acrescentar à atual." />
+            <Button Content="Remover espaços" Click="OnCleanSpaces" />
+            <Button Content="Limpar tudo" Click="OnClearAll" Margin="12,0,6,0" />
+            <Button Content="Configurações..." Click="OnOpenSettings" Margin="12,0,6,0"
+                    ToolTip="Tamanho de fonte, formato padrão do Salvar avançado e pasta/nome padrão de exportação — exclusivos deste módulo, sem afetar o ListForge Standalone." />
+            <Button Content="Tamanhos customizados..." Click="OnOpenSizeConfig"
+                    ToolTip="Tamanhos reconhecidos por grupo (masculino/feminino/infantil/meião) — mesmas regras do ListForge Standalone (SizeHelper), independente de perfil de trabalho." />
+        </WrapPanel>
+
+        <!-- Perfis de trabalho (ver docs/listforge-classic-parity.md, grupo "Perfis de
+             trabalho") — mesmas regras do ListForge standalone (WorkProfileService, núcleo
+             compartilhado). Um perfil guarda separador/capitalização/ordenação/lista avançada
+             (abaixo) e o formato/pasta/nome padrão do Salvar avançado (em "Configurações..." —
+             Integrations/ListForgeIntegratedSettings). Trocar de perfil nunca apaga a lista
+             digitada em InputTextBox. -->
+        <WrapPanel x:Name="WorkProfilePanel" DockPanel.Dock="Top" Margin="0,0,0,6">
+            <TextBlock Text="Perfil de trabalho" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="CmbWorkProfile" Width="200" Margin="0,0,10,0" DisplayMemberPath="DisplayName"
+                      SelectionChanged="OnWorkProfileSelectionChanged" />
+            <Button Content="Novo..." Click="OnCreateWorkProfile" />
+            <Button x:Name="BtnSaveWorkProfile" Content="Salvar perfil" Click="OnSaveWorkProfile" />
+            <Button x:Name="BtnDiscardWorkProfile" Content="Descartar alterações" Click="OnDiscardWorkProfileChanges" />
+            <Button x:Name="BtnRenameWorkProfile" Content="Renomear..." Click="OnRenameWorkProfile" />
+            <Button Content="Duplicar" Click="OnDuplicateWorkProfile" />
+            <Button x:Name="BtnDeleteWorkProfile" Content="Excluir..." Click="OnDeleteWorkProfile" />
+            <Button Content="Restaurar perfil Padrão..." Click="OnRestoreDefaultWorkProfile" Margin="12,0,6,0" />
+            <TextBlock x:Name="TxtWorkProfileStatus" VerticalAlignment="Center" Style="{StaticResource Px.MutedText}" Margin="12,0,0,0" />
+        </WrapPanel>
+
+        <!-- Opções de processamento: mesmos nomes de campo e valores do ListForge standalone
+             (EditorSeparator/CmbCaseMode/CmbSortMode em UI/Views/EditorView.xaml). Compõem,
+             junto com "Lista avançada" abaixo, o perfil de trabalho ativo selecionado acima. -->
+        <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <TextBlock Text="Separador da entrada" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <TextBox x:Name="TxtSeparator" Width="60" Margin="0,0,8,0" Text="," TextChanged="OnProcessingOptionChanged" />
+            <Button Content="Padrão (,)" Click="OnResetSeparator" />
+            <TextBlock Text="Capitalização" VerticalAlignment="Center" Margin="12,0,8,0" />
+            <ComboBox x:Name="CmbCaseMode" Width="170" SelectionChanged="OnProcessingOptionChanged" />
+            <TextBlock Text="Ordenação" VerticalAlignment="Center" Margin="12,0,8,0" />
+            <ComboBox x:Name="CmbSortMode" Width="120" SelectionChanged="OnProcessingOptionChanged" />
+            <Button x:Name="BtnProcessWithPreview" Content="Processar" Click="OnProcessWithPreview" Style="{StaticResource Px.PrimaryButton}" Margin="18,0,6,0"
+                    ToolTip="Mostra uma prévia (contagem de válidos/avisos/inválidos, tamanhos, tipos de peça) antes de aplicar — mesmo fluxo padrão do ListForge Standalone (AnalyzeAndProcessWithPreview)." />
+            <Button x:Name="BtnProcess" Content="Processar rápido (sem prévia)" Click="OnProcess"
+                    ToolTip="Processa direto, sem mostrar a prévia de confirmação — equivalente a ProcessAndPreview(consumeTrialCredit: true) no standalone." />
+            <Button Content="Copiar saída" Click="OnCopyOutput" />
+            <Button Content="Copiar JSON" Click="OnCopyJson" />
+            <Button Content="Salvar saída" Click="OnSaveOutput" />
+            <Button Content="Gerar JSON" Click="OnGenerateJson" />
+            <Button Content="Comparar entrada/saída" Click="OnCompareInputOutput" Margin="12,0,6,0"
+                    ToolTip="Compara semanticamente a entrada com a saída organizada do último processamento (mesmas regras do ListForge Standalone) — avisa em vez de comparar silenciosamente se a entrada ou as opções mudaram desde então." />
+            <Button x:Name="BtnAdvancedSave" Content="Salvar avançado..." Click="OnAdvancedSave" Margin="12,0,6,0"
+                    ToolTip="Salva entrada, saída e JSON juntos — em arquivos soltos ou em um único ZIP (mesmas regras do ListForge Standalone). Exige Lista avançada ativa e um processamento atual, igual ao standalone." />
+            <Button Content="Histórico..." Click="OnOpenProcessingHistory" Margin="12,0,6,0"
+                    ToolTip="Últimos processamentos com arquivo de saída gerado (Salvar saída/Gerar JSON/Salvar avançado) — próprio deste módulo, nunca o histórico do ListForge Standalone." />
+        </WrapPanel>
+
+        <!-- Edição manual da saída/JSON (ver docs/listforge-classic-parity.md, grupo "Geração,
+             cópia e exportação de resultados") — porta de MainViewModel.AllowOutputEditing/
+             ApplyOutputEdits/DiscardOutputEdits do standalone: a edição só é possível quando o
+             checkbox abaixo está marcado ("nesta sessão" — nunca persistida, igual à referência),
+             e "Aplicar alterações" sempre revalida o conteúdo editado pelo mesmo pipeline de
+             processamento (nunca aceita texto/JSON inválido como se fosse o resultado atual). -->
+        <WrapPanel x:Name="ManualEditPanel" DockPanel.Dock="Top" Margin="0,0,0,8">
+            <CheckBox x:Name="ChkAllowOutputEditing"
+                      Content="Permitir edição da saída e do JSON nesta sessão"
+                      Checked="OnAllowOutputEditingToggled" Unchecked="OnAllowOutputEditingToggled"
+                      VerticalAlignment="Center" Margin="0,0,16,0"
+                      ToolTip="Como no ListForge Standalone: habilita edição manual temporária da saída/JSON (não é salva nas configurações). Desligar com alterações pendentes pede para aplicar ou descartar primeiro." />
+            <Button x:Name="BtnApplyOutputEdits" Content="Aplicar alterações" Click="OnApplyOutputEdits" IsEnabled="False"
+                    ToolTip="Revalida o conteúdo editado pelo mesmo processamento (separador/tamanhos/capitalização/ordenação) e passa a usá-lo como resultado atual. Nunca aceita lista ou JSON inválido." />
+            <Button x:Name="BtnDiscardOutputEdits" Content="Descartar alterações" Click="OnDiscardOutputEdits" IsEnabled="False"
+                    ToolTip="Volta ao último resultado válido (processado ou aplicado), descartando o texto editado." />
+        </WrapPanel>
+
+        <!-- Localizar/Substituir: puramente de interface, direto no TextBox de entrada — não
+             depende de nenhum serviço do núcleo (ver TextSearchHelper do standalone, que também
+             é só suporte de UI, fora do domínio de processamento). -->
+        <Expander x:Name="FindReplaceExpander" DockPanel.Dock="Top" Header="Localizar / Substituir" IsExpanded="False">
+            <WrapPanel>
+                <TextBlock Text="Localizar" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBox x:Name="TxtFind" Width="180" Margin="0,0,10,0" />
+                <TextBlock Text="Substituir por" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <TextBox x:Name="TxtReplace" Width="180" Margin="0,0,10,0" />
+                <Button Content="Anterior" Click="OnFindPrevious" />
+                <Button Content="Próximo" Click="OnFindNext" />
+                <Button Content="Substituir" Click="OnReplaceCurrent" />
+                <Button Content="Substituir tudo" Click="OnReplaceAll" Margin="0,0,10,0" />
+                <CheckBox x:Name="ChkMatchCase" Content="Diferenciar mai/min" VerticalAlignment="Center" />
+            </WrapPanel>
+        </Expander>
+
+        <!-- Lista avançada: mapeamento de peça por slot JSON (ordem personalizada), equivalente
+             a AdvancedListEnabled/AdvancedJsonPieceSlots do standalone. O serviço
+             (ListForge.Core.Services.JsonPieceMappingService) e o modelo (JsonPieceMappingOptions)
+             já são compartilhados — só a UI faltava (ver docs/listforge-classic-parity.md). -->
+        <Expander x:Name="AdvancedListExpander" DockPanel.Dock="Top" Header="Lista avançada (mapeamento de peça por slot)" IsExpanded="False">
+            <StackPanel>
+                <CheckBox x:Name="ChkAdvancedList" Content="Ativar lista avançada (ordem personalizada de tipos de peça no JSON)"
+                          Checked="OnAdvancedListToggled" Unchecked="OnAdvancedListToggled" />
+                <TextBlock Style="{StaticResource Px.MutedText}" Margin="0,4,0,6"
+                           Text="Um seletor por posição de tamanho detectada na entrada — define qual tipo de peça (manga curta, manga longa, etc.) corresponde a cada posição no JSON gerado. Os seletores se ajustam conforme a entrada muda." />
+                <ItemsControl x:Name="AdvancedSlotsList">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,14,6">
+                                <TextBlock Text="{Binding PositionLabel}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                <ComboBox Width="150"
+                                          ItemsSource="{Binding Options}"
+                                          DisplayMemberPath="Label"
+                                          SelectedValuePath="Key"
+                                          SelectedValue="{Binding SelectedKey, Mode=TwoWay}"
+                                          SelectionChanged="OnAdvancedSlotChanged" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+        </Expander>
+
+        <!-- Texto de acesso visível ao usuário: só o essencial (sem referência a arquivo/seção
+             de arquitetura nem explicação interna — isso fica em Diagnóstico, abaixo). -->
+        <TextBlock x:Name="AccessStatusText" DockPanel.Dock="Top" Style="{StaticResource Px.MutedText}" Margin="0,0,0,8" />
+
+        <Border x:Name="StatusBorder" DockPanel.Dock="Bottom" Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}"
+                BorderThickness="1" CornerRadius="4" Padding="6,4,6,4" Margin="0,8,0,0">
+            <TextBlock x:Name="StatusText" TextWrapping="Wrap" />
+        </Border>
+
+        <Expander x:Name="DiagnosticsExpander" DockPanel.Dock="Bottom" Header="Diagnóstico" IsExpanded="False" Margin="0,8,0,0">
+            <StackPanel>
+                <TextBlock x:Name="DiagnosticsText" Style="{StaticResource Px.MutedText}" />
+
+                <!-- Informações de suporte (ver docs/listforge-classic-parity.md, grupo
+                     "Configurações aplicáveis ao integrado") — versões/ambiente técnico, nunca
+                     dados de lista. "Copiar informações de suporte" copia só este texto;
+                     "Gerar pacote de suporte..." mostra o que será incluído antes de perguntar o
+                     destino (Integrations/SupportPackageService.cs). -->
+                <TextBlock x:Name="SupportInfoText" Style="{StaticResource Px.MutedText}" Margin="0,8,0,0" FontFamily="Consolas" />
+                <WrapPanel Margin="0,6,0,0">
+                    <Button Content="Copiar informações de suporte" Click="OnCopySupportInfo" />
+                    <Button Content="Abrir pasta de logs" Click="OnOpenLogsFolder"
+                            ToolTip="Pasta própria deste módulo (PXToolBox\Dev\logs) — nunca a pasta de logs do ListForge Standalone, do PX de produção ou do MoldMotor. Retenção automática: máximo 14 dias ou 20 MB no total." />
+                    <Button Content="Abrir pasta de backups" Click="OnOpenBackupsFolder"
+                            ToolTip="Pasta própria deste módulo (PXToolBox\Dev\ListForge\Backups) — backups automáticos de 'Salvar entrada'/'Salvar como', nunca a pasta de backups do ListForge Standalone. Sem limpeza automática: acumulam indefinidamente, igual ao standalone." />
+                    <Button Content="Gerar pacote de suporte..." Click="OnGenerateSupportPackage"
+                            ToolTip="Monta um .zip local com versões/ambiente, um resumo seguro das configurações (sem nomes de perfil/pasta/lista) e os logs recentes — mostra o conteúdo antes de perguntar onde salvar. Nunca envia nada automaticamente." />
+                </WrapPanel>
+
+                <!-- Diagnóstico temporário e localizado do roteamento de teclado (seção 1 da
+                     correção): só identificadores de janela/thread e contadores, nunca o
+                     conteúdo digitado. Cada campo isola um elo da cadeia (instalação do hook,
+                     foco nativo, teclas vistas na thread vs. nesta janela vs. roteadas) — ver
+                     ThreadKeyboardRouter.DescribeState() para como interpretar cada combinação
+                     de valores. -->
+                <TextBlock x:Name="KeyboardDiagText" Style="{StaticResource Px.MutedText}" Margin="0,8,0,0" />
+                <Button Content="Abrir teste mínimo de teclado (diagnóstico temporário)"
+                        Click="OnOpenKeyboardDiagMiniWindow" HorizontalAlignment="Left" Margin="0,8,0,0"
+                        ToolTip="Janela separada, com um único campo editável, usando o mesmo mecanismo de teclado desta janela — para isolar se o bloqueio reproduz fora da UI completa do ListForge Integrado. Temporária: remover depois de confirmada e corrigida a causa real dentro do Corel." />
+            </StackPanel>
+        </Expander>
+
+        <DockPanel Margin="0,0,0,8">
+            <TextBlock DockPanel.Dock="Top" Text="Avisos e erros de validação (clique para ir até a linha)" FontWeight="Bold" Margin="0,0,0,4" Height="20" />
+            <ListBox x:Name="IssuesList" Height="90" DockPanel.Dock="Bottom" SelectionChanged="OnIssueSelected" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <DockPanel x:Name="InputPanel" Grid.Column="0">
+                    <TextBlock DockPanel.Dock="Top" Text="Entrada / edição" FontWeight="Bold" Margin="0,0,0,6" />
+                    <TextBox x:Name="InputTextBox"
+                             AcceptsReturn="True" AcceptsTab="True"
+                             TextWrapping="NoWrap"
+                             VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                             FontFamily="Consolas"
+                             TextChanged="OnInputTextChanged" />
+                </DockPanel>
+
+                <DockPanel x:Name="OutputPanel" Grid.Column="2">
+                    <TextBlock DockPanel.Dock="Top" Text="Saída" FontWeight="Bold" Margin="0,0,0,6" />
+                    <!-- Aviso de saída desatualizada: a entrada (ou uma opção que afeta o
+                         processamento) mudou desde o último "Processar" — Copiar/Salvar/Gerar
+                         JSON continuam funcionando, mas avisam antes, em vez de entregar
+                         silenciosamente um resultado que não corresponde mais à entrada atual
+                         (equivalente ao _inputRevision do standalone — ver
+                         docs/listforge-classic-parity.md). -->
+                    <TextBlock x:Name="OutputStaleWarning" DockPanel.Dock="Top" Margin="0,0,0,6"
+                               Foreground="{StaticResource Px.Warn}" TextWrapping="Wrap" Visibility="Collapsed"
+                               Text="A entrada ou as opções mudaram desde o último processamento — Copiar/Salvar/Gerar JSON usam o resultado antigo. Clique em Processar para atualizar." />
+                    <!-- Indicação de edição manual — distinta do aviso de desatualização acima:
+                         este aviso é sobre o próprio resultado ter sido digitado/alterado à mão
+                         (pendente ou já aplicado), não sobre a entrada ter mudado depois. -->
+                    <TextBlock x:Name="ManualEditIndicator" DockPanel.Dock="Top" Margin="0,0,0,6"
+                               Foreground="{StaticResource Px.Accent}" TextWrapping="Wrap" Visibility="Collapsed" />
+                    <!-- Resumo de tamanhos processados, equivalente a RefreshSizeSummary() do
+                         standalone — soma de quantidade por tamanho (ListForge.Core.SizeHelper,
+                         já compartilhado), atualizado a cada processamento com sucesso. -->
+                    <TextBlock x:Name="SizeSummaryText" DockPanel.Dock="Top" Style="{StaticResource Px.MutedText}" Margin="0,0,0,6" />
+                    <TabControl DockPanel.Dock="Top">
+                        <TabItem Header="Lista organizada">
+                            <TextBox x:Name="OutputTextBox" IsReadOnly="True" FontFamily="Consolas"
+                                     TextWrapping="NoWrap" TextChanged="OnOutputTextManuallyEdited"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+                        </TabItem>
+                        <TabItem Header="Prévia JSON">
+                            <TextBox x:Name="JsonTextBox" IsReadOnly="True" FontFamily="Consolas"
+                                     TextWrapping="NoWrap" TextChanged="OnJsonTextManuallyEdited"
+                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" />
+                        </TabItem>
+                    </TabControl>
+                </DockPanel>
+            </Grid>
+        </DockPanel>
+      </DockPanel>
+
+      <!-- ================================================================================
+           Modo PX (protótipo aprovado em docs/design/listforge-px-workflow/) — Lista → Revisão
+           → Resultado. Reaproveita os MESMOS controles do Clássico acima (movidos entre os dois
+           layouts por ClassicWorkspaceWindow.Px.cs, nunca duplicados): nenhuma regra de
+           processamento/validação/exportação nova. Nome do modo nesta etapa: "PX — em
+           desenvolvimento" (ver botão de alternância acima) — não implementa leitura/montagem
+           de objetos do Corel, Nexor, OCR nem novas regras de licença.
+           ================================================================================ -->
+      <Grid x:Name="PxRoot" Grid.Row="1" Visibility="Collapsed">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Cabeçalho PX: ferramentas globais — recebe (via code-behind) o mesmo combo de
+             perfil de trabalho e o mesmo painel de Diagnóstico do Clássico (movidos, não
+             recriados). Botões de Configurações/Tamanhos customizados são NOVOS elementos de
+             XAML, mas chamam exatamente os mesmos manipuladores do Clássico (OnOpenSettings/
+             OnOpenSizeConfig) — nenhuma lógica nova, só mais um ponto de entrada visual. -->
+        <StackPanel x:Name="PxHeaderSlot" Grid.Row="0" Margin="0,0,0,6">
+          <WrapPanel>
+            <Button Content="Configurações..." Click="OnOpenSettings" />
+            <Button Content="Tamanhos customizados..." Click="OnOpenSizeConfig" />
+          </WrapPanel>
+        </StackPanel>
+
+        <!-- Etapas — sempre clicáveis diretamente, em qualquer ordem; nunca uma sequência
+             obrigatória. Mudar de etapa nunca limpa nem altera entrada/opções/resultado (os
+             controles só trocam de contêiner visual dentro do MESMO PxRoot). -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,8">
+          <Button x:Name="PxTabLista" Content="1. Lista" Click="OnPxGoToLista" Style="{StaticResource Px.PrimaryButton}" />
+          <Button x:Name="PxTabRevisao" Content="2. Revisão" Click="OnPxGoToRevisaoFromTab" />
+          <Button x:Name="PxTabResultado" Content="3. Resultado" Click="OnPxGoToResultado" />
+        </WrapPanel>
+
+        <Grid Grid.Row="2">
+
+          <!-- ETAPA 1 — LISTA -->
+          <DockPanel x:Name="PxStepLista" Visibility="Visible">
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+              <Button Content="Abrir Lista..." Click="OnOpenInputFile" />
+              <Button Content="Salvar Entrada" Click="OnSaveInputFile" />
+              <Button Content="Salvar Como" Click="OnSaveInputFileAs" />
+              <Button Content="Extrair lista de link..." Click="OnExtractFromLink" />
+              <Button Content="Remover espaços" Click="OnCleanSpaces" />
+              <Button Content="Limpar tudo" Click="OnClearAll" Margin="12,0,6,0" />
+            </WrapPanel>
+
+            <!-- Slots: TxtSeparator/CmbCaseMode/CmbSortMode são MOVIDOS para dentro destes
+                 ContentControl ao entrar no modo PX (ver PxMoveToSlot) — mesmos controles do
+                 Clássico, nunca cópias. -->
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+              <TextBlock Text="Separador da entrada" VerticalAlignment="Center" Margin="0,0,8,0" />
+              <ContentControl x:Name="PxSlotSeparator" VerticalAlignment="Center" />
+              <Button Content="Padrão (,)" Click="OnResetSeparator" Margin="0,0,8,0" />
+              <TextBlock Text="Capitalização" VerticalAlignment="Center" Margin="12,0,8,0" />
+              <ContentControl x:Name="PxSlotCaseMode" VerticalAlignment="Center" />
+              <TextBlock Text="Ordenação" VerticalAlignment="Center" Margin="12,0,8,0" />
+              <ContentControl x:Name="PxSlotSortMode" VerticalAlignment="Center" />
+            </WrapPanel>
+
+            <!-- Slot: todo o Expander "Localizar/Substituir" do Clássico, movido como unidade. -->
+            <ContentControl x:Name="PxSlotFindReplace" DockPanel.Dock="Top" />
+
+            <!-- Slot: todo o Expander "Lista avançada" do Clássico, movido como unidade — a
+                 quantidade de posições é a mesma gerada dinamicamente pelo código real
+                 (RefreshAdvancedSlots), nunca um número fixo. -->
+            <ContentControl x:Name="PxSlotAdvanced" DockPanel.Dock="Top" />
+
+            <TextBlock DockPanel.Dock="Bottom" Text="Avançar para a revisão da interpretação antes de processar." Style="{StaticResource Px.MutedText}" Margin="0,8,0,4" />
+            <Button DockPanel.Dock="Bottom" Content="Avançar para Revisão →" Click="OnPxGoToRevisao" Style="{StaticResource Px.PrimaryButton}" HorizontalAlignment="Right" />
+
+            <!-- Slot: DockPanel "Entrada / edição" (rótulo + InputTextBox) do Clássico, movido
+                 como unidade — preenche o espaço restante da etapa. -->
+            <ContentControl x:Name="PxSlotInput" />
+          </DockPanel>
+
+          <!-- ETAPA 2 — REVISÃO -->
+          <DockPanel x:Name="PxStepRevisao" Visibility="Collapsed">
+            <Border DockPanel.Dock="Top" Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}"
+                    BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,0,0,8">
+              <WrapPanel x:Name="PxRevisaoCounts" />
+            </Border>
+
+            <Border DockPanel.Dock="Top" Background="{StaticResource Px.WarnBg}" BorderBrush="{StaticResource Px.Warn}"
+                    BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,0,0,8" Visibility="Collapsed"
+                    x:Name="PxProcessErrorBanner">
+              <TextBlock x:Name="PxProcessErrorText" Foreground="{StaticResource Px.Warn}" TextWrapping="Wrap" />
+            </Border>
+
+            <Button DockPanel.Dock="Bottom" Content="Processar" Click="OnPxProcess" Style="{StaticResource Px.PrimaryButton}"
+                    HorizontalAlignment="Right" Margin="0,8,0,0" x:Name="PxBtnProcess" />
+            <Button DockPanel.Dock="Bottom" Content="← Voltar para Lista" Click="OnPxGoToLista" HorizontalAlignment="Left" Margin="0,8,0,0" />
+
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="10" />
+                <RowDefinition Height="1*" />
+              </Grid.RowDefinitions>
+
+              <Border Grid.Row="0" Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}" BorderThickness="1" CornerRadius="4">
+                <DockPanel Margin="4">
+                  <TextBlock DockPanel.Dock="Top" Text="Interpretação por linha" FontWeight="Bold" Margin="4" />
+                  <DataGrid x:Name="PxRevisaoRows" AutoGenerateColumns="False" IsReadOnly="True" HeadersVisibility="Column"
+                            Background="{StaticResource Px.Surface1}" BorderThickness="0" RowBackground="{StaticResource Px.Surface1}"
+                            VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Columns>
+                      <DataGridTextColumn Header="Linha" Binding="{Binding LineNumber}" Width="60" />
+                      <DataGridTextColumn Header="Nome" Binding="{Binding Name}" Width="*" />
+                      <DataGridTextColumn Header="Número" Binding="{Binding Number}" Width="80" />
+                      <DataGridTextColumn Header="Tamanho(s)" Binding="{Binding Sizes}" Width="140" />
+                    </DataGrid.Columns>
+                  </DataGrid>
+                </DockPanel>
+              </Border>
+
+              <!-- Slot: o MESMO ListBox "IssuesList" do Clássico, movido como unidade — mesma
+                   seleção/navegação até a linha (OnIssueSelected), nunca uma lista nova. -->
+              <Border Grid.Row="2" Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}" BorderThickness="1" CornerRadius="4">
+                <DockPanel Margin="4">
+                  <TextBlock DockPanel.Dock="Top" Text="Avisos e erros (clique para ir até a linha)" FontWeight="Bold" Margin="4" />
+                  <ContentControl x:Name="PxSlotIssues" />
+                </DockPanel>
+              </Border>
+            </Grid>
+          </DockPanel>
+
+          <!-- ETAPA 3 — RESULTADO -->
+          <DockPanel x:Name="PxStepResultado" Visibility="Collapsed">
+            <WrapPanel DockPanel.Dock="Top" Margin="0,0,0,6">
+              <Button Content="Copiar saída" Click="OnCopyOutput" />
+              <Button Content="Copiar JSON" Click="OnCopyJson" />
+              <Button Content="Salvar saída" Click="OnSaveOutput" />
+              <Button Content="Gerar JSON" Click="OnGenerateJson" />
+              <Button Content="Comparar entrada/saída" Click="OnCompareInputOutput" Margin="12,0,6,0" />
+              <Button Content="Salvar avançado..." Click="OnAdvancedSave" Margin="12,0,6,0" />
+              <Button Content="Histórico..." Click="OnOpenProcessingHistory" Margin="12,0,6,0" />
+            </WrapPanel>
+
+            <!-- Slot: WrapPanel de edição manual (checkbox + Aplicar/Descartar) do Clássico,
+                 movida como unidade. -->
+            <ContentControl x:Name="PxSlotManualEdit" DockPanel.Dock="Top" />
+
+            <Border DockPanel.Dock="Bottom" Margin="0,8,0,0">
+              <WrapPanel>
+                <Button Content="← Voltar para Revisão" Click="OnPxGoToRevisaoFromTab" />
+                <Button Content="Nova lista" Click="OnPxNewList" Margin="12,0,0,0" />
+              </WrapPanel>
+            </Border>
+
+            <TextBlock DockPanel.Dock="Top" x:Name="PxEmptyResultText" Style="{StaticResource Px.MutedText}" FontSize="13"
+                       Text="Nenhum resultado ainda. Avance para Revisão e clique em Processar." Margin="0,30,0,0" HorizontalAlignment="Center" />
+
+            <!-- Slot: DockPanel "Saída" inteiro do Clássico (avisos de desatualização/edição,
+                 resumo de tamanhos, abas Lista organizada/JSON com OutputTextBox/JsonTextBox),
+                 movido como unidade — nenhuma aba nova, as mesmas duas de sempre. -->
+            <ContentControl x:Name="PxSlotOutput" />
+          </DockPanel>
+        </Grid>
+
+        <!-- Sobreposição de processamento — nunca mostra porcentagem/duração, só um indicador
+             de atividade (o núcleo não expõe progresso granular). -->
+        <Border Grid.Row="0" Grid.RowSpan="4" Background="#AA000000" x:Name="PxProcessingOverlay" Visibility="Collapsed">
+          <Border Background="{StaticResource Px.Surface1}" BorderBrush="{StaticResource Px.Border}" BorderThickness="1"
+                  CornerRadius="6" Padding="30,22" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="Processando..." FontSize="14" />
+          </Border>
+        </Border>
+      </Grid>
+    </Grid>
+</Window>

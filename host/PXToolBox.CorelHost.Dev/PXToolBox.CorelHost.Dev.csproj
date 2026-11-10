@@ -23,11 +23,31 @@
          "Pré-requisitos externos"). Sobrescreva com -p:CorelDrawInstallDir=... se necessário. -->
     <CorelDrawInstallDir Condition="'$(CorelDrawInstallDir)' == ''">C:\Program Files\Corel\CorelDRAW Graphics Suite\27</CorelDrawInstallDir>
     <CorelAssembliesDir>$(CorelDrawInstallDir)\Programs64\Assemblies</CorelAssembliesDir>
+
+    <!-- ListForge Integrado (modo Clássico): referencia o núcleo de processamento compartilhado
+         do ListForge (ListForge.Core, netstandard2.0 — ver docs/ARCHITECTURE.md, seção 10) por
+         caminho relativo a um repositório IRMÃO deste, nunca por caminho absoluto cravado nem
+         por pacote publicado (opções descartadas na mesma seção). Sobrescreva com
+         -p:ListForgeRepoDir="..." se o checkout do ListForge estiver em outro lugar — mesmo
+         padrão de propriedade configurável já usado acima para CorelDrawInstallDir. Os dois
+         repositórios continuam independentes: nada aqui publica pacote nem copia fontes. -->
+    <ListForgeRepoDir Condition="'$(ListForgeRepoDir)' == ''">$(MSBuildThisFileDirectory)..\..\..\ListForge</ListForgeRepoDir>
+    <ListForgeCoreProjectPath>$(ListForgeRepoDir)\ListForge.Core\ListForge.Core.csproj</ListForgeCoreProjectPath>
+
+    <!-- Versão exibida no rodapé do painel (ControlUI) e embutida no assembly via
+         AssemblyInformationalVersion (ver PXToolBoxWriteVersionInfo abaixo). build-release.ps1
+         passa o número real do pacote via -p:PxToolBoxVersion=X.Y.Z-dev.N — sem isso (build
+         local avulsa, fora do script de release), fica "0.0.0-dev.local" de propósito, para
+         nunca ser confundido com um número de versão realmente publicado. GenerateAssemblyInfo
+         está desligado acima (Properties\AssemblyInfo.cs é escrito à mão), por isso este valor
+         não vem de um <Version> comum do SDK — é gerado por um target próprio. -->
+    <PxToolBoxVersion Condition="'$(PxToolBoxVersion)' == ''">0.0.0-dev.local</PxToolBoxVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\PXToolBox.Core\PXToolBox.Core.csproj" />
     <ProjectReference Include="..\..\src\PXToolBox.Outputs\PXToolBox.Outputs.csproj" />
+    <ProjectReference Include="$(ListForgeCoreProjectPath)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -41,6 +61,17 @@
       <EmbedInteropTypes>false</EmbedInteropTypes>
       <Private>false</Private>
     </Reference>
+    <!-- Só para FolderBrowserDialog (escolha de pasta no "Salvar avançado" do ListForge
+         Integrado) — net48/WPF não tem equivalente próprio (Microsoft.Win32.OpenFolderDialog só
+         existe a partir do .NET 8 WPF). Assembly padrão do .NET Framework, sem pacote NuGet;
+         usado só pelo diálogo modal, sem hospedar nenhum controle WinForms na UI. -->
+    <Reference Include="System.Windows.Forms" />
+    <!-- Só para ZipFile/ZipArchive (Integrations/SupportPackageService.cs, "Gerar pacote de
+         suporte") — assembly padrão do .NET Framework, sem pacote NuGet. ListForge.Core usa o
+         mesmo tipo (AdvancedSaveService) mas lá via netstandard2.0, que já inclui System.IO.
+         Compression sem referência extra; net48 exige esta referência explícita. -->
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.IO.Compression" />
   </ItemGroup>
 
   <ItemGroup>
@@ -61,10 +92,36 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="ReleaseNotes\release-notes.json" LogicalName="PXToolBoxDev.ReleaseNotes.release-notes.json" />
+    <EmbeddedResource Include="Manual\user-manual.json" LogicalName="PXToolBoxDev.Manual.user-manual.json" />
+  </ItemGroup>
+
   <Target Name="PXToolBoxCheckCorelAssemblies" BeforeTargets="ResolveAssemblyReferences">
     <Error
       Condition="!Exists('$(CorelAssembliesDir)\Corel.Interop.VGCore.dll')"
       Text="Corel.Interop.VGCore.dll não encontrado em '$(CorelAssembliesDir)'. Instale o CorelDRAW 2026 (v27) ou informe o caminho correto com -p:CorelDrawInstallDir=&quot;C:\caminho\para\CorelDRAW Graphics Suite\27&quot;." />
+  </Target>
+
+  <Target Name="PXToolBoxCheckListForgeCore" BeforeTargets="ResolveProjectReferences">
+    <Error
+      Condition="!Exists('$(ListForgeCoreProjectPath)')"
+      Text="ListForge.Core.csproj não encontrado em '$(ListForgeCoreProjectPath)'. Clone o repositório do ListForge como diretório irmão deste (ex.: C:\Projetos\ListForge, na branch refactor/shared-processing-core ou posterior) ou informe o caminho correto com -p:ListForgeRepoDir=&quot;C:\caminho\para\ListForge&quot;." />
+  </Target>
+
+  <!-- Gera um .cs pequeno, só com o atributo AssemblyInformationalVersion, a partir de
+       $(PxToolBoxVersion) — GenerateAssemblyInfo está desligado (AssemblyInfo.cs manual), então
+       nada disso duplica os atributos já escritos lá (Title/Description/Product/etc.). -->
+  <Target Name="PXToolBoxWriteVersionInfo" BeforeTargets="CoreCompile">
+    <WriteLinesToFile
+      File="$(IntermediateOutputPath)PxToolBoxVersionInfo.cs"
+      Lines="using System.Reflection%3B;[assembly: AssemblyInformationalVersion(&quot;$(PxToolBoxVersion)&quot;)]"
+      Overwrite="true"
+      WriteOnlyWhenDifferent="true" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)PxToolBoxVersionInfo.cs" />
+      <FileWrites Include="$(IntermediateOutputPath)PxToolBoxVersionInfo.cs" />
+    </ItemGroup>
   </Target>
 
 </Project>

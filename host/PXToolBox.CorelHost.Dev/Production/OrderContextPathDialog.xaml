@@ -1,0 +1,35 @@
+<Window x:Class="PXToolBoxDev.Production.OrderContextPathDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Colar caminho do contexto de produção"
+        Width="480" SizeToContent="Height" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Complementa o seletor de arquivo existente (ControlUI.xaml, "Carregar contexto de
+        produção…") com uma forma de colar diretamente o caminho do .json — útil junto com a
+        ação "Copiar caminho" do Nexor (ver docs/ARCHITECTURE.md, seção 24). Mesmo
+        ThreadKeyboardRouter das demais janelas, para o campo aceitar digitação/colagem
+        normalmente dentro do CorelDRAW, sem hooks globais. Carregar só acontece ao clicar em
+        "Carregar" — colar o texto nunca dispara a leitura por conta própria.
+    -->
+    <StackPanel Margin="14">
+        <TextBlock Text="Caminho do contexto" Foreground="#E4E4E6" FontWeight="SemiBold" Margin="0,0,0,6" />
+        <TextBlock Text="Cole aqui o caminho do arquivo .json exportado pelo Nexor (aceita aspas externas copiadas do Windows)."
+                   Foreground="#9A9AA0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+        <TextBox x:Name="PathTextBox" FontFamily="Consolas"
+                 Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" BorderThickness="1"
+                 Padding="6" Margin="0,0,0,10" />
+
+        <TextBlock x:Name="StatusText" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnLoad" Content="Carregar" Click="OnLoadClick"
+                    Background="#4DA3FF" Foreground="#0B1726" FontWeight="SemiBold" Padding="12,5,12,5" Margin="0,0,8,0" />
+            <Button Content="Cancelar" Click="OnCancelClick" IsCancel="True"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="12,5,12,5" />
+        </StackPanel>
+    </StackPanel>
+</Window>

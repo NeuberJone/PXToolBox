@@ -7,41 +7,20 @@ using PXToolBox.Core.Result;
 namespace PXToolBox.Outputs.Tools
 {
     /// <summary>
-    /// "Somar medidas dos selecionados: somente altura e modo com escolha".
-    /// Ported de Utilidades.SomaAlturasSelecionadasEmMetros (atalho só-altura) e
-    /// Utilidades.SomaMedidasSelecionadas (modo com escolha: altura/largura/ambas).
+    /// "Somar medidas dos selecionados" — sempre em metros, qualquer modo (altura/largura/ambas).
+    /// Ported de Utilidades.SomaMedidasSelecionadas (modo com escolha: altura/largura/ambas).
     ///
-    /// Os dois pontos de entrada da macro original (Referência/Macros/modulos/Medidas.txt)
-    /// usam o MESMO Select Case de unidades (mm/cm/m/polegada/pé/jarda) — CORRIGIDO aqui: uma
-    /// revisão anterior desta migração assumiu, incorretamente, que o atalho só-altura aceitava
-    /// só mm/cm/m; comparação linha a linha com a macro original confirma que não há essa
-    /// diferença entre os dois pontos de entrada (ver docs/migrated-tools.md).
+    /// A macro original também tinha um atalho separado, só-altura
+    /// (Utilidades.SomaAlturasSelecionadasEmMetros), inicialmente portado como
+    /// <c>SumHeightOnly</c>/botão "Somar Altura (m)". Removido: comparação linha a linha com a
+    /// macro original (Referência/Macros/modulos/Medidas.txt) já tinha confirmado que os dois
+    /// pontos de entrada usam o MESMO Select Case de unidades (mm/cm/m/polegada/pé/jarda) e
+    /// sempre convertem para metros — ou seja, "Somar Altura (m)" e "Somar Altura" (este
+    /// serviço, modo Height) sempre produziram exatamente o mesmo resultado; mantinha-se só como
+    /// duplicata do botão "Somar Altura" (ver docs/migrated-tools.md).
     /// </summary>
     public sealed class MeasurementSumService
     {
-        public OperationResult<MeasurementSummary> SumHeightOnly(IReadOnlyList<ShapeSize> sizes, DocumentUnit? unit)
-        {
-            if (sizes.Count == 0)
-            {
-                return OperationResult<MeasurementSummary>.Fail(OperationStatus.InvalidSelection, "Nenhum objeto selecionado.");
-            }
-
-            if (unit == null)
-            {
-                return OperationResult<MeasurementSummary>.Fail(
-                    OperationStatus.InconclusiveRead,
-                    "Unidade não reconhecida. Por favor, use mm, cm, m, polegada, pé ou jarda.");
-            }
-
-            var factor = DocumentUnitConversion.ToMetersFactor(unit.Value);
-            var totalHeight = sizes.Sum(s => s.Height * factor);
-            var clipboardText = FormatMeters(totalHeight);
-            var displayText = $"Altura total: {clipboardText}";
-
-            var summary = new MeasurementSummary(sizes.Count, MeasurementSumMode.Height, totalHeight, 0, clipboardText, displayText);
-            return OperationResult<MeasurementSummary>.Success(summary);
-        }
-
         public OperationResult<MeasurementSummary> SumSelected(IReadOnlyList<ShapeSize> sizes, DocumentUnit? unit, MeasurementSumMode mode)
         {
             if (sizes.Count == 0)

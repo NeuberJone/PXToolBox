@@ -1,0 +1,62 @@
+<Window x:Class="PXToolBoxDev.Production.OrderContextWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Contexto de produção"
+        Width="520" SizeToContent="Height" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E20">
+    <!--
+        Primeira recepção do contexto de produção exportado pelo Nexor (ver
+        docs/integrations/nexor-order-context.md) — só leitura, só memória. O Nexor não tem
+        pedido comercial formal (sem número/cliente/status) — isto é um TRABALHO DE IMPRESSÃO
+        dentro de um ROLO, nunca apresentado como "pedido"/número comercial nem como "Job"
+        (nomes técnicos do contrato ficam só no código, nunca nesta tela — ver
+        docs/ARCHITECTURE.md, seção 22). NUNCA escreve em nexor.db, nunca chama o Nexor, nunca
+        altera o documento Corel nem a sessão do ListForge, nunca abre o arquivo referenciado
+        automaticamente. "Contexto recebido — não sincronizado com o Nexor" é mostrado sempre
+        visível, nunca como se fosse uma consulta em tempo real.
+    -->
+    <StackPanel Margin="14">
+        <TextBlock Foreground="#E4E4E6" FontSize="15" FontWeight="Bold" Margin="0,0,0,4"
+                   Text="Contexto de produção recebido" />
+        <Border Background="#3A2F18" BorderBrush="#E0A33E" BorderThickness="1" CornerRadius="4" Padding="8,6" Margin="0,0,0,12">
+            <TextBlock Foreground="#E0A33E" TextWrapping="Wrap"
+                       Text="Contexto recebido — não sincronizado com o Nexor. Os dados abaixo são uma foto do instante da exportação, não uma consulta em tempo real." />
+        </Border>
+
+        <TextBlock x:Name="ExportedAtText" Foreground="#9A9AA0" FontSize="11" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+        <Border Background="#262629" BorderBrush="#3C3C40" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Foreground="#E4E4E6" FontWeight="SemiBold" Margin="0,0,0,6" Text="Origem (Nexor)" />
+                <TextBlock x:Name="RollText" Foreground="#E4E4E6" Margin="0,0,0,2" TextWrapping="Wrap" />
+                <TextBlock x:Name="MachineText" Foreground="#9A9AA0" FontSize="12" TextWrapping="Wrap" />
+                <TextBlock x:Name="InstallationText" Foreground="#9A9AA0" FontSize="11" TextWrapping="Wrap" Margin="0,4,0,0" />
+                <TextBlock x:Name="DatabaseText" Foreground="#9A9AA0" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0" />
+            </StackPanel>
+        </Border>
+
+        <Border Background="#262629" BorderBrush="#3C3C40" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,0,0,12">
+            <StackPanel>
+                <TextBlock Foreground="#E4E4E6" FontWeight="SemiBold" Margin="0,0,0,6" Text="Trabalho de impressão" />
+                <TextBlock Foreground="#9A9AA0" FontSize="11" Margin="0,0,0,6" Text="Pedido informado:" />
+                <TextBlock x:Name="PedidoLabelText" Foreground="#E4E4E6" Margin="0,0,0,2" TextWrapping="Wrap" FontWeight="SemiBold" />
+                <TextBlock x:Name="PedidoDetailsText" Foreground="#9A9AA0" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,6" />
+                <TextBlock Foreground="#E4E4E6" Margin="0,0,0,2" Text="Arquivo de origem referenciado (não aberto automaticamente):" FontSize="12" />
+                <TextBlock x:Name="SourceFileText" Foreground="#9A9AA0" FontSize="12" TextWrapping="Wrap" FontFamily="Consolas" />
+                <TextBlock x:Name="SourceFileAvailabilityText" Foreground="#E0A33E" FontSize="12" TextWrapping="Wrap" Margin="0,4,0,0" />
+            </StackPanel>
+        </Border>
+
+        <TextBlock x:Name="StatusText" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Carregar outro contexto..." Click="OnLoadAnotherClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="0,0,6,0" />
+            <Button Content="Limpar contexto" Click="OnClearClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="0,0,6,0" />
+            <Button Content="Fechar" Click="OnCloseClick"
+                    Background="#4DA3FF" Foreground="#0B1726" FontWeight="SemiBold" Padding="12,5,12,5" />
+        </StackPanel>
+    </StackPanel>
+</Window>

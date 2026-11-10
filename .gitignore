@@ -1,4 +1,5 @@
 Referência/
+.superpowers/
 
 # Build outputs (gerados; preservados em disco, mas nunca versionados)
 bin/

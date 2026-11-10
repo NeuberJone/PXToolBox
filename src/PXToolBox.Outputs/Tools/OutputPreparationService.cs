@@ -59,6 +59,24 @@ namespace PXToolBox.Outputs.Tools
             return OperationResult.Success($"Salvo em \"{path}\".");
         }
 
+        /// <summary>
+        /// Pasta efetiva, em ordem: a digitada no painel para este uso; a pasta padrão definida
+        /// nesta máquina; o padrão original <see cref="DefaultOutputFolder"/>. Vazio/espaços contam
+        /// como "não informado".
+        /// </summary>
+        public static string ResolveOutputFolder(string? typedFolder, string? machineDefaultFolder) =>
+            !string.IsNullOrWhiteSpace(typedFolder) ? typedFolder!.Trim()
+            : !string.IsNullOrWhiteSpace(machineDefaultFolder) ? machineDefaultFolder!.Trim()
+            : DefaultOutputFolder;
+
+        /// <summary>
+        /// Subpasta dentro da pasta efetiva (ex.: a do rolo do contexto de produção). Sem
+        /// subpasta (null/vazio), devolve a própria pasta. Quem chama garante que o nome já é
+        /// válido como nome de pasta — aqui só se junta o caminho.
+        /// </summary>
+        public static string WithSubfolder(string folder, string? subfolder) =>
+            string.IsNullOrWhiteSpace(subfolder) ? folder : $"{folder.TrimEnd('\\')}\\{subfolder!.Trim()}";
+
         public string BuildOutputFilePath(string outputFolder, string outputName, string? layoutName)
         {
             var folder = outputFolder.TrimEnd('\\');

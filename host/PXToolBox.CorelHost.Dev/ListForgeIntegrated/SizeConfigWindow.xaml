@@ -1,0 +1,141 @@
+<Window x:Class="PXToolBoxDev.ListForgeIntegrated.SizeConfigWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Tamanhos customizados"
+        Width="560" Height="620" MinWidth="480" MinHeight="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Porta de SizeGroupBindings/LoadSizeConfigIntoBindings/BuildSizeConfigFromUI/
+        RestoreDefaultSizes do standalone (ver docs/listforge-classic-parity.md, grupo
+        "Configurações aplicáveis ao integrado") — mesmos 4 grupos fixos (masculino/feminino/
+        infantil/meião), mesmas regras (ListForge.Core.SizeHelper, já compartilhado): tamanhos
+        base/prefixos/sufixos por CSV, ao menos um tamanho-base por grupo, sem aliases nem
+        grupos inventados. Independente de perfil de trabalho — igual ao standalone, onde
+        sizes.json é um arquivo separado de config.json/WorkProfiles.
+    -->
+    <DockPanel Margin="14">
+        <TextBlock DockPanel.Dock="Top" Foreground="#E4E4E6" FontSize="15" FontWeight="Bold" Margin="0,0,0,4"
+                   Text="Tamanhos customizados" />
+        <TextBlock DockPanel.Dock="Top" Foreground="#9A9AA0" TextWrapping="Wrap" Margin="0,0,0,12"
+                   Text="Controla quais tamanhos são reconhecidos, validados, ordenados e exportados — mesmas regras do ListForge Standalone. Independente de perfil de trabalho (vale para todos os perfis, igual lá). Tamanhos-base são obrigatórios em cada grupo; um grupo sem nenhum tamanho-base não pode ser salvo." />
+
+        <Border DockPanel.Dock="Bottom" Background="#262629" BorderBrush="#3C3C40" BorderThickness="1"
+                CornerRadius="4" Padding="8" Margin="0,10,0,10">
+            <TextBlock x:Name="SummaryText" FontFamily="Consolas" FontSize="12" Foreground="#9A9AA0" TextWrapping="Wrap" />
+        </Border>
+
+        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+        <Grid DockPanel.Dock="Bottom">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BtnRestoreDefaults" Grid.Column="0" Content="Restaurar tamanhos padrão" Click="OnRestoreDefaultsClick"
+                    HorizontalAlignment="Left" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button x:Name="BtnSave" Content="Salvar" Click="OnSaveClick"
+                        Background="#4DA3FF" Foreground="#0B1726" FontWeight="SemiBold" Padding="12,5,12,5" Margin="0,0,8,0" />
+                <Button Content="Cancelar" Click="OnCancelClick" IsCancel="True"
+                        Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="12,5,12,5" />
+            </StackPanel>
+        </Grid>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <GroupBox Header="Masculino" Foreground="#E4E4E6" BorderBrush="#3C3C40" Margin="0,0,0,10">
+                    <Grid Margin="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Tamanhos base:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtMaleBase" Grid.Row="0" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Prefixos:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtMalePrefixes" Grid.Row="2" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Sufixos:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtMaleSuffixes" Grid.Row="4" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Feminino" Foreground="#E4E4E6" BorderBrush="#3C3C40" Margin="0,0,0,10">
+                    <Grid Margin="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Tamanhos base:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtFemaleBase" Grid.Row="0" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Prefixos:" Foreground="#E4E4E6" VerticalAlignment="Center"
+                                   ToolTip="Ex: BL (para BLPP, BLP, ...)" />
+                        <TextBox x:Name="TxtFemalePrefixes" Grid.Row="2" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Sufixos:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtFemaleSuffixes" Grid.Row="4" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Infantil" Foreground="#E4E4E6" BorderBrush="#3C3C40" Margin="0,0,0,10">
+                    <Grid Margin="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Tamanhos base:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtChildBase" Grid.Row="0" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Prefixos:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtChildPrefixes" Grid.Row="2" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Sufixos:" Foreground="#E4E4E6" VerticalAlignment="Center"
+                                   ToolTip="Ex: A (para 2A, 4A, ...)" />
+                        <TextBox x:Name="TxtChildSuffixes" Grid.Row="4" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                    </Grid>
+                </GroupBox>
+
+                <GroupBox Header="Meião" Foreground="#E4E4E6" BorderBrush="#3C3C40" Margin="0,0,0,10">
+                    <Grid Margin="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="110" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="6" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Tamanhos base:" Foreground="#E4E4E6" VerticalAlignment="Center"
+                                   ToolTip="Ex: JUVENIL, ADULTO, INFANTIL" />
+                        <TextBox x:Name="TxtSockBase" Grid.Row="0" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Prefixos:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtSockPrefixes" Grid.Row="2" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="Sufixos:" Foreground="#E4E4E6" VerticalAlignment="Center" />
+                        <TextBox x:Name="TxtSockSuffixes" Grid.Row="4" Grid.Column="1" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="4" />
+                    </Grid>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

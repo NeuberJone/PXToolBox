@@ -1,0 +1,25 @@
+<Window x:Class="PXToolBoxDev.ListForgeIntegrated.KeyboardDiagMiniWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Diagnóstico mínimo de teclado"
+        Width="520" Height="320" WindowStartupLocation="CenterScreen"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Janela de diagnóstico TEMPORÁRIA (não é mais uma função do produto): um único campo
+        editável, aberta exatamente pelo mesmo ThreadKeyboardRouter usado por
+        ClassicWorkspaceWindow. Objetivo único: isolar se o bloqueio de teclado é do
+        mecanismo de interceptação em si (reproduziria aqui também) ou de algo específico da
+        janela/UI completa do ListForge Integrado (não reproduziria aqui). Remover quando o
+        diagnóstico real dentro do Corel tiver confirmado e corrigido a causa.
+    -->
+    <DockPanel Margin="12">
+        <TextBlock DockPanel.Dock="Top" Foreground="#E4E4E6" TextWrapping="Wrap" Margin="0,0,0,8"
+                   Text="Clique no campo abaixo e digite. Compare com o comportamento dentro do ListForge Integrado completo — mesmo mecanismo de teclado, janela mínima." />
+        <TextBlock x:Name="DiagText" DockPanel.Dock="Bottom" Foreground="#9A9AA0" FontSize="11"
+                   TextWrapping="Wrap" Margin="0,8,0,0" />
+        <TextBox x:Name="MiniInput" AcceptsReturn="True" FontFamily="Consolas"
+                 Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" BorderThickness="1"
+                 Padding="6" VerticalScrollBarVisibility="Auto" />
+    </DockPanel>
+</Window>

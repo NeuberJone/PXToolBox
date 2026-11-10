@@ -19,8 +19,18 @@ namespace PXToolBoxDev.Corel
     {
         private const string ProgId27 = "CorelDRAW.Application.27";
 
+        // Só para verificações fora do Corel (renderização do painel por um script, ligada por
+        // reflexão): com o CorelDRAW do usuário aberto, criar o painel não deve se conectar a
+        // ele nem assinar seus eventos. Nunca ligado pelo add-on.
+        private static bool _disabledForOffscreenChecks;
+
         public static Application? TryGetRunningApplication()
         {
+            if (_disabledForOffscreenChecks)
+            {
+                return null;
+            }
+
             try
             {
                 var obj = Marshal.GetActiveObject(ProgId27);

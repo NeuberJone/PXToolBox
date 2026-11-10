@@ -38,7 +38,9 @@ namespace PXToolBox.Outputs.Tools
         private const string GridOutlineStyleJson =
             "{\"fill\":{\"overprint\":\"0\",\"secondaryColor\":\"CMYK,USER,0,0,0,0,100,00000000-0000-0000-0000-000000000000\",\"type\":\"1\",\"primaryColor\":\"CMYK255,USER,0,0,0,0,100,cccd19cb-4675-4a5e-8bda-d0bbbaab8af0\"},\"outline\":{\"overprint\":\"0\",\"type\":\"0\",\"angle\":\"0\",\"screenSpec\":\"0,0,45000000,60,0\",\"overlapArrow\":\"0\",\"leftArrowAttributes\":\"0|0|0|0|0|0|0\",\"dotLength\":\"0\",\"width\":\"10000\",\"dashDotSpec\":\"0\",\"rightArrow\":\"|0\",\"endCaps\":\"0\",\"rightArrowAttributes\":\"0|0|0|0|0|0|0\",\"variableAttributes\":\"0|0\",\"scaleWithObject\":\"0\",\"projectMatrix\":\"1,0,0,0,1,0\",\"miterLimit\":\"5\",\"matrix\":\"1,0,0,0,1,0\",\"aspect\":\"100\",\"color\":\"CMYK255,USER,0,0,0,255,100,00000000-0000-0000-0000-000000000000\",\"behindFill\":\"0\",\"shareArrow\":\"0\",\"joinType\":\"0\",\"leftArrow\":\"|0\",\"dashAdjust\":\"0\",\"justification\":\"1\"},\"transparency\":{}}";
 
-        public OperationResult PrepareGrid(ICorelDocument document)
+        public OperationResult PrepareGrid(ICorelDocument document) => PrepareGrid(document, keepLogoNames: false);
+
+        private OperationResult PrepareGrid(ICorelDocument document, bool keepLogoNames)
         {
             var page = document.ActivePage;
             var workingLayers = page.Layers.Where(l => !l.IsSpecialLayer).ToList();
@@ -72,7 +74,7 @@ namespace PXToolBox.Outputs.Tools
                 else
                 {
                     ResizePageToFitAndCenter(page, shapes);
-                    _layerOrg.RenameShapesAfterFirstDot(page);
+                    _layerOrg.RenameShapesAfterFirstDot(page, keepLogoNames);
                     page.Name = "DESIGN";
                     RenameDocument(document, "SISBolt_");
                     _layerOrg.OrganizeLayersByPieceAndCategory(page);
@@ -102,7 +104,10 @@ namespace PXToolBox.Outputs.Tools
         /// próprio fluxo (anterior ao PreparaGrid) não foi reescrito nesta revisão, incluindo o
         /// passo de aplicar Utilidades.AplicaContornoGrid, preservado aqui.
         /// </summary>
-        public OperationResult PrepareNewGrid(ICorelDocument document)
+        /// <param name="standard">Antigo (padrão): uma camada por peça, como a macro. Novo: no fim,
+        /// uma camada por categoria com o retângulo &lt;peça&gt;_RECT de cada peça
+        /// (<see cref="LayerStandardService.GridToNew"/>), e os logos L1..Ln mantêm o nome.</param>
+        public OperationResult PrepareNewGrid(ICorelDocument document, LayerStandardService.Standard standard = LayerStandardService.Standard.Old)
         {
             // Desagrupa grupos diretos de cada camada, em TODAS as páginas (um nível, não
             // recursivo — fiel ao original).
@@ -120,9 +125,61 @@ namespace PXToolBox.Outputs.Tools
             _layerOrg.DeleteEmptyLayers(document.ActivePage);
             _layerOrg.DeleteGridHelperShapes(document);
             ApplyGridOutlineStyle(document);
+            // Molde no padrão novo (CAM1.MOLDE.MA.Frente): volta a ter a peça no 2º segmento antes
+            // de reduzir para 3, senão todas as peças da categoria cairiam em "CAM1.MOLDE.MA" sem nome.
+            foreach (var docPage in document.Pages)
+            {
+                foreach (var layer in docPage.Layers)
+                {
+                    var oldName = LayerStandardService.MoldLayerToOld(layer.Name);
+                    if (oldName != null) layer.Name = oldName;
+                }
+            }
+
             _layerOrg.TrimLayerNamesToThreeSegments(document);
 
-            return PrepareGrid(document);
+            if (standard == LayerStandardService.Standard.Old)
+            {
+                return PrepareGrid(document);
+            }
+
+            var prepared = PrepareGrid(document, keepLogoNames: true);
+            if (!prepared.IsSuccess) return prepared;
+
+            var page = document.ActivePage;
+            var report = new List<string>();
+            new LayerStandardService().GridToNew(page, report);
+            _layerOrg.OrganizeLayersByPieceAndCategory(page);
+            return OperationResult.Success($"Grid preparado (padrão novo): {string.Join("; ", report)}.");
+        }
+
+        /// <summary>
+        /// "Aplicar contorno do Grid" como ferramenta própria (ROADMAP: decidir se/como portar
+        /// Utilidades.AplicaContornoGrid fora do Preparar Grid Novo — pedido do usuário,
+        /// 2026-11). Mesmo estilo e mesmo alcance da macro: todo objeto de primeiro nível de cada
+        /// camada, em TODAS as páginas (grupos recebem o estilo como um objeto só, sem descer —
+        /// fiel ao original). Única diferença deliberada: camadas especiais do Corel (Guias, Área
+        /// de trabalho, Grade) ficam de fora, para nunca pintar guias. O passo interno do Preparar
+        /// Grid Novo continua o da macro, sem mudança (fluxo com revisão funcional pendente).
+        /// </summary>
+        public OperationResult ApplyGridOutline(ICorelDocument document)
+        {
+            var count = 0;
+            foreach (var page in document.Pages)
+            {
+                foreach (var layer in page.Layers.Where(l => !l.IsSpecialLayer))
+                {
+                    foreach (var shape in layer.Shapes)
+                    {
+                        shape.ApplyStyleString(GridOutlineStyleJson);
+                        count++;
+                    }
+                }
+            }
+
+            return count == 0
+                ? OperationResult.Success("Nenhum objeto no documento para aplicar o contorno do Grid.")
+                : OperationResult.Success($"Contorno do Grid aplicado em {count} objeto(s), em todas as páginas.");
         }
 
         private static void ApplyGridOutlineStyle(ICorelDocument document)

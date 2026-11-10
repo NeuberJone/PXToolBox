@@ -1,0 +1,1063 @@
+{
+  "topics": [
+    {
+      "title": "Começando",
+      "paragraphs": [
+        "O PX Tool Box é um painel (docker) dentro do CorelDRAW que junta as ferramentas do dia a dia: preparar Grid e moldes, marcar objetos para a montagem, trocar códigos de texto, cuidar das camadas, gerar as saídas (Escudo, Bandeira, Faixa), abrir o ListForge e o Nexor e investigar problemas.",
+        "O painel é dividido em seções recolhíveis. Clique no título de uma seção para abrir ou fechar. A ordem, os nomes e quais seções aparecem podem ser mudados em “Personalizar painel…”, no topo do painel.",
+        "A linha abaixo do título mostra o documento ativo. O rodapé mostra a versão em execução — use esse número ao relatar um problema.",
+        "Parando o mouse sobre qualquer botão aparece uma dica curta. Este manual explica cada ferramenta com mais detalhe: para que serve, como usar e o que observar. Use o campo Filtrar, no alto desta janela, para ficar só com o que tem uma palavra (ex.: “laser”, “camada”, “Ctrl+Z”); o ✕ limpa o filtro."
+      ]
+    },
+    {
+      "title": "Regras gerais",
+      "paragraphs": [
+        "Desfazer: quase toda ferramenta que altera o documento vira UM passo de Desfazer. Um Ctrl+Z desfaz a ferramenta inteira, não só a última parte dela. Cada ferramenta diz, no manual, quando isso vale.",
+        "Mensagem de resultado: depois de cada comando, uma caixa logo acima de Diagnóstico mostra o que aconteceu (quantos objetos, o que foi pulado e por quê). Quando algo é recusado, a mensagem diz o motivo e nada é alterado.",
+        "Seleção e página ativa: algumas ferramentas usam só os objetos selecionados; outras, a página ativa inteira ou o documento inteiro. Cada entrada deste manual diz qual é o alcance.",
+        "Camadas especiais do Corel (Guias, Área de trabalho, Grade) nunca são ocultadas, renomeadas nem excluídas pelas ferramentas do painel.",
+        "Configurações: tudo o que o PX guarda fica só nesta máquina, na pasta de dados do PX Tool Box DEV — nunca dentro do arquivo .cdr, a não ser quando a ferramenta diz que grava uma marcação no objeto."
+      ]
+    },
+    {
+      "title": "Favoritos",
+      "paragraphs": [
+        "A seção Favoritos, no topo, junta atalhos para as ferramentas que você mais usa. O botão original continua na sua seção; o atalho faz exatamente o mesmo clique e segue o estado do original (desabilitado quando ele está; azul quando uma marcação está ativa na seleção).",
+        "Adicionar: clique com o botão direito em qualquer botão de ferramenta do painel (ou foque nele e use Shift+F10) e escolha “Adicionar aos favoritos”.",
+        "Remover ou ordenar: botão direito no atalho → “Remover dos favoritos”, “Mover para a esquerda/direita” (ou para cima/baixo, com nomes). Também dá para arrastar o atalho para outro lugar.",
+        "“Mostrar nomes” liga o modo com o botão inteiro (ícone e nome, um por linha). Desligado, aparece só o ícone; o nome fica na dica.",
+        "A marca pequena no canto do ícone é a seção de origem da ferramenta (ex.: G = Grid, Mo = Montagem). Ícone vermelho com moldura = ferramenta que REMOVE algo da página.",
+        "Ferramentas que usam campos da própria seção (ex.: Escudo/Bandeira usam “Nome do layout” e “Pasta de saída”; Renomear usa o nome digitado) usam, pelo atalho, o que estiver nesses campos — mesmo com a seção fechada ou oculta."
+      ]
+    },
+    {
+      "title": "Personalizar painel",
+      "paragraphs": [
+        "“Personalizar painel…”, no topo do painel, está sempre disponível — inclusive é o caminho de volta se todas as seções forem ocultadas.",
+        "Seções: marque ou desmarque para exibir ou ocultar; ▲ e ▼ mudam a ordem; o nome de cada seção pode ser editado (em branco volta ao nome original). “+ Nova seção” cria uma seção sua; o ✕ remove uma seção criada (as ferramentas dela voltam para a origem).",
+        "Ferramentas: o botão com o nome da seção atual de cada ferramenta abre a lista de destinos. Mover uma ferramenta deixa o original escondido na seção de origem e põe um atalho completo na seção escolhida.",
+        "Nada muda antes de “Salvar”. “Cancelar”, Esc ou fechar a janela descartam o rascunho. “Restaurar padrão” volta tudo ao original no rascunho (ainda é preciso Salvar).",
+        "Ocultar uma seção não apaga nada: campos preenchidos e favoritos continuam iguais quando ela volta."
+      ]
+    },
+    {
+      "title": "Preferências e configurações",
+      "paragraphs": [
+        "As configurações do PX ficam só nesta máquina. Para levar para outro computador use, no ListForge Integrado, Configurações… → “Exportar preferências…” e, na outra máquina, “Importar preferências…”.",
+        "As preferências portáteis levam: favoritos, “Mostrar nomes”, ordem/nomes/seções do painel, lugar de cada ferramenta, as Configurações de moldes, o tamanho de fonte e o modo preferido do ListForge. Não levam caminhos de executáveis, pastas desta máquina, licença nem perfis de trabalho.",
+        "Importar mostra um resumo e pede confirmação; antes de aplicar, o PX guarda uma cópia de segurança das preferências atuais. Valores com problema no arquivo são apontados e ignorados, sem estragar o resto."
+      ]
+    },
+    {
+      "title": "Quando algo dá errado",
+      "paragraphs": [
+        "Leia a mensagem de resultado: ela diz o motivo da recusa (ex.: camada bloqueada, seleção errada, nome com espaço).",
+        "Se a ferramenta alterou algo que não devia, use Ctrl+Z uma vez — a ferramenta inteira volta.",
+        "Para relatar um problema: anote a versão do rodapé, o que estava selecionado e a mensagem. Na seção Diagnóstico, “Capturar estado (antes)” e “Comparar com a captura (depois)” mostram exatamente o que a ferramenta mudou na página.",
+        "Se o painel parar de se redesenhar (botões que não atualizam), use “Diagnóstico de redesenho” na hora, antes de mexer na janela do Corel, e copie o resultado."
+      ]
+    }
+  ],
+  "sections": {
+    "Grid": "Ferramentas para o arquivo de Grid (a página com todas as peças que vai para a montagem): preparar a página, marcar o Tamanho Padrão e aplicar o estilo de contorno do Grid.",
+    "Montagem": "Marcações gravadas nos objetos que a montagem lê depois (esticar no molde, ignorar métricas, mão livre) e ajustes de objetos usados na montagem. As três primeiras são botões de estado: ficam azuis quando todos os objetos selecionados já têm a marcação, com borda azul quando só parte tem.",
+    "Cadastro de moldes": "Ferramentas para montar o documento de moldes: cada tamanho de cada peça vira um grupo com a peça, a cópia do laser (x), os logos (L1, L2…) e a TAG com o tamanho. Daqui também saem as camadas das peças, o arquivo de Grid e o molde salvo. Os tamanhos, os nomes e o que o Definir objetos cria ficam em “Configurações de moldes…”.",
+    "Códigos": "Os códigos são nomes especiais dos objetos de texto variável: NO (nome), NU (número), AP (apelido) e TS (tipo sanguíneo). A montagem troca o conteúdo desses textos pelos dados da lista. Aqui você liga/desliga o código nos textos selecionados ou remove os códigos da página inteira.",
+    "Camadas": "Mostrar e ocultar camadas rapidamente: por categoria (MA = masculino, FE = feminino, C = infantil) ou pelas camadas dos objetos selecionados, com volta das últimas ocultadas.",
+    "Objetos": "Renomear objetos selecionados e agrupar automaticamente os objetos sobrepostos.",
+    "Tipo de peça": "O tipo de peça é o primeiro segmento do nome da camada ou do objeto (ex.: CAM1 em CAM1.Frente.MA). Aqui você troca esse tipo na seleção, na camada ativa ou no documento inteiro, sem mexer no resto do nome.",
+    "Medidas": "Somas rápidas das medidas dos objetos selecionados, sempre em metros. O resultado aparece na mensagem e já vai para a área de transferência (Ctrl+V para colar).",
+    "Preparação e saída": "Preparar Grid e Molde novos (no padrão antigo ou no padrão novo de camadas), converter o documento entre os padrões e gerar as saídas Escudo, Bandeira e Faixa de Capitão, salvas na pasta de saída.",
+    "Produção": "Ligação com o Nexor: abrir o programa, carregar um contexto de produção exportado por ele (rolo e trabalho de impressão), usar esse contexto nos nomes e devolver um arquivo com o resultado. O PX só lê o arquivo exportado — nunca altera o Nexor nem o status do trabalho.",
+    "Listas": "Acesso ao ListForge, o programa que lê e organiza as listas de nomes, números e tamanhos: a versão integrada, que abre dentro do PX, e a versão standalone (o executável separado).",
+    "Diagnóstico": "Ferramentas para entender o que está acontecendo: este manual, as notas da versão, inspeção das propriedades de um objeto, comparação antes/depois de uma página e testes técnicos do painel. Nenhuma delas altera o seu documento (o teste de identidade usa um documento temporário próprio)."
+  },
+  "tools": [
+    {
+      "id": "grid.prepare",
+      "purpose": "Deixa a página ativa pronta como Grid: a página fica do tamanho do conjunto de peças, tudo centralizado, objetos e camadas organizados para a montagem.",
+      "steps": [
+        "Abra o arquivo de Grid e deixe ativa a página com as peças.",
+        "Confira que nenhuma camada com objetos está bloqueada.",
+        "Clique em “Preparar Grid”."
+      ],
+      "notes": [
+        "Objetos de camadas ocultas (ex.: FE e C) também entram; a visibilidade de cada camada volta a ser a de antes no fim.",
+        "Faz, em ordem: ajusta a página ao conjunto (com uma pequena margem) e centraliza, renomeia os objetos pela parte do nome da camada, nomeia a página “DESIGN”, renomeia o documento com o prefixo da montagem, ordena as camadas por peça e categoria e exclui as camadas que ficaram vazias.",
+        "Com uma camada bloqueada que tem objetos, nada é feito e a mensagem diz qual camada desbloquear."
+      ]
+    },
+    {
+      "id": "grid.standard-size.toggle",
+      "purpose": "Liga ou desliga a marcação “Tamanho Padrão” nos objetos selecionados. Um objeto marcado guarda a própria largura e altura, e a montagem o mantém nesse tamanho em vez de redimensioná-lo.",
+      "steps": [
+        "Selecione os objetos.",
+        "Olhe o botão: azul = todos já marcados; borda azul = só parte; normal = nenhum.",
+        "Clique em “Alternar Tamanho Padrão”: se todos estavam marcados, a marcação sai de todos; senão, todos ficam marcados com o tamanho atual."
+      ],
+      "notes": [
+        "A dica do botão repete o estado da seleção em texto.",
+        "Grupo e objetos de dentro dele são marcados separadamente — marque o que a montagem vai usar.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.standard-size.update",
+      "purpose": "Grava de novo o tamanho guardado pelo Tamanho Padrão usando as dimensões atuais dos objetos — use depois de redimensionar um objeto já marcado. Objeto sem a marcação passa a tê-la.",
+      "steps": [
+        "Selecione os objetos (marcados ou não).",
+        "Clique em “Atualizar Tamanho Padrão”."
+      ],
+      "notes": [
+        "Também corrige marcações antigas incompletas (sem a medida gravada).",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.apply-outline",
+      "purpose": "Aplica o estilo do Grid — preenchimento branco e contorno preto fino — a todos os objetos de todas as páginas do documento. É o mesmo passo que o Preparar Grid Novo faz.",
+      "steps": [
+        "Abra o documento de Grid.",
+        "Clique em “Aplicar contorno do Grid”."
+      ],
+      "notes": [
+        "Age no documento inteiro, não na seleção. Grupos recebem o estilo como um objeto só.",
+        "Camadas especiais (Guias, Grade) ficam de fora.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.sisbolt.stretch-to-mold",
+      "purpose": "Liga ou desliga, nos objetos selecionados, a marcação que faz a montagem esticar o objeto no tamanho do molde. O tamanho do objeto não muda agora — só na montagem.",
+      "steps": [
+        "Selecione os objetos.",
+        "Clique em “Alternar Esticar no Tamanho do Molde”: se todos já tinham, a marcação sai; senão, todos ficam marcados."
+      ],
+      "notes": [
+        "O botão fica azul quando toda a seleção está marcada e com borda azul quando só parte está.",
+        "Preserva o Tamanho Padrão e as outras marcações do objeto.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.sisbolt.ignore-variable-metrics",
+      "purpose": "Liga ou desliga, nos textos de variável selecionados (ex.: NO), a marcação que faz a montagem ignorar as métricas da variável ao encaixar o texto.",
+      "steps": [
+        "Selecione os textos de variável.",
+        "Clique em “Alternar Ignorar métricas da variável”."
+      ],
+      "notes": [
+        "Não muda o texto, o nome nem a geometria.",
+        "Mesmo comportamento de estado dos outros botões de marcação (azul = toda a seleção marcada).",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.sisbolt.free-hand",
+      "purpose": "Liga ou desliga a marcação “Mão Livre” nos textos de código selecionados (NO, NU, AP ou TS), para a montagem tratar o texto como mão livre.",
+      "steps": [
+        "Selecione os textos com o nome exato NO, NU, AP ou TS.",
+        "Clique em “Alternar Mão Livre”."
+      ],
+      "notes": [
+        "Para LIGAR, todos os objetos selecionados precisam ter um desses nomes; com algum fora da regra, nada é alterado e a mensagem explica.",
+        "Desligar funciona em qualquer objeto marcado, mesmo que tenha sido renomeado depois.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.sisbolt.reset-rotation",
+      "purpose": "Deixa cada objeto selecionado com rotação 0° sem mudar a aparência — útil quando o objeto foi girado e a montagem precisa dele “reto” no ângulo zero.",
+      "steps": [
+        "Selecione os objetos girados.",
+        "Clique em “Resetar ângulo”."
+      ],
+      "notes": [
+        "Curvas são regravadas em 0° com a mesma forma. Retângulos e elipses girados viram curva. Grupo girado é desfeito, tratado e refeito com os mesmos objetos, na mesma ordem.",
+        "Nome e marcações (Tamanho Padrão, Esticar…) são mantidos.",
+        "Textos e bitmaps não são alterados (converter acabaria com os códigos NO/NU/AP/TS).",
+        "Se a forma não ficar exatamente igual, o objeto volta a ser como era. Um objeto já em 0° não é tocado.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.sisbolt.single-item-group",
+      "purpose": "Coloca o objeto selecionado sozinho dentro de um grupo novo — a montagem às vezes precisa de um grupo mesmo com um item só.",
+      "steps": [
+        "Selecione UM objeto que não esteja dentro de um grupo.",
+        "Clique em “Criar grupo com item único”."
+      ],
+      "notes": [
+        "O objeto continua o mesmo, com as mesmas propriedades. O grupo vai para a frente e fica selecionado, com um nome provisório para você renomear com o tamanho.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "grid.sisbolt.auto-horizontal-alignment",
+      "purpose": "Grava um vínculo de alinhamento horizontal entre dois objetos: na montagem, um deles (o alinhado) acompanha o outro (a referência).",
+      "steps": [
+        "Selecione exatamente dois objetos.",
+        "Clique em “Alinhamento horizontal automático…”.",
+        "Na janela, confira qual será alinhado e qual é a referência. Use “Trocar papéis” se estiver ao contrário e o zoom para ver a referência na página.",
+        "Clique em Salvar."
+      ],
+      "notes": [
+        "Nada é movido agora; só o vínculo é gravado nos dois objetos.",
+        "Uma referência que já tem vínculo é recusada.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.settings",
+      "purpose": "Abre a janela com as configurações do Cadastro de moldes: tamanhos de cada categoria, códigos das camadas, tamanho copiado para o Grid, nomes do laser, da TAG e do identificador, e o que o Definir objetos cria (cópia do laser, TAG, contorno interno).",
+      "steps": [
+        "Clique em “Configurações de moldes…”.",
+        "Ajuste os campos. A janela mostra, ao lado, como os tamanhos ficam e onde a TAG vai ficar.",
+        "Clique em Salvar. Se algum valor estiver errado, a lista de problemas aparece embaixo e nada é salvo até corrigir.",
+        "“Restaurar padrão” volta tudo aos valores de fábrica (ainda é preciso Salvar)."
+      ],
+      "notes": [
+        "Categorias: masculino (MA), feminino (FE) e infantil (C), cada uma com tamanhos-base, prefixos e sufixos (ex.: BL + P = BLP; 8 + A = 8A).",
+        "Laser: “Criar a cópia do laser” faz o Definir objetos criar uma cópia da peça chamada x, com a cor e a espessura de contorno escolhidas.",
+        "TAG: texto com o tamanho, com fonte, contorno, posição (nove posições dentro da caixa da peça) e margens em cm.",
+        "Contorno interno: ligado, a peça ganha um contorno por dentro com a cor do tamanho e o estilo de linha da categoria (contínuo, tracejado ou pontilhado). Cores digitadas uma por linha (ex.: G #FF0000); tamanho sem cor usa a cor sugerida. Precisa da cópia do laser ligada.",
+        "As configurações ficam nesta máquina e vão junto em Exportar/Importar preferências."
+      ]
+    },
+    {
+      "id": "molds.define",
+      "purpose": "Monta o grupo de UM tamanho de uma peça: a peça recebe o nome digitado, ganha a cópia do laser (x), os outros objetos viram os logos L1, L2… e a TAG com o tamanho é criada.",
+      "steps": [
+        "Selecione a peça e os logos de um tamanho (ou um grupo já montado, para redefinir).",
+        "Digite o “Nome da peça” (ex.: Frente) e escolha o “Tamanho”.",
+        "Clique em “Definir objetos”."
+      ],
+      "notes": [
+        "A peça é o maior objeto da seleção.",
+        "Os logos recebem a mesma numeração de outro tamanho já definido da mesma peça, pela posição — assim L1 é o mesmo logo em todos os tamanhos.",
+        "Laser, TAG (posição e margens) e contorno interno seguem as Configurações de moldes.",
+        "Selecionar um grupo já montado o refaz com os valores atuais.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.define-batch",
+      "purpose": "Faz o Definir objetos de vários tamanhos da mesma peça de uma vez, descobrindo o tamanho de cada conjunto pela ordem de tamanho das peças.",
+      "steps": [
+        "Selecione os conjuntos (peça + logos) de vários tamanhos da mesma peça — soltos ou já montados.",
+        "Digite o “Nome da peça” e escolha a categoria em “Em lote”.",
+        "Clique em “Detectar objetos em lote”."
+      ],
+      "notes": [
+        "Cada logo vai para a peça que contém o centro dele.",
+        "Sem nenhum grupo já montado na seleção, é preciso um conjunto para cada tamanho da categoria. Com um já montado (ex.: o G), os outros seguem a partir dele.",
+        "Se qualquer conjunto tiver problema, nada é alterado e a mensagem diz qual.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.propagate-logos",
+      "purpose": "Copia a posição dos logos de um tamanho para os outros tamanhos da mesma peça, na escala de cada peça.",
+      "steps": [
+        "Selecione os grupos de tamanho já montados da mesma peça.",
+        "Se mais de um grupo tiver todos os logos, escolha em “Tamanho” qual vale como modelo.",
+        "Clique em “Propagar logos”."
+      ],
+      "notes": [
+        "O modelo é o grupo com mais logos. Cada logo vai para a mesma posição em relação ao centro da peça, na escala da altura da peça.",
+        "Logo que o grupo já tem é só movido e redimensionado; logo que falta é copiado.",
+        "Peça, laser, TAG e nomes não mudam.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.validate",
+      "purpose": "Confere o molde da página ativa antes de salvar ou de criar o Grid e lista o que está errado ou suspeito. Não altera nada.",
+      "steps": [
+        "Deixe aberta a página com os grupos de tamanho (não precisa selecionar nada).",
+        "Clique em “Validar molde”. Abre uma janela com o resumo e um item por problema, erros primeiro.",
+        "Corrija no Corel com a janela aberta e clique em “Validar de novo”. “Copiar” leva o relatório como texto."
+      ],
+      "notes": [
+        "Confere os grupos com nome de tamanho (G, M, BLG, 8A…) em todas as camadas da página, também dentro de outros grupos. Cada peça é conferida com os seus tamanhos.",
+        "ERRO: peça que não dá para reconhecer no grupo, logo repetido no mesmo grupo, o mesmo número (L1, L2…) em peças diferentes e logo com número trocado — no lugar de outro número do tamanho de referência.",
+        "AVISO: logo que falta num tamanho ou que está fora do lugar (Propagar logos resolve os dois), dois grupos do mesmo tamanho da mesma peça, grupo sem TAG ou sem laser (só quando as Configurações de moldes mandam criar).",
+        "A referência de cada peça é o tamanho com mais logos; no empate, o primeiro na ordem de tamanhos. Mesmo lugar = até 8% da altura da peça de diferença, medindo do centro da peça.",
+        "Só lê: nada muda no documento."
+      ]
+    },
+    {
+      "id": "molds.duplicate",
+      "purpose": "Cria uma peça nova a partir de outra: cada grupo de tamanho selecionado ganha uma cópia inteira ao lado, com outro nome de peça (ex.: Costa a partir de Frente).",
+      "steps": [
+        "Selecione os grupos de tamanho da peça.",
+        "Digite o nome da cópia, escolha a direção e a distância entre as peças (mm).",
+        "Marque “Espelhar a cópia” se a peça nova é espelhada.",
+        "Clique em “Duplicar peça”."
+      ],
+      "notes": [
+        "Os logos da cópia ganham números novos, iguais em todos os tamanhos.",
+        "Espelhar vira só a peça e o laser; TAG e logos ficam como estão.",
+        "Repetir com o mesmo nome substitui a cópia anterior daquele tamanho.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.create-layers",
+      "purpose": "Move cada grupo de tamanho selecionado para a camada da sua peça no padrão novo: TIPO.MOLDE.CATEGORIA.PEÇA (ex.: CAM1.MOLDE.MA.Frente), criando a camada se não existir.",
+      "steps": [
+        "Escolha o “Tipo de peça” (ex.: CAM1).",
+        "Selecione os grupos de tamanho (G, M, BLG, 8A…).",
+        "Clique em “Criar camadas para a seleção”."
+      ],
+      "notes": [
+        "A categoria vem do tamanho do grupo; a peça é o objeto do grupo que não é TAG, x, logo nem identificador.",
+        "O nome da peça não pode ter espaço. Tamanho desconhecido ou peça ambígua: o grupo não é movido e a mensagem explica.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.uppercase",
+      "purpose": "Passa para maiúsculas o nome da peça nos grupos de tamanho selecionados e, quando a camada está no padrão novo, o nome da camada também.",
+      "steps": [
+        "Selecione os grupos de tamanho.",
+        "Clique em “Converter peça e camada para maiúsculas”."
+      ],
+      "notes": [
+        "O laser (x) não muda.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.delete-empty-layers",
+      "purpose": "Exclui da página ativa todas as camadas sem nenhum objeto.",
+      "steps": [
+        "Deixe ativa a página a limpar.",
+        "Clique em “Excluir camadas vazias”."
+      ],
+      "notes": [
+        "Camadas especiais do Corel ficam.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.distribute",
+      "purpose": "Ordena os objetos selecionados pela área e os enfileira com uma distância fixa entre eles — para arrumar peças lado a lado ou uma embaixo da outra.",
+      "steps": [
+        "Selecione os objetos.",
+        "Escolha a ordem (maior ou menor primeiro) e a direção (vertical ou horizontal).",
+        "Digite o distanciamento em mm, ou deixe em branco para automático.",
+        "Clique em “Distribuir”."
+      ],
+      "notes": [
+        "Vertical: de cima para baixo, alinhados ao primeiro. Horizontal: da esquerda para a direita.",
+        "Automático usa a menor dimensão entre as peças.",
+        "A ordem na camada acompanha a fila.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "molds.create-grid",
+      "purpose": "Gera um ARQUIVO de Grid novo a partir do documento de moldes: copia o tamanho de Grid de cada peça (G no masculino, BLG no feminino e o maior infantil, ou o que estiver nas Configurações de moldes).",
+      "steps": [
+        "Abra o documento de moldes, com as camadas das peças.",
+        "Clique em “Criar Grid…” e escolha onde salvar (o nome sugerido é o do documento + _GRID).",
+        "O Grid é aberto em seguida."
+      ],
+      "notes": [
+        "O Grid sai no padrão novo: uma camada por categoria com a peça, os logos e o retângulo PEÇA_RECT de cada peça. TAG e x ficam de fora.",
+        "O documento de moldes não muda."
+      ]
+    },
+    {
+      "id": "molds.save",
+      "purpose": "Salva o documento inteiro como .cdr com o nome do molde digitado.",
+      "steps": [
+        "Digite o “Nome do molde”.",
+        "Clique em “Salvar molde…” e confirme a pasta (começa na pasta do documento ou na pasta de moldes)."
+      ],
+      "notes": [
+        "O nome não pode ter \\ / : * ? \" < > |; o .cdr é acrescentado.",
+        "O documento aberto passa a ser o arquivo salvo."
+      ]
+    },
+    {
+      "id": "molds.select-rect",
+      "purpose": "Seleciona na página ativa todos os objetos com _RECT no nome (os retângulos de cada peça no Grid do padrão novo), inclusive dentro de grupos.",
+      "steps": [
+        "Clique em “Selecionar RECT”."
+      ],
+      "notes": [
+        "Não altera nada; só seleciona."
+      ]
+    },
+    {
+      "id": "codes.toggle-no",
+      "purpose": "Alterna o nome dos textos selecionados entre o código NO (nome da lista) e “Texto Nome”.",
+      "steps": [
+        "Selecione os textos.",
+        "Clique em NO: cada objeto chamado NO passa a se chamar “Texto Nome”; qualquer outro nome vira NO."
+      ],
+      "notes": [
+        "Só o nome do objeto muda; o conteúdo do texto fica igual. Na seleção é preciso haver pelo menos um texto.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.toggle-nu",
+      "purpose": "Alterna o nome dos textos selecionados entre o código NU (número da lista) e “Texto Número”.",
+      "steps": [
+        "Selecione os textos.",
+        "Clique em NU: cada objeto chamado NU passa a se chamar “Texto Número”; qualquer outro nome vira NU."
+      ],
+      "notes": [
+        "Só o nome do objeto muda; o conteúdo do texto fica igual. Na seleção é preciso haver pelo menos um texto.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.toggle-ap",
+      "purpose": "Alterna o nome dos textos selecionados entre o código AP (apelido da lista) e “Texto Apelido”.",
+      "steps": [
+        "Selecione os textos.",
+        "Clique em AP: cada objeto chamado AP passa a se chamar “Texto Apelido”; qualquer outro nome vira AP."
+      ],
+      "notes": [
+        "Só o nome do objeto muda; o conteúdo do texto fica igual. Na seleção é preciso haver pelo menos um texto.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.toggle-ts",
+      "purpose": "Alterna o nome dos textos selecionados entre o código TS (tipo sanguíneo da lista) e “Texto Tipo Sanguíneo”.",
+      "steps": [
+        "Selecione os textos.",
+        "Clique em TS: cada objeto chamado TS passa a se chamar “Texto Tipo Sanguíneo”; qualquer outro nome vira TS."
+      ],
+      "notes": [
+        "Só o nome do objeto muda; o conteúdo do texto fica igual. Na seleção é preciso haver pelo menos um texto.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.remove-no-nu-page",
+      "purpose": "Tira os códigos NO e NU de toda a página ativa: NO vira TextoNome e NU vira TextoNumero — para um arquivo que não deve mais receber nome e número da lista.",
+      "steps": [
+        "Deixe ativa a página.",
+        "Clique em “Remover NO/NU da página”."
+      ],
+      "notes": [
+        "Alcança todas as camadas da página, inclusive objetos dentro de grupos e PowerClips.",
+        "Não altera o conteúdo dos textos.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.remove-no-page",
+      "purpose": "Renomeia todo objeto NO da página ativa para TextoNome.",
+      "steps": [
+        "Deixe ativa a página e clique no NO da linha “Remover da página ativa”."
+      ],
+      "notes": [
+        "Inclui grupos e PowerClips. Não altera o conteúdo dos textos.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.remove-nu-page",
+      "purpose": "Renomeia todo objeto NU da página ativa para TextoNumero.",
+      "steps": [
+        "Deixe ativa a página e clique no NU da linha “Remover da página ativa”."
+      ],
+      "notes": [
+        "Inclui grupos e PowerClips. Não altera o conteúdo dos textos.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.remove-ap-page",
+      "purpose": "Renomeia todo objeto AP da página ativa para “Texto Apelido”.",
+      "steps": [
+        "Deixe ativa a página e clique no AP da linha “Remover da página ativa”."
+      ],
+      "notes": [
+        "Inclui grupos e PowerClips. Não altera o conteúdo dos textos.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.remove-ts-page",
+      "purpose": "Renomeia todo objeto TS da página ativa para “Texto Tipo Sanguíneo”.",
+      "steps": [
+        "Deixe ativa a página e clique no TS da linha “Remover da página ativa”."
+      ],
+      "notes": [
+        "Inclui grupos e PowerClips. Não altera o conteúdo dos textos.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "codes.remove-all-page",
+      "purpose": "Remove de uma vez os quatro códigos da página ativa: NO → TextoNome, NU → TextoNumero, AP → Texto Apelido, TS → Texto Tipo Sanguíneo.",
+      "steps": [
+        "Deixe ativa a página.",
+        "Clique em “Remover todos os códigos (NO/NU/AP/TS) da página”."
+      ],
+      "notes": [
+        "Inclui grupos e PowerClips. Não altera o conteúdo dos textos.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "layers.toggle-ma",
+      "purpose": "Mostra ou oculta, de uma vez, todas as camadas masculinas (terminadas em .MA) da página ativa.",
+      "steps": [
+        "Clique em MA. Clique de novo para inverter."
+      ],
+      "notes": [
+        "O botão é uma ação de alternar, não um indicador: ele não mostra se as camadas estão visíveis agora.",
+        "Só camadas cujo último segmento do nome é exatamente MA (ex.: CAM1.Frente.MA)."
+      ]
+    },
+    {
+      "id": "layers.toggle-fe",
+      "purpose": "Mostra ou oculta, de uma vez, todas as camadas femininas (terminadas em .FE) da página ativa.",
+      "steps": [
+        "Clique em FE. Clique de novo para inverter."
+      ],
+      "notes": [
+        "Só camadas cujo último segmento do nome é exatamente FE."
+      ]
+    },
+    {
+      "id": "layers.toggle-c",
+      "purpose": "Mostra ou oculta, de uma vez, todas as camadas infantis (terminadas em .C) da página ativa.",
+      "steps": [
+        "Clique em C. Clique de novo para inverter."
+      ],
+      "notes": [
+        "Só camadas cujo último segmento do nome é exatamente C."
+      ]
+    },
+    {
+      "id": "layers.hide-selected",
+      "purpose": "Oculta cada camada que contém pelo menos um dos objetos selecionados — para tirar rapidamente da frente o que você está vendo.",
+      "steps": [
+        "Selecione um objeto (ou vários) das camadas que quer esconder.",
+        "Clique em “Ocultar camadas dos objetos selecionados”."
+      ],
+      "notes": [
+        "Camadas especiais (Guias, Área de trabalho, Grade) nunca são ocultadas.",
+        "O PX lembra quais camadas ESTA operação ocultou, para “Mostrar últimas camadas ocultadas”.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "layers.restore-last-hidden",
+      "purpose": "Mostra de novo só as camadas que a última “Ocultar camadas dos objetos selecionados” escondeu — nunca as outras camadas do documento.",
+      "steps": [
+        "Com o mesmo documento ativo, clique em “Mostrar últimas camadas ocultadas”."
+      ],
+      "notes": [
+        "Fica desabilitado enquanto não houver o que mostrar; a dica diz por quê e lista as camadas.",
+        "O registro vale só nesta sessão do Corel: fechar o documento o descarta.",
+        "Camada excluída depois é informada como não encontrada, nunca trocada por outra de mesmo nome.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "output.prepare-new-grid",
+      "purpose": "Monta um Grid novo a partir de um documento de moldes, no padrão antigo de camadas: uma camada por peça (ex.: CAM1.Frente.MA).",
+      "steps": [
+        "Abra uma cópia do documento de moldes (a ferramenta reorganiza o documento aberto).",
+        "Clique em “Preparar Grid Novo” do bloco “Padrão antigo”."
+      ],
+      "notes": [
+        "Desagrupa os grupos de cada camada, exclui camadas vazias e objetos auxiliares, aplica o estilo do Grid, reduz o nome das camadas para três partes e termina com o Preparar Grid.",
+        "Não usa os campos de layout e pasta.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "output.prepare-new-mold",
+      "purpose": "Configura um molde novo na página ativa, no padrão antigo: camadas CAM1.Frente.MA.Frente e objetos com os nomes esperados.",
+      "steps": [
+        "Deixe ativa a página do molde.",
+        "Clique em “Preparar Molde Novo” do bloco “Padrão antigo”."
+      ],
+      "notes": [
+        "Exclui camadas vazias, padroniza o nome das camadas em quatro partes e renomeia os objetos dos grupos de tamanho pela peça.",
+        "Não usa os campos de layout e pasta.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "output.prepare-new-grid.new-standard",
+      "purpose": "Igual ao Preparar Grid Novo, mas termina no padrão novo: uma camada por categoria (ex.: CAM1.MOLDE.MA) com todas as peças, os logos L1, L2… e um retângulo PEÇA_RECT do tamanho de cada peça, no fundo da camada.",
+      "steps": [
+        "Abra uma cópia do documento de moldes.",
+        "Clique em “Preparar Grid Novo” do bloco “Padrão novo”."
+      ],
+      "notes": [
+        "Os logos mantêm o nome (L1, L2…).",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "output.prepare-new-mold.new-standard",
+      "purpose": "Igual ao Preparar Molde Novo, mas com as camadas no padrão novo (ex.: CAM1.MOLDE.MA.Frente).",
+      "steps": [
+        "Deixe ativa a página do molde.",
+        "Clique em “Preparar Molde Novo” do bloco “Padrão novo”."
+      ],
+      "notes": [
+        "Os objetos continuam com os mesmos nomes (TAG, peça, x); os logos L1, L2… mantêm o nome.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "output.convert-layer-standard",
+      "purpose": "Converte o documento aberto (todas as páginas) de um padrão de camadas para o outro — de antigo para novo ou de novo para antigo.",
+      "steps": [
+        "Abra o documento (molde ou Grid).",
+        "Clique em “Converter documento: padrão antigo ↔ novo”.",
+        "Leia na mensagem para qual padrão foi."
+      ],
+      "notes": [
+        "Se houver alguma camada no padrão antigo, converte para o novo; senão, volta para o antigo.",
+        "Molde: só o nome das camadas muda (CAM1.Frente.MA.Frente ↔ CAM1.MOLDE.MA.Frente).",
+        "Grid: uma camada por peça ↔ uma camada por categoria com os retângulos PEÇA_RECT. Voltando para o antigo, cada logo vai para a peça que contém o centro dele.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "output.use-context-layout-name",
+      "purpose": "Preenche o campo “Nome do layout” com o pedido informado do contexto de produção carregado (ou, sem pedido, com o nome do arquivo de origem).",
+      "steps": [
+        "Carregue um contexto na seção Produção.",
+        "Clique em “Usar contexto de produção”, logo abaixo de “Nome do layout”."
+      ],
+      "notes": [
+        "Só preenche o campo; não salva nada. Desabilitado sem contexto carregado."
+      ]
+    },
+    {
+      "id": "output.set-default-folder",
+      "purpose": "Escolhe a pasta usada pelas saídas quando o campo “Pasta de saída” fica vazio.",
+      "steps": [
+        "Clique em “Definir pasta padrão…” e escolha a pasta."
+      ],
+      "notes": [
+        "Ordem de uso: a pasta digitada no campo; senão a pasta padrão desta máquina; senão a pasta original (Z:\\Neuber\\Saídas). A linha “Destino” mostra qual vale agora.",
+        "Fica só nesta máquina (não entra nas preferências exportadas)."
+      ]
+    },
+    {
+      "id": "output.reset-default-folder",
+      "purpose": "Apaga a pasta padrão desta máquina e volta a usar a pasta original das saídas.",
+      "steps": [
+        "Clique em “Voltar ao padrão original”."
+      ],
+      "notes": [
+        "Fica desabilitado quando não há pasta padrão definida."
+      ]
+    },
+    {
+      "id": "output.prepare-shield",
+      "purpose": "Prepara e salva a saída Escudo: agrupa os objetos da página ativa, ajusta a página ao tamanho deles, centraliza, nomeia página e documento como “Escudo” e salva o .cdr na pasta de saída.",
+      "steps": [
+        "Deixe na página ativa só o que vai para a saída (objetos visíveis e desbloqueados).",
+        "Opcional: preencha “Nome do layout” e a “Pasta de saída”.",
+        "Clique em “Preparar Escudo”."
+      ],
+      "notes": [
+        "Nome do arquivo: “Escudo.cdr” ou “Escudo - <layout>.cdr”.",
+        "Com contexto de produção carregado e “Salvar na subpasta do rolo” marcado, o arquivo vai para uma subpasta com o nome do rolo (criada se faltar).",
+        "O documento aberto passa a ser o arquivo salvo."
+      ]
+    },
+    {
+      "id": "output.prepare-flag",
+      "purpose": "Prepara e salva a saída Bandeira, do mesmo jeito do Escudo.",
+      "steps": [
+        "Deixe na página ativa só o que vai para a saída.",
+        "Opcional: preencha “Nome do layout” e a “Pasta de saída”.",
+        "Clique em “Preparar Bandeira”."
+      ],
+      "notes": [
+        "Nome do arquivo: “Bandeira.cdr” ou “Bandeira - <layout>.cdr”. Mesmas regras de pasta e subpasta do rolo do Escudo."
+      ]
+    },
+    {
+      "id": "output.prepare-captain-sash",
+      "purpose": "Prepara e salva a saída Faixa de Capitão, do mesmo jeito do Escudo.",
+      "steps": [
+        "Deixe na página ativa só o que vai para a saída.",
+        "Opcional: preencha “Nome do layout” e a “Pasta de saída”.",
+        "Clique em “Preparar Faixa de Capitão”."
+      ],
+      "notes": [
+        "Nome do arquivo: “Faixa De Capitão.cdr” ou com “ - <layout>”. Mesmas regras de pasta e subpasta do rolo do Escudo."
+      ]
+    },
+    {
+      "id": "tools.piece-type.selected-objects",
+      "purpose": "Troca o tipo de peça no nome dos objetos selecionados (ex.: CAM1.Frente → CAM2.Frente), preservando o resto do nome.",
+      "steps": [
+        "Escolha o “Novo tipo de peça”.",
+        "Selecione os objetos.",
+        "Clique em “Alterar tipo dos objetos selecionados”."
+      ],
+      "notes": [
+        "Objetos cujo nome não começa com um tipo válido são ignorados e contados à parte na mensagem."
+      ]
+    },
+    {
+      "id": "tools.piece-type.active-layer",
+      "purpose": "Troca o tipo de peça no nome da camada ativa (a destacada no Gerenciador de Objetos).",
+      "steps": [
+        "Escolha o “Novo tipo de peça”.",
+        "Ative a camada no Gerenciador de Objetos.",
+        "Clique em “Alterar tipo da camada ativa”."
+      ],
+      "notes": [
+        "Age só em UMA camada: o Corel não informa ao painel quando várias camadas estão selecionadas."
+      ]
+    },
+    {
+      "id": "tools.piece-type.document",
+      "purpose": "Troca o tipo de peça em todas as camadas de todas as páginas do documento que começam com o tipo de origem (ex.: CAM1 → CAM2).",
+      "steps": [
+        "Escolha o “Tipo de origem” (ou “Tudo”, para qualquer tipo válido) e o “Novo tipo de peça”.",
+        "Clique em “Alterar tipo no documento inteiro”."
+      ],
+      "notes": [
+        "Não depende de seleção nem de camada ativa."
+      ]
+    },
+    {
+      "id": "tools.objects.use-context-name",
+      "purpose": "Preenche o campo “Novo nome” com o pedido informado do contexto de produção carregado (ou, sem pedido, com o nome do arquivo de origem).",
+      "steps": [
+        "Carregue um contexto na seção Produção.",
+        "Clique em “Usar contexto de produção” na seção Objetos."
+      ],
+      "notes": [
+        "Não renomeia nada sozinho — depois use “Renomear Objetos Selecionados”."
+      ]
+    },
+    {
+      "id": "tools.objects.rename-selected",
+      "purpose": "Dá o mesmo nome a todos os objetos selecionados.",
+      "steps": [
+        "Digite o nome em “Novo nome para os objetos selecionados”.",
+        "Selecione os objetos.",
+        "Clique em “Renomear Objetos Selecionados”."
+      ],
+      "notes": [
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "tools.objects.group-intersection",
+      "purpose": "Agrupa automaticamente, na página ativa, os objetos que estão um sobre o outro: pares com o mesmo centro e o mesmo tamanho, junto com os objetos menores que ficam dentro deles.",
+      "steps": [
+        "Deixe ativa a página.",
+        "Clique em “Agrupar Interseção”."
+      ],
+      "notes": [
+        "Age na página inteira, não na seleção.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "tools.measures.sum-height",
+      "purpose": "Soma a altura dos objetos selecionados, em metros.",
+      "steps": [
+        "Selecione os objetos e clique em “Somar Altura”.",
+        "O total aparece na mensagem e já está na área de transferência."
+      ],
+      "notes": [
+        "Sempre em metros, qualquer que seja a unidade do documento."
+      ]
+    },
+    {
+      "id": "tools.measures.sum-width",
+      "purpose": "Soma a largura dos objetos selecionados, em metros.",
+      "steps": [
+        "Selecione os objetos e clique em “Somar Largura”.",
+        "O total aparece na mensagem e já está na área de transferência."
+      ],
+      "notes": [
+        "Sempre em metros."
+      ]
+    },
+    {
+      "id": "tools.measures.sum-both",
+      "purpose": "Soma a altura e a largura dos objetos selecionados, em metros.",
+      "steps": [
+        "Selecione os objetos e clique em “Somar Altura e Largura”.",
+        "Os totais aparecem na mensagem e já estão na área de transferência."
+      ],
+      "notes": [
+        "Sempre em metros."
+      ]
+    },
+    {
+      "id": "lists.open-integrated",
+      "purpose": "Abre o ListForge Integrado numa janela própria do PX: cole ou abra uma lista (texto, PDF, Word, Excel), processe e gere a saída e o JSON para a montagem — sem precisar do ListForge standalone instalado.",
+      "steps": [
+        "Clique em “Abrir ListForge Integrado”.",
+        "Cole a lista na entrada ou use “Abrir Lista…”.",
+        "Clique em Processar: a prévia mostra válidos, avisos, inválidos, tamanhos e tipos de peça antes de confirmar (“Processar rápido” pula a prévia).",
+        "Corrija as linhas apontadas (clicar no aviso leva à linha) e use Copiar, “Salvar saída” ou “Gerar JSON”."
+      ],
+      "notes": [
+        "Modos Clássico e PX: duas apresentações sobre a mesma lista e o mesmo resultado.",
+        "Outros recursos: Comparar entrada/saída, Lista avançada (peça por posição), Salvar avançado (entrada, saída e JSON juntos ou em ZIP), Perfis de trabalho, Tamanhos customizados, Histórico de processamentos, Localizar/Substituir, Extrair lista de link e edição manual da saída.",
+        "Se a entrada mudar depois de processar, Copiar/Salvar/Gerar JSON avisam que o resultado está desatualizado antes de usar.",
+        "Configurações… guarda fonte, perfis, pastas e nomes padrão, e tem “Exportar/Importar preferências…” do PX.",
+        "Funciona sem documento aberto no CorelDRAW."
+      ]
+    },
+    {
+      "id": "lists.open-standalone",
+      "purpose": "Abre o ListForge standalone (o programa separado) no caminho configurado.",
+      "steps": [
+        "Na primeira vez, use “Localizar executável…”.",
+        "Clique em “Abrir ListForge Standalone ↗”."
+      ],
+      "notes": [
+        "Não depende de documento aberto. O caminho configurado aparece embaixo do botão."
+      ]
+    },
+    {
+      "id": "lists.locate-executable",
+      "purpose": "Escolhe (ou troca) o caminho do ListForge.exe usado por “Abrir ListForge Standalone”.",
+      "steps": [
+        "Clique em “Localizar executável…” na seção Listas e escolha o ListForge.exe."
+      ],
+      "notes": [
+        "Fica salvo só nesta máquina."
+      ]
+    },
+    {
+      "id": "production.open-nexor",
+      "purpose": "Abre o Nexor (controle de produção) no caminho configurado.",
+      "steps": [
+        "Na primeira vez, use “Localizar executável…” da seção Produção.",
+        "Clique em “Abrir Nexor ↗”."
+      ],
+      "notes": [
+        "Só abre o programa; nenhum dado é trocado com ele por este botão."
+      ]
+    },
+    {
+      "id": "production.locate-executable",
+      "purpose": "Escolhe (ou troca) o caminho do executável do Nexor.",
+      "steps": [
+        "Clique em “Localizar executável…” na seção Produção e escolha o executável."
+      ],
+      "notes": [
+        "Fica salvo só nesta máquina, separado do caminho do ListForge."
+      ]
+    },
+    {
+      "id": "production.load-context",
+      "purpose": "Carrega um contexto de produção exportado pelo Nexor (arquivo .json): o rolo, o trabalho de impressão e o pedido informado, para usar nos nomes e nas saídas.",
+      "steps": [
+        "No Nexor, exporte o contexto de produção do trabalho.",
+        "No PX, clique em “Carregar contexto de produção…” e escolha o .json.",
+        "Confira o resumo que aparece na seção."
+      ],
+      "notes": [
+        "Só leitura e só nesta sessão: não altera o Nexor, o documento do Corel nem o ListForge.",
+        "Com contexto carregado, ficam disponíveis: Ver detalhes, Nomear página, Usar contexto (layout e Objetos), subpasta do rolo nas saídas e Exportar resultado.",
+        "Arquivo inválido ou de outra versão é recusado com o motivo."
+      ]
+    },
+    {
+      "id": "production.paste-context-path",
+      "purpose": "Carrega o contexto de produção colando o caminho do arquivo .json, em vez de procurar no seletor (ex.: caminho copiado pelo “Copiar caminho” do Nexor).",
+      "steps": [
+        "Copie o caminho do .json.",
+        "Clique em “Colar caminho do contexto…”, cole e confirme."
+      ],
+      "notes": [
+        "Mesma validação do carregamento normal. Aspas copiadas do Windows são aceitas."
+      ]
+    },
+    {
+      "id": "production.recent-contexts",
+      "purpose": "Lista os últimos contextos de produção carregados nesta máquina (até 10) para carregar de novo com um clique.",
+      "steps": [
+        "Clique em “Recentes…” e escolha o arquivo."
+      ],
+      "notes": [
+        "O arquivo é lido e validado de novo: se o Nexor exportou outra vez, vale a versão atual.",
+        "Só os caminhos ficam salvos, nunca o conteúdo."
+      ]
+    },
+    {
+      "id": "production.show-context-details",
+      "purpose": "Abre uma janela com todos os dados do contexto de produção carregado.",
+      "steps": [
+        "Com um contexto carregado, clique em “Ver detalhes”."
+      ],
+      "notes": [
+        "Só consulta."
+      ]
+    },
+    {
+      "id": "production.name-active-page",
+      "purpose": "Renomeia a página ativa com o pedido informado do contexto carregado (ou, sem pedido, com o nome do arquivo de origem).",
+      "steps": [
+        "Com um contexto carregado, clique em “Nomear página ativa com o contexto”."
+      ],
+      "notes": [
+        "Preparar Escudo/Bandeira/Faixa renomeiam a página de novo para o nome da saída.",
+        "Desfazível com Ctrl+Z."
+      ]
+    },
+    {
+      "id": "production.export-result",
+      "purpose": "Grava um arquivo .json com o resultado da execução: as saídas Escudo/Bandeira/Faixa salvas nesta sessão com o contexto carregado, junto com a identificação do rolo e do trabalho — para o Nexor ler.",
+      "steps": [
+        "Carregue o contexto e salve pelo menos uma saída.",
+        "Clique em “Exportar resultado para o Nexor…” e escolha onde gravar."
+      ],
+      "notes": [
+        "Não altera o Nexor nem o status do trabalho; o Nexor decide o que fazer com o arquivo."
+      ]
+    },
+    {
+      "id": "production.clear-context",
+      "purpose": "Esquece o contexto de produção carregado nesta sessão.",
+      "steps": [
+        "Clique em “Limpar contexto”."
+      ],
+      "notes": [
+        "Não altera o Nexor, o arquivo exportado nem nada no Corel."
+      ]
+    },
+    {
+      "id": "diagnostics.manual",
+      "purpose": "Abre este manual: o que é cada seção e cada ferramenta do painel, como usar e o que observar.",
+      "steps": [
+        "Clique em “Manual de uso”.",
+        "Escolha um assunto ou uma seção na lista da esquerda, ou digite em Filtrar para ficar só com o que tem as palavras."
+      ],
+      "notes": [
+        "A janela pode ficar aberta ao lado do Corel enquanto você trabalha.",
+        "Os nomes das ferramentas são os originais do painel, mesmo que você as tenha movido para outra seção."
+      ]
+    },
+    {
+      "id": "diagnostics.release-notes",
+      "purpose": "Mostra o que foi implementado, alterado ou removido na versão em execução.",
+      "steps": [
+        "Clique em “Notas da versão”."
+      ],
+      "notes": [
+        "Funciona sem internet e sem documento aberto."
+      ]
+    },
+    {
+      "id": "diagnostics.inspect-properties",
+      "purpose": "Mostra todas as propriedades internas gravadas num objeto (as marcações como Tamanho Padrão, Esticar, vínculos de alinhamento…) — para conferir se uma marcação foi mesmo gravada.",
+      "steps": [
+        "Selecione UM objeto.",
+        "Clique em “Inspecionar propriedades”."
+      ],
+      "notes": [
+        "Só leitura: nunca cria, altera ou exclui nada."
+      ]
+    },
+    {
+      "id": "diagnostics.capture-checklist",
+      "purpose": "Abre o roteiro das capturas antes/depois que ainda faltam: para cada item, o que preparar na página e o que fazer na ferramenta original.",
+      "steps": [
+        "Clique em “Roteiro de capturas…” e escolha um item.",
+        "Siga os quatro passos da direita (preparar, capturar antes, usar a ferramenta original, comparar e salvar)."
+      ],
+      "notes": [
+        "A comparação já abre com o item escolhido e salva o relatório na pasta de capturas; o item ganha ✓.",
+        "“Abrir pasta das capturas” mostra os arquivos para enviar."
+      ]
+    },
+    {
+      "id": "diagnostics.capture-before",
+      "purpose": "Tira uma “foto” só de leitura da página ativa: propriedades do documento, da página, das camadas e de cada objeto (inclusive dentro de grupos e PowerClips), nome, posição, tamanho, rotação e seleção.",
+      "steps": [
+        "Use um documento de teste pequeno.",
+        "Clique em “Capturar estado (antes)”.",
+        "Use a ferramenta que quer investigar.",
+        "Clique em “Comparar com a captura (depois)”."
+      ],
+      "notes": [
+        "Não altera nada."
+      ]
+    },
+    {
+      "id": "diagnostics.capture-compare",
+      "purpose": "Captura a página de novo e mostra tudo o que mudou desde “Capturar estado (antes)”: propriedades criadas, removidas ou alteradas, objetos novos ou removidos, posição, tamanho, rotação e grupo.",
+      "steps": [
+        "Depois de capturar o antes e usar a ferramenta, clique em “Comparar com a captura (depois)”.",
+        "Na janela, escreva qual ferramenta foi testada e copie ou salve o relatório."
+      ],
+      "notes": [
+        "Fica desabilitado até existir uma captura “antes”.",
+        "Só leitura."
+      ]
+    },
+    {
+      "id": "diagnostics.render",
+      "purpose": "Ajuda a investigar quando o painel para de se redesenhar (botões que não atualizam): lê o estado de desenho do Corel, do WPF e de cada seção do painel.",
+      "steps": [
+        "No momento em que notar o painel “congelado”, antes de redimensionar ou minimizar o Corel, clique em “Diagnóstico de redesenho”.",
+        "Use “Copiar diagnóstico” e envie o texto."
+      ],
+      "notes": [
+        "Só leitura."
+      ]
+    },
+    {
+      "id": "diagnostics.copy-render",
+      "purpose": "Copia para a área de transferência o resultado do diagnóstico de redesenho (gera o diagnóstico antes, se ainda não houver).",
+      "steps": [
+        "Clique em “Copiar diagnóstico” e cole onde quiser (Ctrl+V)."
+      ]
+    },
+    {
+      "id": "diagnostics.layer-identity",
+      "purpose": "Teste técnico: verifica se o Corel mantém a mesma identidade de documento e de camadas durante a sessão (acessos repetidos, renomear, reordenar, excluir, Desfazer, fechar e reabrir) — base do “Mostrar últimas camadas ocultadas”.",
+      "steps": [
+        "Clique em “Testar identidade de camadas…” e confirme o aviso.",
+        "Leia o resumo; use “Ver relatório” ou “Copiar relatório” para o detalhe."
+      ],
+      "notes": [
+        "Usa um documento temporário criado por ele; seus documentos não são alterados."
+      ]
+    },
+    {
+      "id": "diagnostics.layer-identity-report",
+      "purpose": "Mostra ou esconde o relatório completo do teste de identidade de camadas, numa área com rolagem.",
+      "steps": [
+        "Depois de rodar o teste, clique em “Ver relatório” (de novo para ocultar)."
+      ],
+      "notes": [
+        "Desabilitado até o teste rodar."
+      ]
+    },
+    {
+      "id": "diagnostics.copy-layer-identity-report",
+      "purpose": "Copia o relatório completo do teste de identidade de camadas para a área de transferência.",
+      "steps": [
+        "Depois de rodar o teste, clique em “Copiar relatório”."
+      ],
+      "notes": [
+        "Desabilitado até o teste rodar."
+      ]
+    }
+  ]
+}

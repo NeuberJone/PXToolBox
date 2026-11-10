@@ -1,0 +1,36 @@
+<Window x:Class="PXToolBoxDev.ListForgeIntegrated.LinkImportDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Extrair lista de link"
+        Width="480" SizeToContent="Height" MinWidth="360"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Janela própria (não MessageBox — WPF não tem um "InputBox" nativo), para pedir a URL e o
+        destino (nova lista / acrescentar à atual) antes de chamar
+        ListForge.Core.Services.LinkListImportService (ver docs/listforge-classic-parity.md,
+        grupo "Entrada e importação"). Roda no mesmo thread de UI do CorelDRAW que
+        ClassicWorkspaceWindow — por isso usa o mesmo ThreadKeyboardRouter, senão o campo de URL
+        sofreria o mesmo bloqueio de teclado original sempre que uma tecla digitada colidisse com
+        um atalho do Corel.
+    -->
+    <StackPanel Margin="14">
+        <TextBlock Foreground="#E4E4E6" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Informe o link (http/https) de onde extrair a lista. O conteúdo é interpretado da mesma forma que no ListForge Standalone." />
+        <TextBox x:Name="UrlTextBox" FontFamily="Consolas"
+                 Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" BorderThickness="1"
+                 Padding="6" Margin="0,0,0,12" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <RadioButton x:Name="RadioNewList" Content="Nova lista (substitui a entrada atual)"
+                         Foreground="#E4E4E6" GroupName="Destination" IsChecked="True" Margin="0,0,16,0" />
+            <RadioButton x:Name="RadioAppend" Content="Acrescentar à lista atual"
+                         Foreground="#E4E4E6" GroupName="Destination" />
+        </StackPanel>
+        <TextBlock x:Name="StatusText" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,10" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnOk" Content="Extrair" Click="OnExtractClick" Padding="12,5,12,5" Margin="0,0,8,0" />
+            <Button x:Name="BtnCancel" Content="Cancelar" Click="OnCancelClick" Padding="12,5,12,5" IsCancel="True" />
+        </StackPanel>
+    </StackPanel>
+</Window>

@@ -12,6 +12,8 @@ namespace PXToolBox.Tests
         {
             var page = new FakePage();
             var layer = (FakeLayer)page.CreateLayer("CAM1.PP.X");
+            // Com um objeto: camada vazia é excluída antes (e some da página, como no Corel).
+            layer.AddShape(new FakeShape { Name = "PP" });
 
             var service = new MoldPreparationService();
             service.PrepareNewMold(page);

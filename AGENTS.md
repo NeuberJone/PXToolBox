@@ -43,6 +43,15 @@ detalhes, ver `docs/ARCHITECTURE.md`, `ROADMAP.md` e `docs/migrated-tools.md`.
   ação explícita (`-Create`, `-Publish`) ou sem ser um dos botões operados manualmente pelo
   usuário (commit/push, criação/push de tag).
 
+## Manual de uso
+
+- Diagnóstico → "Manual de uso" explica cada ferramenta do painel. O texto fica em
+  `host/PXToolBox.CorelHost.Dev/Manual/user-manual.json`; nome e seção vêm de
+  `PanelToolCatalog`. **Ao adicionar, remover ou modificar qualquer ferramenta (ou mudar o que
+  ela faz), atualize o manual na mesma entrega** — `UserManualTests` falha se uma ferramenta do
+  catálogo ficar sem texto ou se sobrar texto de ferramenta removida; mudança de comportamento
+  o teste não vê, então revise a entrada da ferramenta alterada.
+
 ## Prompts e entregas de desenvolvimento
 
 - Toda entrega e todo prompt de desenvolvimento futuro deve incluir: sugestão de branch

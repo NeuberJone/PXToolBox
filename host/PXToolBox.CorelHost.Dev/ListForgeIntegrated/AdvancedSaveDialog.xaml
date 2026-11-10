@@ -1,0 +1,51 @@
+<Window x:Class="PXToolBoxDev.ListForgeIntegrated.AdvancedSaveDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Salvar avançado"
+        Width="520" SizeToContent="Height" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Porta de MainViewModel.AdvancedSave() + ResolveAdvancedSaveName()/ResolveAdvancedSaveOutputDir()
+        (standalone) — pede nome base, modo (arquivos soltos/ZIP) e pasta de destino antes de
+        chamar ListForge.Core.Services.AdvancedSaveService.Save (ver docs/listforge-classic-parity.md).
+        Roda no mesmo thread de UI do CorelDRAW que ClassicWorkspaceWindow — usa o mesmo
+        ThreadKeyboardRouter para o campo de nome (editável), senão sofreria o mesmo bloqueio de
+        teclado original.
+    -->
+    <StackPanel Margin="14">
+        <TextBlock Foreground="#E4E4E6" TextWrapping="Wrap" Margin="0,0,0,12"
+                   Text="Salva a entrada, a saída organizada e o JSON juntos — em três arquivos soltos ou em um único ZIP." />
+
+        <TextBlock Foreground="#E4E4E6" Margin="0,0,0,4" Text="Nome base" />
+        <TextBox x:Name="BaseNameTextBox" FontFamily="Consolas"
+                 Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" BorderThickness="1"
+                 Padding="6" Margin="0,0,0,12" />
+
+        <TextBlock Foreground="#E4E4E6" Margin="0,0,0,4" Text="Formato" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <RadioButton x:Name="RadioLooseFiles" Content="Arquivos soltos (entrada, saída e JSON em 3 arquivos)"
+                         Foreground="#E4E4E6" GroupName="AdvancedSaveMode" Margin="0,0,16,0" />
+            <RadioButton x:Name="RadioZip" Content="Arquivo ZIP (os três juntos)"
+                         Foreground="#E4E4E6" GroupName="AdvancedSaveMode" />
+        </StackPanel>
+
+        <TextBlock Foreground="#E4E4E6" Margin="0,0,0,4" Text="Pasta de destino" />
+        <DockPanel Margin="0,0,0,12">
+            <Button DockPanel.Dock="Right" Content="Escolher pasta..." Click="OnChooseFolderClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="8,0,0,0" />
+            <TextBlock x:Name="FolderText" Foreground="#9A9AA0" TextWrapping="Wrap" VerticalAlignment="Center"
+                       Text="Nenhuma pasta escolhida ainda." />
+        </DockPanel>
+
+        <TextBlock x:Name="StatusText" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button x:Name="BtnSave" Content="Salvar" Click="OnSaveClick"
+                    Background="#4DA3FF" Foreground="#0B1726" FontWeight="SemiBold" Padding="12,5,12,5" Margin="0,0,8,0" />
+            <Button Content="Cancelar" Click="OnCancelClick" IsCancel="True"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="12,5,12,5" />
+        </StackPanel>
+    </StackPanel>
+</Window>

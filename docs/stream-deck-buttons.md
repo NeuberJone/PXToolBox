@@ -14,6 +14,12 @@ Restaura, compila (Debug e Release), testa, publica o host e compila o instalado
 Inno Setup. Gera checksums e um manifesto em `dist\dev\<versão>\`. Não publica nada. Recusa
 sobrescrever uma versão/canal já existente sem `-Force`.
 
+Antes de compilar, varre `dist\dev\` e compara numericamente (nunca por nome de pasta/data —
+ver `scripts/PxToolBoxVersioning.psm1`, `docs/ARCHITECTURE.md` seção 16) a versão pedida contra
+a mais recente já existente e coerente. Se a versão pedida for mais antiga, imprime um AVISO em
+destaque antes de continuar — nunca bloqueia (reproduzir uma versão antiga de propósito
+continua possível), só evita que isso aconteça sem quem está operando o botão perceber.
+
 ## Botão 2 — Commit e push da branch atual
 
 ```powershell

@@ -90,14 +90,27 @@ namespace PXToolBox.Outputs.Tools
             return OperationResult.Success();
         }
 
-        /// <summary>Renomeia cada objeto com o segmento após o primeiro ponto do nome da camada (Correcoes.RenomearObjetosNoGrid).</summary>
-        public OperationResult RenameShapesAfterFirstDot(ICorelPage page)
+        /// <summary>Renomeia cada objeto com o segmento após o primeiro ponto do nome da camada (Correcoes.RenomearObjetosNoGrid).
+        /// Camada no padrão novo ("CAM1.MOLDE.MA") fica de fora — o 2º segmento não é o nome da peça
+        /// e todos os objetos virariam "MOLDE". <paramref name="keepLogoNames"/>: logos L1..Ln
+        /// mantêm o nome (padrão novo).</summary>
+        public OperationResult RenameShapesAfterFirstDot(ICorelPage page, bool keepLogoNames = false)
         {
             foreach (var layer in page.Layers)
             {
                 var afterFirstDot = AfterFirstDot(layer.Name);
+                if (LayerStandardService.IsNewSegment(afterFirstDot))
+                {
+                    continue;
+                }
+
                 foreach (var shape in layer.Shapes)
                 {
+                    if (keepLogoNames && LayerStandardService.IsLogoName(shape.Name))
+                    {
+                        continue;
+                    }
+
                     shape.Name = afterFirstDot;
                 }
             }

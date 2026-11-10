@@ -42,6 +42,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+Import-Module (Join-Path $PSScriptRoot "PxToolBoxVersioning.psm1") -Force
+
 function Write-Step([string]$Message) {
     Write-Host ""
     Write-Host "==> $Message" -ForegroundColor Cyan
@@ -83,15 +85,23 @@ Assert-UnderDirectory -ChildPath $versionDist -ParentPath $distRoot
 
 New-Item -ItemType Directory -Path $distRoot -Force | Out-Null
 
-if (Test-Path -LiteralPath $versionDist) {
-    $existingFiles = Get-ChildItem -LiteralPath $versionDist -Recurse -File -Force -ErrorAction SilentlyContinue
-    if ($existingFiles.Count -gt 0 -and -not $Force) {
-        throw "Já existe uma build para $channelNormalized $Version em '$versionDist'. Use -Force para refazer SÓ esta versão/canal."
-    }
-    if ($Force) {
-        Write-Host "Recriando somente '$versionDist' (-Force)." -ForegroundColor Yellow
-        Remove-Item -LiteralPath $versionDist -Recurse -Force
-    }
+# Nunca sobrescreve em silêncio (sem -Force), e -Force só pode recriar ESTA pasta exata — ver
+# PxToolBoxVersioning.psm1, Assert-PxToolBoxVersionOutputWritable (extraída para lá para ser
+# testável com diretórios temporários, sem depender de uma build .NET real).
+$wasRecreated = Assert-PxToolBoxVersionOutputWritable -VersionDist $versionDist -ChannelNormalized $channelNormalized -Version $Version -Force:$Force
+if ($wasRecreated) {
+    Write-Host "Recriando somente '$versionDist' (-Force)." -ForegroundColor Yellow
+}
+
+# Nunca bloqueia (ver "Preservar a possibilidade de reproduzir versões antigas por um fluxo
+# explícito" — AGENTS.md/pedido do usuário), só avisa em destaque: evita que uma versão
+# numericamente mais antiga (ex.: dev.9, gerada depois de já existir dev.28) seja confundida com
+# a mais recente por quem está operando o Stream Deck.
+$olderVersionWarning = Get-PxToolBoxOlderVersionWarning -RepoRoot $repoRoot -Channel $Channel -Version $Version
+if ($olderVersionWarning) {
+    Write-Host ""
+    Write-Host $olderVersionWarning -ForegroundColor Yellow
+    Write-Host ""
 }
 
 $publishDir = Join-Path $versionDist "host-publish"
@@ -111,11 +121,11 @@ dotnet test $testsProject -c Debug --no-build
 if ($LASTEXITCODE -ne 0) { throw "Testes falharam — build interrompida." }
 
 Write-Step "Compilando (Release)"
-dotnet build $solution -c Release --no-restore
+dotnet build $solution -c Release --no-restore "-p:PxToolBoxVersion=$Version"
 if ($LASTEXITCODE -ne 0) { throw "dotnet build (Release) falhou." }
 
 Write-Step "Publicando o host do CorelDRAW (Release)"
-dotnet publish $hostProject -c Release -o $publishDir --no-self-contained
+dotnet publish $hostProject -c Release -o $publishDir --no-self-contained "-p:PxToolBoxVersion=$Version"
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish do host falhou." }
 
 $candidateInno = @(

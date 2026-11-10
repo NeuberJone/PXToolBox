@@ -1,0 +1,104 @@
+<Window x:Class="PXToolBoxDev.ListForgeIntegrated.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Configurações do ListForge Integrado"
+        Width="520" SizeToContent="Height" MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Preferências e configuração local do modo Clássico — ver
+        docs/listforge-classic-parity.md, grupo "Configurações", e
+        Integrations/ListForgeIntegratedSettingsStore.cs para onde isso é gravado
+        (%LocalAppData%\PXToolBox\Dev\config\listforge-integrated-settings.json — mesma pasta já
+        usada por ListForgeConfigStore, nunca o ConfigManager do ListForge standalone). Dois
+        campos editáveis (tamanho de fonte, nome padrão da lista) — usa o mesmo
+        ThreadKeyboardRouter das outras janelas deste host.
+    -->
+    <StackPanel Margin="14">
+        <TextBlock Foreground="#E4E4E6" FontSize="15" FontWeight="Bold" Margin="0,0,0,4"
+                   Text="Configurações do ListForge Integrado" />
+        <TextBlock x:Name="LocationText" Foreground="#9A9AA0" TextWrapping="Wrap" Margin="0,0,0,12" />
+
+        <TextBlock x:Name="NoticeText" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,12" Visibility="Collapsed" />
+
+        <TextBlock Foreground="#E4E4E6" FontWeight="SemiBold" Margin="0,0,0,6" Text="Preferências (interface e processamento)" />
+
+        <Grid Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Foreground="#E4E4E6" VerticalAlignment="Center" Text="Tamanho de fonte do editor" />
+            <TextBox x:Name="FontSizeTextBox" Grid.Column="1" Width="70" HorizontalAlignment="Left"
+                     Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" BorderThickness="1" Padding="6" />
+        </Grid>
+        <TextBlock Foreground="#9A9AA0" FontSize="11" Margin="0,0,0,10"
+                   Text="Entre 8 e 32. Aplicado à entrada, à saída organizada e à prévia JSON." />
+
+        <TextBlock x:Name="ActiveProfileNameText" Foreground="#9A9AA0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,8" />
+
+        <TextBlock Grid.Column="0" Foreground="#E4E4E6" Margin="0,0,0,4" Text="Formato padrão do Salvar avançado" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <RadioButton x:Name="RadioLooseFiles" Content="Arquivos soltos" Foreground="#E4E4E6" GroupName="SettingsAdvancedSaveMode" Margin="0,0,16,0" />
+            <RadioButton x:Name="RadioZip" Content="Arquivo ZIP" Foreground="#E4E4E6" GroupName="SettingsAdvancedSaveMode" />
+        </StackPanel>
+
+        <TextBlock Foreground="#E4E4E6" FontWeight="SemiBold" Margin="0,0,0,6" Text="Configuração local (esta máquina, perfil ativo)" />
+
+        <CheckBox x:Name="UseDefaultOutputDirCheck" Content="Usar sempre esta pasta ao exportar"
+                  Foreground="#E4E4E6" Checked="OnUseDefaultOutputDirChanged" Unchecked="OnUseDefaultOutputDirChanged" Margin="0,0,0,6" />
+        <DockPanel Margin="0,0,0,12">
+            <Button x:Name="BtnChooseOutputDir" DockPanel.Dock="Right" Content="Escolher pasta..." Click="OnChooseOutputDirClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="8,0,0,0" />
+            <TextBlock x:Name="OutputDirText" Foreground="#9A9AA0" TextWrapping="Wrap" VerticalAlignment="Center"
+                       Text="Nenhuma pasta escolhida ainda." />
+        </DockPanel>
+
+        <CheckBox x:Name="UseDefaultListNameCheck" Content="Usar sempre este nome base ao exportar"
+                  Foreground="#E4E4E6" Checked="OnUseDefaultListNameChanged" Unchecked="OnUseDefaultListNameChanged" Margin="0,0,0,6" />
+        <TextBox x:Name="DefaultListNameTextBox" FontFamily="Consolas" Margin="0,0,0,14"
+                 Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" BorderThickness="1" Padding="6" />
+
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Abrir pasta de configuração" Click="OnOpenConfigFolderClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="0,0,6,0" />
+            <Button Content="Exportar configurações..." Click="OnExportSettingsClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="0,0,6,0"
+                    ToolTip="Backup/restauração COMPLETA desta tela, incluindo perfis de trabalho (que podem ter caminhos específicos desta máquina) — para mover tudo entre máquinas iguais, não para levar só as preferências pessoais." />
+            <Button Content="Importar configurações..." Click="OnImportSettingsClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" />
+        </StackPanel>
+
+        <!-- Distinto do par acima: só as preferências PESSOAIS realmente portáveis entre
+             máquinas (tamanho de fonte, preferência de modo Clássico/PX por NOME de perfil) —
+             nunca perfis de trabalho inteiros, caminhos de executáveis, licença ou qualquer
+             dado específico desta máquina. Ver Integrations/PortablePreferencesService.cs. -->
+        <TextBlock Foreground="#E4E4E6" FontWeight="SemiBold" Margin="0,4,0,6" Text="Preferências portáteis (entre computadores)" />
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="Exportar preferências..." Click="OnExportPreferencesClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" Margin="0,0,6,0"
+                    ToolTip="Gera um arquivo só com preferências pessoais portáveis (tamanho de fonte, preferência de modo Clássico/PX por perfil) — nunca caminhos desta máquina, perfis de trabalho inteiros, licença ou credenciais." />
+            <Button Content="Importar preferências..." Click="OnImportPreferencesClick"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5"
+                    ToolTip="Mostra um resumo do que será aplicado antes de confirmar. Preserva um backup recuperável das preferências atuais." />
+        </StackPanel>
+
+        <TextBlock x:Name="StatusText" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,0,0,10" />
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="BtnRestoreDefaults" Grid.Column="0" Content="Restaurar padrões" Click="OnRestoreDefaultsClick"
+                    HorizontalAlignment="Left" Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="10,5,10,5" />
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button x:Name="BtnSave" Content="Salvar" Click="OnSaveClick"
+                        Background="#4DA3FF" Foreground="#0B1726" FontWeight="SemiBold" Padding="12,5,12,5" Margin="0,0,8,0" />
+                <Button Content="Cancelar" Click="OnCancelClick" IsCancel="True"
+                        Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="12,5,12,5" />
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</Window>

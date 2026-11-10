@@ -1,0 +1,368 @@
+[
+  {
+    "version": "0.1.0-dev.59",
+    "implemented": [
+      "Botão “Notas da versão” no rodapé do painel.",
+      "Janela de consulta das mudanças da versão em execução, separadas em Implementado, Alterado e Removido."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.60",
+    "implemented": [
+      "“Notas da versão” também pode ser adicionado aos Favoritos (botão direito → Adicionar aos favoritos)."
+    ],
+    "changed": [
+      "O botão “Notas da versão” saiu do rodapé e agora fica no início da seção Diagnóstico."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.61",
+    "implemented": [
+      "Botão “Aplicar contorno do Grid” na seção Grid: aplica o estilo do Grid (preenchimento branco, contorno preto fino) a todos os objetos de todas as páginas, sem mexer nas camadas especiais (Guias, Grade). Um Ctrl+Z desfaz.",
+      "“Aplicar contorno do Grid” também pode ser adicionado aos Favoritos."
+    ],
+    "changed": [
+      "Testes automatizados não gravam mais no log real nem na configuração real do PX DEV."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.62",
+    "implemented": [
+      "Produção: resumo do contexto de produção carregado (rolo, trabalho de impressão e, quando o arquivo traz, pedido informado), com “Ver detalhes” e “Limpar contexto”.",
+      "“Ver detalhes” e “Limpar contexto” também podem ser adicionados aos Favoritos."
+    ],
+    "changed": [
+      "Arquivos do Nexor de trabalhos sem pedido informado (pedidoLabel vazio) agora são aceitos; antes eram recusados.",
+      "Carregar ou colar um contexto novo só substitui o atual quando dá certo — cancelar ou falhar mantém o contexto anterior.",
+      "Carregar um contexto mostra o resumo no painel em vez de abrir a janela de detalhes automaticamente."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.63",
+    "implemented": [
+      "Preparação e saída: botão “Usar contexto de produção” preenche “Nome do layout” com o pedido informado do contexto carregado (ou, sem pedido, com o nome do arquivo de origem), sem caracteres inválidos em nome de arquivo.",
+      "“Usar contexto de produção” também pode ser adicionado aos Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.64",
+    "implemented": [
+      "Outras ferramentas — Objetos: botão “Usar contexto de produção” preenche o novo nome dos objetos com o pedido informado do contexto carregado (ou o nome do arquivo de origem). Renomear continua sendo o botão de sempre.",
+      "Produção: botão “Nomear página ativa com o contexto” renomeia a página ativa com o mesmo nome (desfazível com Ctrl+Z).",
+      "Preparação e saída: com um contexto carregado, Escudo/Bandeira/Faixa são salvos numa subpasta com o nome do rolo, criada se não existir. A opção “Salvar na subpasta do rolo” desliga isso; o “Destino” mostra a subpasta.",
+      "Ao salvar Escudo/Bandeira/Faixa com um contexto carregado, a mensagem e o log informam o rolo e o trabalho de impressão.",
+      "Os dois botões novos também podem ser adicionados aos Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.65",
+    "implemented": [
+      "Produção: “Exportar resultado para o Nexor…” grava um arquivo .json com as saídas Escudo/Bandeira/Faixa salvas nesta sessão com o contexto carregado e a identificação do rolo e do trabalho de impressão. Não altera o Nexor nem o status do trabalho.",
+      "O resumo do contexto na seção Produção mostra quantas saídas foram salvas com ele nesta sessão.",
+      "“Exportar resultado para o Nexor” também pode ser adicionado aos Favoritos."
+    ],
+    "changed": [
+      "Favoritos: os atalhos de “Remover … da página” (NO, NU, AP, TS, NO/NU e todos) agora aparecem em vermelho, com moldura, para não serem confundidos com os de alternar códigos.",
+      "Limpar o contexto de produção avisa quando há saídas registradas que ainda não foram exportadas."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.66",
+    "implemented": [
+      "Favoritos: arraste um ícone com o botão esquerdo para mudar a ordem. Uma barra mostra onde ele vai entrar; soltar fora dos Favoritos cancela. Clique curto continua executando a ferramenta."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.67",
+    "implemented": [
+      "Produção: “Recentes…” lista os últimos 10 contextos de produção carregados nesta máquina. Escolher um lê e valida o arquivo .json de novo, como um carregamento novo. Só os caminhos ficam salvos, nunca o conteúdo do contexto.",
+      "“Contextos de produção recentes” também pode ser adicionado aos Favoritos."
+    ],
+    "changed": [
+      "O caminho de um contexto carregado (pelo seletor, colado ou pelos recentes) passa a ser lembrado em “Recentes”. Nada é carregado sozinho ao abrir o painel."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.68",
+    "implemented": [
+      "Diagnóstico: “Capturar estado (antes)” e “Comparar com a captura (depois)” mostram tudo o que uma ferramenta mudou na página ativa — propriedades do documento, da página, das camadas e dos objetos (inclusive em grupos e PowerClips), objetos novos ou removidos, posição, tamanho, rotação e seleção. Só leitura; o relatório pode ser copiado ou salvo.",
+      "Usado para descobrir como as ferramentas do SISBolt marcam os objetos, antes de fazer as versões do PX (roteiro em docs/sisbolt-tools-investigation.md)."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.69",
+    "implemented": [],
+    "changed": [
+      "Comparação antes/depois: corrigido objeto aparecendo como movido e redimensionado (fator 2,54) quando a unidade usada pelo Corel para medir (Document.Unit) muda entre as capturas. Cada captura registra a unidade da régua e a unidade efetiva das medidas; posição e tamanho são convertidos antes de comparar e mostrados na unidade da régua, com os valores brutos ao lado.",
+      "Se a unidade efetiva não puder ser determinada, a comparação de posição e tamanho aparece como inconclusiva, sem afirmar que algo mudou. Properties e dados do objeto continuam com os valores brutos."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.70",
+    "implemented": [
+      "Grid → Ferramentas do SISBolt: “Ativar Esticar no Tamanho do Molde”, “Ativar Ignorar métricas da variável” e “Ativar Mão Livre” gravam a mesma marcação que o SISBolt grava (um objeto por vez; só ativação).",
+      "“Criar grupo com item único”: coloca o objeto selecionado sozinho num grupo novo, na frente da camada e selecionado, como o SISBolt.",
+      "“Alinhamento horizontal automático…”: com dois objetos selecionados, mostra qual será alinhado e qual é a referência (com zoom na referência e troca de papéis) e grava o vínculo do SISBolt.",
+      "As cinco também podem virar favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.71",
+    "implemented": [],
+    "changed": [
+      "Favoritos: corrigido o arrastar e soltar, que não funcionava desde a dev.66 — o arraste era cancelado no instante em que começava."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.72",
+    "implemented": [],
+    "changed": [
+      "Esticar no Tamanho do Molde, Ignorar métricas da variável e Mão Livre agora funcionam como o Tamanho Padrão: o botão liga e desliga a marcação nos objetos selecionados e fica destacado quando ela está ativa na seleção (só a borda quando é mista). Os atalhos dos Favoritos acompanham.",
+      "Desligar remove a marcação do objeto, como o Tamanho Padrão. Também vale para vários objetos selecionados de uma vez.",
+      "Favoritos: cada ferramenta tem agora um ícone próprio — nenhum símbolo se repete. A Mão Livre virou uma mãozinha.",
+      "Favoritos: a letra laranja no canto agora indica a seção da ferramenta — G (Grid), Co (Códigos), Ca (Camadas), PS (Preparação e saída), T (Tipo de peça), O (Objetos), M (Medidas), L (Listas), Pr (Produção), D (Diagnóstico). Remoção continua com o “−” vermelho."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.73",
+    "implemented": [
+      "Favoritos: “Mostrar nomes” liga e desliga a exibição do botão inteiro, com ícone e nome, em vez de só o ícone. A escolha fica salva; dá para arrastar para reordenar nos dois modos."
+    ],
+    "changed": [
+      "Seções reorganizadas: nova seção Montagem, logo depois do Grid, com Esticar no Tamanho do Molde, Ignorar métricas da variável, Mão Livre, Criar grupo com item único e Alinhamento horizontal automático.",
+      "“Outras ferramentas — Objetos/Tipo de peça/Medidas” viraram só Objetos, Tipo de peça e Medidas. Ordem padrão: Favoritos, Grid, Montagem, Códigos, Camadas, Objetos, Tipo de peça, Medidas, Preparação e saída, Produção, Listas, Diagnóstico.",
+      "Quem já tinha personalizado a ordem das seções mantém a sua; a Montagem aparece logo depois do Grid.",
+      "Marcas do canto dos Favoritos: Mo (Montagem) e Me (Medidas)."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.74",
+    "implemented": [],
+    "changed": [
+      "Montagem: os botões que ligam e desligam uma marcação agora se chamam “Alternar Esticar no Tamanho do Molde”, “Alternar Ignorar métricas da variável” e “Alternar Mão Livre”, como o “Alternar Tamanho Padrão”. Funcionam igual a ele: ligam quando a seleção não está toda marcada, desligam quando está, e o botão fica destacado com a marcação ativa."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.75",
+    "implemented": [],
+    "changed": [
+      "Alternar Mão Livre só liga em textos com o nome NO, NU, AP ou TS. Se algum objeto selecionado tiver outro nome, nada é alterado e o painel avisa. Desligar continua valendo para qualquer objeto marcado."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.76",
+    "implemented": [
+      "Personalizar painel: renomear qualquer seção, criar seções novas (e removê-las) e escolher em que seção cada ferramenta aparece, com a ordem entre as ferramentas movidas para a mesma seção.",
+      "Uma ferramenta movida aparece como botão completo na seção escolhida e continua funcionando igual — inclusive Escudo/Bandeira, que seguem usando o nome do layout e a pasta da seção original.",
+      "A letra do canto nos Favoritos acompanha o nome atual da seção onde a ferramenta está."
+    ],
+    "changed": [
+      "“Mostrar nomes” nos Favoritos virou uma chave liga/desliga.",
+      "“Restaurar padrão” volta também os nomes, as seções criadas e o lugar de cada ferramenta (ainda é preciso Salvar)."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.77",
+    "implemented": [],
+    "changed": [
+      "Seções: quando todos os botões de um grupo vão para outra seção, o subtítulo do grupo (ex.: “Tamanho Padrão” no Grid) e a linha que sobra também somem — antes ficava um texto parecendo um botão desativado.",
+      "Personalizar painel: texto mais claro e nítido, títulos “De …” em destaque, ferramentas movidas em azul, linhas alternadas e setas de ordem só nas ferramentas movidas."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.78",
+    "implemented": [
+      "Exportar/Importar preferências agora levam também a personalização do painel (nomes das seções, seções criadas e a seção de cada ferramenta) e o “Mostrar nomes” dos Favoritos."
+    ],
+    "changed": [
+      "Importar um arquivo exportado de um painel sem personalização desfaz a personalização atual; um arquivo de versão anterior, sem esses itens, mantém o que já existe."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.79",
+    "implemented": [
+      "Diagnóstico → “Roteiro de capturas…”: lista as capturas antes/depois que faltam para as ferramentas de montagem, com o que preparar na página e o que fazer na ferramenta original, e marca com ✓ as já salvas.",
+      "Comparação antes/depois: escolha do item do roteiro e botão “Salvar na pasta de capturas” (um arquivo por relatório, nunca sobrescrito); depois de salvar, o roteiro passa para o próximo item pendente.",
+      "“Roteiro de capturas” também pode ser adicionado aos Favoritos."
+    ],
+    "changed": [
+      "Comparação antes/depois: a mensagem de status fica numa linha própria, acima dos botões."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.80",
+    "implemented": [
+      "Montagem → “Resetar ângulo”: deixa cada objeto selecionado com rotação 0° sem mudar a aparência (curva; retângulo e elipse girados viram curva; grupos, inclusive girados). Nome e marcações do objeto são mantidos; se a geometria não ficar igual, o objeto volta a ser como era. Texto e bitmap não são alterados. Também nos Favoritos."
+    ],
+    "changed": [
+      "Roteiro de capturas: saem as duas capturas do Resetar ângulo (25 itens)."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.81",
+    "implemented": [
+      "Preparação e saída → padrão novo: “Preparar Molde Novo” com camadas CAM1.MOLDE.MA.Frente (objetos com os mesmos nomes, laser continua x) e “Preparar Grid Novo” com uma camada por categoria (CAM1.MOLDE.MA), todas as peças, os logos L1, L2… e um retângulo <peça>_RECT do tamanho de cada peça, no fundo.",
+      "“Converter documento: padrão antigo ↔ novo”: troca o documento aberto de um padrão para o outro (molde: só o nome das camadas; Grid: camadas por peça ↔ por categoria, com os retângulos _RECT). O status diz para qual padrão foi.",
+      "Os três também podem ir para os Favoritos."
+    ],
+    "changed": [
+      "Os botões de antes ficam sob “Padrão antigo” (nos Favoritos: “Preparar Grid Novo (padrão antigo)” e “Preparar Molde Novo (padrão antigo)”); o que fazem não mudou.",
+      "Preparar Grid Novo aceita também um molde no padrão novo (CAM1.MOLDE.MA.Frente): cada peça continua na sua camada.",
+      "Preparar Grid não renomeia mais os objetos de uma camada no padrão novo (antes todos virariam “MOLDE”)."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.82",
+    "implemented": [
+      "Nova seção “Cadastro de moldes” (fase 1 das ferramentas de cadastro de moldes): Criar camadas para a seleção (grupos de tamanho → camada TIPO.MOLDE.CATEGORIA.PEÇA), Converter peça e camada para maiúsculas, Excluir camadas vazias, Ordenar e distribuir (maior/menor primeiro, vertical/horizontal, distanciamento em mm ou automático), Criar Grid (arquivo novo com o G, BLG e maior infantil de cada peça, uma camada por categoria e os retângulos _RECT) e Selecionar RECT.",
+      "As seis também podem ir para os Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.83",
+    "implemented": [
+      "Cadastro de moldes → “Configurações de moldes…”: tamanhos de cada categoria (tamanhos base, prefixos e sufixos, com a lista gerada na hora), código da camada de cada categoria, tamanho copiado para o Grid e os nomes do laser, da TAG e do identificador de tamanho. Restaurar padrão volta aos valores de fábrica. Ficam só nesta máquina.",
+      "Também pode ir para os Favoritos."
+    ],
+    "changed": [
+      "Criar camadas para a seleção, Converter para maiúsculas e Criar Grid passam a usar essas configurações em vez de valores fixos."
+    ],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.84",
+    "implemented": [
+      "Cadastro de moldes → “Definir objetos”: selecione a peça e os logos de um tamanho, digite o nome da peça e escolha o tamanho. O PX monta o grupo do tamanho com a TAG (o tamanho, embaixo da peça), os logos L1, L2…, a peça e a cópia x com o contorno do laser.",
+      "A peça é o maior objeto da seleção. Logos já chamados L<n> mantêm o nome; os outros seguem a numeração de outro tamanho já definido da mesma peça (pela posição na peça) ou ganham o próximo número livre da página.",
+      "Selecionar um grupo já montado o redefine: TAG e x antigos são trocados, logos e identificador de tamanho ficam.",
+      "Configurações de moldes: novo bloco para o laser (criar a cópia, cor, espessura) e a TAG (criar, tamanho da fonte, contorno branco).",
+      "Também pode ir para os Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.85",
+    "implemented": [
+      "Cadastro de moldes → “Detectar objetos em lote”: selecione os conjuntos (peça + logos) de vários tamanhos da mesma peça, escolha a categoria e o PX define todos de uma vez, com o nome da peça digitado.",
+      "Cada logo vai para a peça que contém o centro dele. O tamanho de cada conjunto vem da ordem de tamanho das peças: sem grupo já montado na seleção, é preciso um conjunto para cada tamanho da categoria; com um (ex.: o G), os outros seguem a partir dele.",
+      "Os logos de todos os tamanhos ficam com a mesma numeração (pela posição na peça). Qualquer conjunto com problema: nada é alterado.",
+      "Também pode ir para os Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.86",
+    "implemented": [
+      "Cadastro de moldes → “Propagar logos”: selecione os grupos de tamanho já montados da mesma peça; os logos (L1, L2…) do grupo com mais logos vão para os outros, na mesma posição em relação ao centro da peça e na escala da altura da peça.",
+      "Logo que o grupo já tem é só movido e redimensionado; logo que falta é copiado para dentro do grupo. Peça, laser, TAG e nomes não mudam.",
+      "Se mais de um grupo tiver todos os logos (ex.: ao propagar de novo), vale o tamanho escolhido no campo Tamanho. Grupos de peças diferentes ou objetos soltos: nada é alterado.",
+      "Também pode ir para os Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.87",
+    "implemented": [
+      "Cadastro de moldes → “Duplicar peça”: cada grupo de tamanho selecionado ganha uma cópia inteira ao lado (à esquerda, à direita, acima ou abaixo, com a distância em mm entre as peças), com a peça renomeada para o nome da cópia.",
+      "Os logos da cópia ganham números novos, iguais em todos os tamanhos. “Espelhar a cópia” vira só a peça e o laser; TAG e logos ficam como estão.",
+      "Duplicar de novo com o mesmo nome substitui a cópia anterior de cada tamanho (e mantém os números dos logos dela).",
+      "Também pode ir para os Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.88",
+    "implemented": [
+      "Cadastro de moldes → “Salvar molde…”: digite o nome do molde e confirme onde salvar; o documento inteiro é salvo como .cdr com esse nome e passa a ser o arquivo salvo.",
+      "A janela começa na pasta do documento (se ele já foi salvo) ou na pasta de moldes. Nome vazio ou com \\ / : * ? \" < > |: nada é salvo.",
+      "Também pode ir para os Favoritos."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.89",
+    "implemented": [
+      "Exportar/Importar preferências (Configurações do ListForge integrado) agora levam também as Configurações de moldes (tamanhos, códigos, Grid, laser, TAG e o que o Definir objetos cria).",
+      "Arquivo exportado por uma versão anterior não mexe nas configurações de moldes atuais; configurações de moldes inválidas no arquivo são avisadas e ignoradas inteiras — o resto do arquivo é importado.",
+      "Como as demais preferências, as de moldes importadas só são gravadas ao clicar em Salvar."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.90",
+    "implemented": [
+      "Configurações de moldes → TAG: posição em relação à peça (as nove: superior/centro/inferior × esquerda/centro/direita) e margens em cm (esquerda, direita, superior, inferior), com a descrição em palavras de onde a TAG vai ficar.",
+      "O Definir objetos e o Detectar objetos em lote passam a pôr a TAG nessa posição. Sem mudar nada, continua como antes: embaixo da peça, no centro, sem margens.",
+      "Posição e margens vão junto em Exportar/Importar preferências."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.91",
+    "implemented": [
+      "Configurações de moldes → “Definir objetos: contorno interno”: ligado, o Definir objetos (e o lote) põe na peça um contorno por dentro com a cor do tamanho e o estilo de linha da categoria (fábrica: masculino contínuo, feminino tracejado, infantil pontilhado). A cópia do laser continua com o contorno do laser.",
+      "Cores por tamanho: digite as que quiser (ex.: G #FF0000); os outros tamanhos usam a cor sugerida pela posição na categoria. A janela mostra uma amostra de cor de cada tamanho.",
+      "Precisa de “Criar a cópia do laser” ligado. Desligado (padrão), nada muda. Vai junto em Exportar/Importar preferências."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.92",
+    "implemented": [
+      "Diagnóstico → “Manual de uso”: janela com o manual completo do painel — o que é cada seção e, para cada ferramenta, para que serve, como usar (passo a passo) e o que observar. Também explica Favoritos, Personalizar painel, preferências e o que fazer quando algo dá errado.",
+      "Campo “Filtrar” no topo do manual: com uma ou mais palavras (ex.: laser, camada, Ctrl+Z), a lista mostra só os assuntos e as seções com resultado (com a contagem) e cada seção só as ferramentas que combinam; ✕ limpa. Sem diferenciar maiúsculas nem acentos. A janela pode ficar aberta ao lado do Corel.",
+      "“Manual de uso” também pode virar favorito."
+    ],
+    "changed": [],
+    "removed": []
+  },
+  {
+    "version": "0.1.0-dev.93",
+    "implemented": [
+      "Cadastro de moldes → “Validar molde”: confere os grupos de tamanho da página ativa e mostra um relatório, sem alterar nada. Erros: peça não reconhecida, logo repetido no grupo, o mesmo L1, L2… em peças diferentes, número de logo trocado entre tamanhos. Avisos: logo que falta ou fora do lugar, tamanho repetido, sem TAG ou sem laser.",
+      "Na janela do relatório: “Validar de novo” (depois de corrigir) e “Copiar”.",
+      "“Validar molde” também pode virar favorito e está no Manual de uso."
+    ],
+    "changed": [],
+    "removed": []
+  }
+]

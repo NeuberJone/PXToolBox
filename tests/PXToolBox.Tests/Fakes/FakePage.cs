@@ -74,10 +74,11 @@ namespace PXToolBox.Tests.Fakes
 
         public List<FakeLayer> LayersList { get; } = new List<FakeLayer>();
 
-        public IReadOnlyList<ICorelLayer> Layers => LayersList;
+        // Camada excluída some da página, como no Corel.
+        public IReadOnlyList<ICorelLayer> Layers => LayersList.Where(l => !l.IsDeleted).ToList();
 
         public ICorelLayer? FindLayer(string name) =>
-            LayersList.FirstOrDefault(l => l.Name == name);
+            LayersList.FirstOrDefault(l => !l.IsDeleted && l.Name == name);
 
         public ICorelLayer CreateLayer(string name)
         {

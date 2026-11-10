@@ -165,10 +165,38 @@ namespace PXToolBox.Tests
             public double PositionY { get; set; }
             public double CenterX { get; set; }
             public double CenterY { get; set; }
+            public bool HasProperty(string name, int id) => false;
+            public object? GetProperty(string name, int id) => null;
+            public void SetProperty(string name, int id, object value) { }
+            public void DeleteProperties(string name) { }
+            public void DeleteProperty(string name, int id) { }
+            public int StaticId => 1;
+            public bool IsInsideGroup => false;
+            public ICorelShape GroupAlone() => throw new NotSupportedException();
+            public void OrderToFront() { }
+            public void SelectAlone() { }
             public void ApplyStyleString(string style) { }
             public IReadOnlyList<ICorelShape> Shapes { get; } = new List<ICorelShape>();
+            public bool HasPowerClipContents => false;
+            public IReadOnlyList<ICorelShape> PowerClipShapes { get; } = new List<ICorelShape>();
+            public ICorelLayer? Layer => null;
             public void Delete() { }
             public void MoveToLayer(ICorelLayer layer) { }
+            public double RotationAngle => 0;
+            public void ClearRotation() { }
+            public CurveGeometry? ReadCurveGeometry() => null;
+            public int WriteCurveGeometry(CurveGeometry geometry) => 0;
+            public bool IsArtisticText => false;
+            public void ConvertToCurves() { }
+            public ICorelShape Duplicate() => throw new NotSupportedException();
+            public IReadOnlyList<ShapePropertyEntry> ReadAllProperties() => new List<ShapePropertyEntry>();
+            public bool IsInFrontOf(ICorelShape other) => false;
+            public void OrderFrontOf(ICorelShape other) { }
+            public void OrderToBack() { }
+            public IReadOnlyList<ICorelShape> Ungroup() => throw new NotSupportedException();
+            public void SetOutline(ShapeOutline outline) => throw new NotSupportedException();
+            public void SetUniformFill(int red, int green, int blue) => throw new NotSupportedException();
+            public void FlipHorizontally() => throw new NotSupportedException();
         }
     }
 }

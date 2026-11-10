@@ -83,13 +83,162 @@
             </Setter>
         </Style>
 
-        <!-- Botão primário: ação mais usada da seção (ex.: Preparar Grid). Mesmo formato, cor de
-             acento — único destaque de cor do painel. -->
+        <!-- Botão primário: ação de entrada de uma seção (ex.: Abrir ListForge Integrado). Mesmo
+             formato, cor de acento. -->
         <Style x:Key="Px.PrimaryButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
             <Setter Property="Background" Value="{StaticResource Px.Accent}" />
             <Setter Property="Foreground" Value="{StaticResource Px.AccentText}" />
             <Setter Property="BorderBrush" Value="{StaticResource Px.Accent}" />
             <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <!-- Favoritos: o "+" âmbar no canto marca ferramentas que criam algo novo; o âmbar
+             nunca é a cor de acento, que nos botões de estado (Px.StateButton) significa
+             "ativo" — um favorito ativo (Tamanho Padrão) fica azul como o original. -->
+        <SolidColorBrush x:Key="Px.Favorite" Color="#E0A33E" />
+        <!-- Atalhos de Favoritos que REMOVEM algo da página (Remover NO/NU/AP/TS…): sigla e
+             moldura em vermelho sobre fundo avermelhado, para não parecerem os de alternar. -->
+        <SolidColorBrush x:Key="Px.Removal" Color="#FF7A7A" />
+        <SolidColorBrush x:Key="Px.RemovalSurface" Color="#3D2326" />
+
+        <FontFamily x:Key="Px.IconFont">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
+        <!-- Menu de contexto "Adicionar/Remover dos favoritos": template próprio, como o
+             Px.ComboBoxItem, para o popup não cair no tema claro do sistema. -->
+        <Style x:Key="Px.ContextMenu" TargetType="ContextMenu">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContextMenu">
+                        <Border Background="{StaticResource Px.Surface2}" BorderBrush="{StaticResource Px.Border}"
+                                BorderThickness="1" CornerRadius="4" Padding="2" SnapsToDevicePixels="True">
+                            <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Dicas: template escuro próprio, como Px.ContextMenu. Sem ele, o popup usa o fundo
+             claro do sistema, e o texto claro do estilo implícito de TextBlock (que vale para a
+             dica dos atalhos dos Favoritos, montada com TextBlock) fica ilegível. -->
+        <Style TargetType="ToolTip">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="MaxWidth" Value="340" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Background="{StaticResource Px.Surface2}" BorderBrush="{StaticResource Px.Border}"
+                                BorderThickness="1" CornerRadius="4" Padding="8,5,8,5" SnapsToDevicePixels="True">
+                            <ContentPresenter>
+                                <ContentPresenter.Resources>
+                                    <!-- Dica em texto simples (string) também quebra linha. -->
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="TextWrapping" Value="Wrap" />
+                                        <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+                                    </Style>
+                                </ContentPresenter.Resources>
+                            </ContentPresenter>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="Px.MenuItem" TargetType="MenuItem">
+            <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="MenuItem">
+                        <Border x:Name="Bg" Background="Transparent" BorderBrush="Transparent" BorderThickness="1"
+                                CornerRadius="3" Padding="10,5,10,5" SnapsToDevicePixels="True">
+                            <ContentPresenter ContentSource="Header" RecognizesAccessKey="True" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{StaticResource Px.Surface1}" />
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Botão que mostra um estado ligado/desligado da seleção (Tag = "Active" | "Mixed" |
+             qualquer outro). Ativo usa as cores do botão primário; Misto só a borda de acento. -->
+        <Style x:Key="Px.StateButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+            <Style.Triggers>
+                <Trigger Property="Tag" Value="Active">
+                    <Setter Property="Background" Value="{StaticResource Px.Accent}" />
+                    <Setter Property="Foreground" Value="{StaticResource Px.AccentText}" />
+                    <Setter Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                </Trigger>
+                <Trigger Property="Tag" Value="Mixed">
+                    <Setter Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                    <Setter Property="BorderThickness" Value="2" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Atalho quadrado nos Favoritos: só o ícone; o nome vem na dica (FavoriteShortcut).
+             Depois de Px.StateButton — StaticResource não aceita referência adiante. -->
+        <!-- Chave liga/desliga (pedido do usuário: "Mostrar nomes" mais bonito): trilho
+             arredondado com bolinha; ligada = trilho na cor de acento, bolinha à direita. Teclado
+             e acessibilidade continuam os do CheckBox. -->
+        <Style x:Key="Px.Switch" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource Px.TextMuted}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <ContentPresenter VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <Border x:Name="Track" Width="32" Height="18" CornerRadius="9"
+                                    Background="{StaticResource Px.Surface2}" BorderBrush="{StaticResource Px.Border}" BorderThickness="1">
+                                <Ellipse x:Name="Thumb" Width="12" Height="12" Margin="2,0,2,0"
+                                         HorizontalAlignment="Left" VerticalAlignment="Center" Fill="{StaticResource Px.TextMuted}" />
+                            </Border>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Track" Property="Background" Value="{StaticResource Px.Accent}" />
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                                <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                                <Setter TargetName="Thumb" Property="Fill" Value="{StaticResource Px.AccentText}" />
+                                <Setter Property="Foreground" Value="{StaticResource Px.Text}" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource Px.Accent}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Atalho com nome (Favoritos com "Mostrar nomes" ligado): largura da coluna, ícone à
+             esquerda e o nome. -->
+        <Style x:Key="Px.FavoriteLabelButton" TargetType="Button" BasedOn="{StaticResource Px.StateButton}">
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="Padding" Value="4,2,8,2" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+        </Style>
+
+        <Style x:Key="Px.FavoriteIconButton" TargetType="Button" BasedOn="{StaticResource Px.StateButton}">
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0,0,4,4" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
 
         <Style TargetType="TextBox">
@@ -289,36 +438,238 @@
                         <TextBlock Text="DEV" FontSize="9" FontWeight="Bold" Foreground="{StaticResource Px.AccentText}" />
                     </Border>
                 </StackPanel>
+                <!-- Sempre disponível (não depende de documento nem de conexão com o Corel) —
+                     inclusive é o único caminho de volta se todas as seções forem ocultadas. -->
+                <Button x:Name="CustomizePanelButton" DockPanel.Dock="Right" Click="OnCustomizePanel"
+                        Margin="6,0,0,0" Padding="7,3,7,3" FontSize="11" VerticalAlignment="Center"
+                        ToolTip="Escolhe a ordem das seções do painel e quais ficam visíveis.">
+                    <TextBlock Text="Personalizar painel…" TextWrapping="Wrap" />
+                </Button>
             </DockPanel>
             <TextBlock x:Name="DocStateText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,8" />
 
-            <!-- Grid: seção mais usada, sempre aberta por padrão e no topo. -->
-            <Expander Header="Grid" IsExpanded="True">
+            <!-- Seções: ordem e visibilidade vêm de "Personalizar painel…" (ApplySectionLayout,
+                 ver PanelLayout/). Os MESMOS Expanders são reordenados neste contêiner — nada é
+                 recriado, então campos preenchidos e seções abertas/fechadas continuam como
+                 estavam. O status do último comando também vive aqui e é posicionado em código. -->
+            <StackPanel x:Name="SectionsHost">
+
+            <!-- Favoritos: atalhos em ícone para ferramentas das outras seções, montados em
+                 código (RebuildFavorites, ver Favorites/). Os botões originais continuam nas suas
+                 seções; cada atalho dispara o clique do original e espelha habilitação/estado
+                 dele. O nome aparece na dica; reordenar arrastando o ícone (ou pelo botão direito,
+                 que também remove). -->
+            <Expander x:Name="FavoritesSection" Header="Favoritos" IsExpanded="True">
                 <StackPanel>
-                    <Button Content="Preparar Grid" Click="OnPrepareGrid" Style="{StaticResource Px.PrimaryButton}"
+                    <!-- Liga/desliga: só o ícone (padrão) ou o botão inteiro com o nome. Salvo na
+                         configuração junto dos favoritos (PanelFavoritesShowLabels). -->
+                    <CheckBox x:Name="FavoritesShowLabelsCheckBox" Margin="0,0,0,6" HorizontalAlignment="Right" Style="{StaticResource Px.Switch}"
+                              Checked="OnFavoritesShowLabelsChanged" Unchecked="OnFavoritesShowLabelsChanged"
+                              AutomationProperties.Name="Mostrar o nome nos favoritos"
+                              ToolTip="Ligado: cada favorito aparece como o botão inteiro, com ícone e nome. Desligado: só o ícone (o nome fica na dica).">
+                        <TextBlock Text="Mostrar nomes" FontSize="11" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=CheckBox}}" />
+                    </CheckBox>
+                    <TextBlock x:Name="FavoritesEmptyText" Style="{StaticResource Px.MutedText}"
+                               Text="Nenhum favorito ainda. Clique com o botão direito em qualquer botão de ferramenta do painel e escolha &quot;Adicionar aos favoritos&quot;." />
+                    <!-- Barra de inserção do arrastar e soltar (FavoriteDragReorder), sobreposta
+                         aos ícones nas mesmas coordenadas. -->
+                    <Grid Margin="0,2,0,0">
+                        <WrapPanel x:Name="FavoritesItems" />
+                        <Canvas IsHitTestVisible="False">
+                            <Rectangle x:Name="FavoritesDropIndicator" Width="2" Fill="{StaticResource Px.Favorite}" />
+                        </Canvas>
+                    </Grid>
+                </StackPanel>
+            </Expander>
+
+            <!-- Grid: seção mais usada, sempre aberta por padrão. -->
+            <Expander x:Name="GridSection" Header="Grid" IsExpanded="True">
+                <StackPanel>
+                    <Button x:Name="PrepareGridButton" Content="Preparar Grid" Click="OnPrepareGrid" AutomationProperties.AutomationId="grid.prepare"
                             ToolTip="Prepara o Grid na grade existente do documento ativo." />
+                    <Separator />
+                    <TextBlock Text="Tamanho Padrão" Style="{StaticResource Px.SectionLabel}" />
+                    <!-- O estado da seleção aparece no próprio botão (Tag, ver
+                         UpdateStandardSizeButtonState): Ativo = cor de acento; Misto = só a borda
+                         de acento; demais = botão comum. A dica e o nome de acessibilidade
+                         repetem o estado em texto. -->
+                    <Button x:Name="ToggleStandardSizeButton" Content="Alternar Tamanho Padrão" Click="OnToggleStandardSize" AutomationProperties.AutomationId="grid.standard-size.toggle"
+                            Style="{StaticResource Px.StateButton}" />
+                    <Button x:Name="UpdateStandardSizeButton" Content="Atualizar Tamanho Padrão" Click="OnUpdateStandardSize" AutomationProperties.AutomationId="grid.standard-size.update"
+                            ToolTip="Adiciona Tamanho Padrão quando ausente ou atualiza o tamanho armazenado usando as dimensões atuais." />
+                    <Separator />
+                    <!-- Utilidades.AplicaContornoGrid como ferramenta própria (também é um passo do
+                         Preparar Grid Novo) — ver GridPreparationService.ApplyGridOutline. -->
+                    <Button Click="OnApplyGridOutline" AutomationProperties.AutomationId="grid.apply-outline"
+                            ToolTip="Aplica o estilo do Grid (preenchimento branco, contorno preto fino) a todos os objetos de todas as páginas do documento — o mesmo passo usado pelo Preparar Grid Novo. Não mexe nas camadas especiais (Guias, Grade). Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Aplicar contorno do Grid" TextWrapping="Wrap" />
+                    </Button>
+                </StackPanel>
+            </Expander>
+
+            <!-- Montagem: marcações e ajustes usados na montagem, com o contrato observado nas
+                 capturas antes/depois (docs/sisbolt-tools-investigation.md). As marcações
+                 alternam como o Tamanho Padrão e mostram o estado da seleção no próprio botão
+                 (UpdateSisboltMarkingButtonStates). Cada clique é um Ctrl+Z. -->
+            <Expander x:Name="AssemblySection" Header="Montagem" IsExpanded="True">
+                <StackPanel>
+                    <TextBlock Text="Marcações (objetos selecionados):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <Button x:Name="StretchToMoldButton" Click="OnToggleStretchToMold" AutomationProperties.AutomationId="grid.sisbolt.stretch-to-mold"
+                            Style="{StaticResource Px.StateButton}">
+                        <TextBlock Text="Alternar Esticar no Tamanho do Molde" TextWrapping="Wrap" />
+                    </Button>
+                    <Button x:Name="IgnoreVariableMetricsButton" Click="OnToggleIgnoreVariableMetrics" AutomationProperties.AutomationId="grid.sisbolt.ignore-variable-metrics"
+                            Style="{StaticResource Px.StateButton}">
+                        <TextBlock Text="Alternar Ignorar métricas da variável" TextWrapping="Wrap" />
+                    </Button>
+                    <Button x:Name="FreeHandButton" Click="OnToggleFreeHand" AutomationProperties.AutomationId="grid.sisbolt.free-hand"
+                            Style="{StaticResource Px.StateButton}">
+                        <TextBlock Text="Alternar Mão Livre" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <Button Click="OnResetRotation" AutomationProperties.AutomationId="grid.sisbolt.reset-rotation"
+                            ToolTip="Deixa cada objeto selecionado com rotação 0° sem mudar a aparência. Retângulo e elipse girados viram curva; grupo girado é refeito com os mesmos objetos, na mesma ordem. Nome e marcações (Tamanho Padrão, Esticar…) são mantidos. Texto e bitmap não são alterados. Se a geometria não ficar igual, o objeto volta a ser como era. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Resetar ângulo" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnCreateSingleItemGroup" AutomationProperties.AutomationId="grid.sisbolt.single-item-group"
+                            ToolTip="Coloca o objeto selecionado (fora de grupos) sozinho dentro de um grupo novo: o objeto continua o mesmo, com as mesmas propriedades; o grupo vai para a frente e fica selecionado. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Criar grupo com item único" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnAutomaticHorizontalAlignment" AutomationProperties.AutomationId="grid.sisbolt.auto-horizontal-alignment"
+                            ToolTip="Com dois objetos selecionados: mostra qual será alinhado e qual é a referência (dá para trocar e dar zoom na referência) e grava o vínculo de alinhamento (o mesmo identificador nos dois). Não move nada agora.">
+                        <TextBlock Text="Alinhamento horizontal automático…" TextWrapping="Wrap" />
+                    </Button>
+                </StackPanel>
+            </Expander>
+
+            <!-- Cadastro de moldes: ferramentas reescritas a partir das do MoldMotor (os assistentes
+                 ficam de fora) — MoldToolsService. Tamanhos e categorias: valores padrão
+                 (MoldSizeCategories) até a tela de configurações própria. -->
+            <Expander x:Name="MoldsSection" Header="Cadastro de moldes" IsExpanded="False">
+                <StackPanel>
+                    <Button Click="OnMoldSettings" AutomationProperties.AutomationId="molds.settings"
+                            ToolTip="Tamanhos de cada categoria (masculino, feminino, infantil), códigos das camadas, tamanho copiado para o Grid, os nomes do laser, da TAG e do identificador, e o que o Definir objetos cria (laser, TAG, contorno interno). Ficam nesta máquina e vão junto em Exportar/Importar preferências (Configurações do ListForge integrado).">
+                        <TextBlock Text="Configurações de moldes…" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <TextBlock Text="Definir objetos (peça e logos de um tamanho selecionados):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <TextBlock Text="Nome da peça:" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="MoldPieceNameTextBox" />
+                    <TextBlock Text="Tamanho:" Style="{StaticResource Px.SectionLabel}" />
+                    <ComboBox x:Name="MoldSizeCombo" />
+                    <Button Click="OnMoldDefine" AutomationProperties.AutomationId="molds.define"
+                            ToolTip="Monta o grupo do tamanho com a seleção: a peça (o maior objeto) recebe o nome digitado, uma cópia dela com o contorno do laser (x), os demais objetos viram logos L1, L2… (mesma numeração de outro tamanho já definido da peça, pela posição) e a TAG com o tamanho (embaixo da peça, ou na posição e com as margens das Configurações de moldes). Selecionar um grupo já montado o redefine. Laser e TAG: Configurações de moldes. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Definir objetos" TextWrapping="Wrap" />
+                    </Button>
+                    <TextBlock Text="Em lote (todos os tamanhos da peça selecionados) — categoria:" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <ComboBox x:Name="MoldCategoryCombo" />
+                    <Button Click="OnMoldDefineBatch" AutomationProperties.AutomationId="molds.define-batch"
+                            ToolTip="Selecione os conjuntos (peça + logos) de vários tamanhos da mesma peça, soltos ou já montados. Cada logo vai para a peça que contém o centro dele, e cada conjunto passa pelo Definir objetos com o nome da peça digitado acima. O tamanho de cada um vem da ordem de tamanho das peças: sem nenhum grupo de tamanho já montado na seleção, é preciso um conjunto para cada tamanho da categoria; com um (ex.: o G já definido), os outros seguem a partir dele. Qualquer conjunto com problema: nada é alterado. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Detectar objetos em lote" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnMoldPropagateLogos" AutomationProperties.AutomationId="molds.propagate-logos"
+                            ToolTip="Selecione os grupos de tamanho já montados da mesma peça. Os logos (L1, L2…) do grupo que tem mais logos vão para os outros, na mesma posição em relação ao centro da peça e na escala da altura da peça. Logo que o grupo já tem é só movido e redimensionado; logo que falta é copiado. Peça, laser, TAG e nomes não mudam. Se mais de um grupo tiver todos os logos, vale o tamanho escolhido acima. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Propagar logos" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnMoldValidate" AutomationProperties.AutomationId="molds.validate"
+                            ToolTip="Confere os grupos de tamanho da página ativa e mostra um relatório: peça não reconhecida, logo repetido, o mesmo L1, L2… em peças diferentes, numeração trocada entre tamanhos (comparando com o tamanho que tem mais logos), logo que falta ou fora do lugar, tamanho repetido, sem TAG ou sem laser. Não altera nada.">
+                        <TextBlock Text="Validar molde" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <TextBlock Text="Duplicar peça (grupos de tamanho selecionados) — nome da cópia:" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <TextBox x:Name="MoldCopyNameTextBox" />
+                    <ComboBox x:Name="MoldCopyDirectionCombo" Margin="0,4,0,0" />
+                    <TextBlock Text="Distância entre as peças (mm):" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="MoldCopyGapTextBox" Text="10" />
+                    <CheckBox x:Name="MoldCopyMirrorCheckBox" Margin="0,4,0,0">
+                        <TextBlock Text="Espelhar a cópia (só a peça e o laser)" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <Button Click="OnMoldDuplicate" AutomationProperties.AutomationId="molds.duplicate"
+                            ToolTip="Cada grupo de tamanho selecionado ganha uma cópia inteira ao lado, com a peça renomeada para o nome da cópia e a distância pedida entre as peças. Os logos da cópia ganham números novos, iguais em todos os tamanhos. Espelhar vira só a peça e o laser — TAG e logos ficam como estão. De novo com o mesmo nome, a cópia anterior do tamanho é substituída. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Duplicar peça" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <TextBlock Text="Camadas das peças (grupos de tamanho selecionados):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <TextBlock Text="Tipo de peça:" Style="{StaticResource Px.SectionLabel}" />
+                    <ComboBox x:Name="MoldPieceTypeCombo" />
+                    <Button Click="OnMoldCreateLayers" AutomationProperties.AutomationId="molds.create-layers"
+                            ToolTip="Move cada grupo de tamanho selecionado (G, M, BLG, 8A…), inteiro, para a camada TIPO.MOLDE.CATEGORIA.PEÇA (padrão novo), criando a camada se não existir. A peça é o objeto do grupo que não é Tag, x, logo (L1, L2…) nem identificador; o nome dela não pode ter espaço. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Criar camadas para a seleção" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnMoldUppercase" AutomationProperties.AutomationId="molds.uppercase"
+                            ToolTip="Nos grupos de tamanho selecionados: nome da peça em maiúsculas e, quando a camada está no padrão novo (TIPO.MOLDE.…), o nome da camada também. O x (laser) não muda. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Converter peça e camada para maiúsculas" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnMoldDeleteEmptyLayers" AutomationProperties.AutomationId="molds.delete-empty-layers"
+                            ToolTip="Exclui da página ativa as camadas sem nenhum objeto (camadas especiais do Corel ficam). Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Excluir camadas vazias" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <TextBlock Text="Ordenar e distribuir a seleção:" Style="{StaticResource Px.SectionLabel}" />
+                    <ComboBox x:Name="MoldSortCombo" />
+                    <ComboBox x:Name="MoldDirectionCombo" Margin="0,4,0,0" />
+                    <TextBlock Text="Distanciamento (mm, em branco = automático):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <TextBox x:Name="MoldGapTextBox" />
+                    <Button Click="OnMoldDistribute" AutomationProperties.AutomationId="molds.distribute"
+                            ToolTip="Ordena os objetos selecionados pela área e enfileira: na vertical de cima para baixo, na horizontal da esquerda para a direita, alinhados ao primeiro. Sem distanciamento, usa a menor dimensão entre as peças. A ordem na camada acompanha. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Distribuir" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <Button Click="OnMoldCreateGrid" AutomationProperties.AutomationId="molds.create-grid"
+                            ToolTip="A partir deste documento de moldes, copia o G (masculino), BLG (feminino) e o maior infantil de cada peça para um ARQUIVO de Grid novo, no padrão novo: uma camada por categoria com a peça, os logos e o retângulo PEÇA_RECT. Tag e x ficam de fora. Este documento não muda. O Grid é aberto em seguida.">
+                        <TextBlock Text="Criar Grid…" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnMoldSelectRect" AutomationProperties.AutomationId="molds.select-rect"
+                            ToolTip="Seleciona na página ativa todos os objetos com _RECT no nome (também dentro de grupos). Não altera nada.">
+                        <TextBlock Text="Selecionar RECT" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <TextBlock Text="Nome do molde:" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="MoldSaveNameTextBox" />
+                    <Button Click="OnMoldSave" AutomationProperties.AutomationId="molds.save"
+                            ToolTip="Salva o documento inteiro como .cdr com o nome digitado (pergunta onde, começando pela pasta do documento ou pela pasta de moldes). O documento aberto passa a ser o arquivo salvo.">
+                        <TextBlock Text="Salvar molde…" TextWrapping="Wrap" />
+                    </Button>
                 </StackPanel>
             </Expander>
 
             <!-- Códigos: NO/NU/AP/TS em grade compacta (alternância na seleção atual) + a
                  ferramenta de remoção de página inteira, que é uma operação diferente. -->
-            <Expander Header="Códigos" IsExpanded="True">
+            <Expander x:Name="CodesSection" Header="Códigos" IsExpanded="True">
                 <StackPanel>
                     <TextBlock Text="Alternar na seleção atual (NO = Nome, NU = Número, AP = Apelido, TS = Tipo sanguíneo):"
-                               Style="{StaticResource Px.SectionLabel}" />
+                               Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
                     <UniformGrid Columns="2" Rows="2">
-                        <Button Content="NO" Click="OnToggleNo" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                        <Button Content="NO" Click="OnToggleNo" AutomationProperties.AutomationId="codes.toggle-no" Margin="0,2,2,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'NO' e 'Texto Nome'." />
-                        <Button Content="NU" Click="OnToggleNu" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                        <Button Content="NU" Click="OnToggleNu" AutomationProperties.AutomationId="codes.toggle-nu" Margin="2,2,0,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'NU' e 'Texto Número'." />
-                        <Button Content="AP" Click="OnToggleAp" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                        <Button Content="AP" Click="OnToggleAp" AutomationProperties.AutomationId="codes.toggle-ap" Margin="0,2,2,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'AP' e 'Texto Apelido'." />
-                        <Button Content="TS" Click="OnToggleTs" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                        <Button Content="TS" Click="OnToggleTs" AutomationProperties.AutomationId="codes.toggle-ts" Margin="2,2,0,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna o nome dos objetos de texto selecionados entre o código 'TS' e 'Texto Tipo Sanguíneo'." />
                     </UniformGrid>
                     <Separator />
-                    <Button Content="Remover NO/NU da página" Click="OnExpandNoNu"
+                    <Button Content="Remover NO/NU da página" Click="OnExpandNoNu" AutomationProperties.AutomationId="codes.remove-no-nu-page"
                             ToolTip="Renomeia objetos NO para TextoNome e NU para TextoNumero em todas as camadas da página ativa, incluindo objetos dentro de grupos. Não altera o conteúdo dos textos." />
+                    <!-- Mesma ferramenta de página inteira (grupos e PowerClips), por código ou
+                         todos de uma vez — ver CodeToggleService.RemoveCodesRecursively. -->
+                    <TextBlock Text="Remover da página ativa, um código por vez:" Style="{StaticResource Px.SectionLabel}"
+                               TextWrapping="Wrap" />
+                    <UniformGrid Columns="4">
+                        <Button Content="NO" Click="OnRemoveNoFromPage" AutomationProperties.AutomationId="codes.remove-no-page" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Renomeia todo objeto 'NO' da página ativa (inclusive em grupos e PowerClips) para 'TextoNome'. Não altera o conteúdo dos textos." />
+                        <Button Content="NU" Click="OnRemoveNuFromPage" AutomationProperties.AutomationId="codes.remove-nu-page" Margin="2,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Renomeia todo objeto 'NU' da página ativa (inclusive em grupos e PowerClips) para 'TextoNumero'. Não altera o conteúdo dos textos." />
+                        <Button Content="AP" Click="OnRemoveApFromPage" AutomationProperties.AutomationId="codes.remove-ap-page" Margin="2,2,2,2" HorizontalContentAlignment="Center"
+                                ToolTip="Renomeia todo objeto 'AP' da página ativa (inclusive em grupos e PowerClips) para 'Texto Apelido'. Não altera o conteúdo dos textos." />
+                        <Button Content="TS" Click="OnRemoveTsFromPage" AutomationProperties.AutomationId="codes.remove-ts-page" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                                ToolTip="Renomeia todo objeto 'TS' da página ativa (inclusive em grupos e PowerClips) para 'Texto Tipo Sanguíneo'. Não altera o conteúdo dos textos." />
+                    </UniformGrid>
+                    <Button Click="OnRemoveAllCodesFromPage" AutomationProperties.AutomationId="codes.remove-all-page"
+                            ToolTip="Renomeia, de uma vez, todo objeto NO, NU, AP e TS da página ativa (inclusive em grupos e PowerClips): NO → TextoNome, NU → TextoNumero, AP → Texto Apelido, TS → Texto Tipo Sanguíneo. Não altera o conteúdo dos textos.">
+                        <TextBlock Text="Remover todos os códigos (NO/NU/AP/TS) da página" TextWrapping="Wrap" />
+                    </Button>
                 </StackPanel>
             </Expander>
 
@@ -326,18 +677,28 @@
                  indicador de estado — não existe leitura confiável de visível/oculto/misto por
                  camada, então o rótulo não finge mostrar um estado atual (ver
                  LayerVisibilityService.Toggle). -->
-            <Expander Header="Camadas" IsExpanded="False">
+            <Expander x:Name="LayersSection" Header="Camadas" IsExpanded="False">
                 <StackPanel>
+                    <!-- Px.SectionLabel não quebra linha; esta legenda é longa demais para um
+                         docker estreito (300 px) e era cortada. -->
                     <TextBlock Text="Alternar visibilidade de todas as camadas MA, FE ou C da página ativa:"
-                               Style="{StaticResource Px.SectionLabel}" />
+                               Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
                     <UniformGrid Columns="3">
-                        <Button Content="MA" Click="OnToggleMa" Margin="0,2,2,2" HorizontalContentAlignment="Center"
+                        <Button x:Name="ToggleMaButton" Content="MA" Click="OnToggleMa" AutomationProperties.AutomationId="layers.toggle-ma" Margin="0,2,2,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna a visibilidade de todas as camadas 'MA' da página ativa." />
-                        <Button Content="FE" Click="OnToggleFe" Margin="2,2,2,2" HorizontalContentAlignment="Center"
+                        <Button x:Name="ToggleFeButton" Content="FE" Click="OnToggleFe" AutomationProperties.AutomationId="layers.toggle-fe" Margin="2,2,2,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna a visibilidade de todas as camadas 'FE' da página ativa." />
-                        <Button Content="C" Click="OnToggleC" Margin="2,2,0,2" HorizontalContentAlignment="Center"
+                        <Button x:Name="ToggleCButton" Content="C" Click="OnToggleC" AutomationProperties.AutomationId="layers.toggle-c" Margin="2,2,0,2" HorizontalContentAlignment="Center"
                                 ToolTip="Alterna a visibilidade de todas as camadas 'C' da página ativa." />
                     </UniformGrid>
+                    <Separator Margin="0,6,0,6" />
+                    <Button x:Name="HideSelectedLayersButton" Content="Ocultar camadas dos objetos selecionados" Click="OnHideSelectedObjectsLayers" AutomationProperties.AutomationId="layers.hide-selected"
+                            ToolTip="Oculta cada camada que contém pelo menos um dos objetos selecionados. Camadas especiais do Corel (Guias, Área de trabalho, Grade) nunca são ocultadas. Desfazível com Ctrl+Z." />
+                    <!-- Habilitado/dica atualizados em UpdateRestoreHiddenLayersButtonState;
+                         ShowOnDisabled para a dica explicar por que está desabilitado. -->
+                    <Button x:Name="RestoreHiddenLayersButton" Content="Mostrar últimas camadas ocultadas"
+                            Click="OnRestoreLastHiddenLayers" AutomationProperties.AutomationId="layers.restore-last-hidden" Margin="0,4,0,0" IsEnabled="False"
+                            ToolTipService.ShowOnDisabled="True" />
                 </StackPanel>
             </Expander>
 
@@ -345,66 +706,203 @@
                  de layout/pasta — por isso ficam antes deles. Escudo/Bandeira/Faixa de Capitão
                  usam os dois campos, que ficam imediatamente acima apenas destes três botões
                  (confirmado em OutputPreparationService/PrepareAndSaveOutput). -->
-            <Expander Header="Preparação e saída" IsExpanded="False">
+            <Expander x:Name="OutputSection" Header="Preparação e saída" IsExpanded="False">
                 <StackPanel>
-                    <Button Content="Preparar Grid Novo" Click="OnPrepareNewGrid"
-                            ToolTip="Cria uma nova grade e prepara o Grid nela." />
-                    <Button Content="Preparar Molde Novo" Click="OnPrepareNewMold"
-                            ToolTip="Prepara um novo Molde na página ativa (não usa os campos de layout/pasta abaixo)." />
+                    <!-- Padrão antigo (macros) e padrão novo (camadas CAM1.MOLDE.…) — ver
+                         LayerStandardService. O conversor troca o documento aberto de um para o outro. -->
+                    <TextBlock Text="Padrão antigo (CAM1.Frente.MA.Frente / CAM1.Frente.MA):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <Button x:Name="PrepareNewGridButton" Content="Preparar Grid Novo" Click="OnPrepareNewGrid" AutomationProperties.AutomationId="output.prepare-new-grid"
+                            ToolTip="Cria uma nova grade e prepara o Grid nela, no padrão antigo: uma camada por peça (CAM1.Frente.MA)." />
+                    <Button x:Name="PrepareNewMoldButton" Content="Preparar Molde Novo" Click="OnPrepareNewMold" AutomationProperties.AutomationId="output.prepare-new-mold"
+                            ToolTip="Prepara um novo Molde na página ativa, no padrão antigo: camadas CAM1.Frente.MA.Frente (não usa os campos de layout/pasta abaixo)." />
+                    <TextBlock Text="Padrão novo (CAM1.MOLDE.MA.Frente / CAM1.MOLDE.MA):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <Button Content="Preparar Grid Novo" Click="OnPrepareNewGridNewStandard" AutomationProperties.AutomationId="output.prepare-new-grid.new-standard"
+                            ToolTip="Igual ao Preparar Grid Novo, mas termina no padrão novo: uma camada por categoria (CAM1.MOLDE.MA) com todas as peças, os logos L1, L2… e um retângulo &lt;peça&gt;_RECT do tamanho de cada peça, no fundo da camada. Desfazível com Ctrl+Z." />
+                    <Button Content="Preparar Molde Novo" Click="OnPrepareNewMoldNewStandard" AutomationProperties.AutomationId="output.prepare-new-mold.new-standard"
+                            ToolTip="Igual ao Preparar Molde Novo, mas com as camadas no padrão novo (CAM1.MOLDE.MA.Frente). Os objetos continuam com os mesmos nomes (Tag, peça, x); os logos L1, L2… mantêm o nome. Desfazível com Ctrl+Z." />
+                    <Button Click="OnConvertLayerStandard" AutomationProperties.AutomationId="output.convert-layer-standard" Margin="0,6,0,0"
+                            ToolTip="Converte o documento aberto (todas as páginas) para o outro padrão. Molde: CAM1.Frente.MA.Frente ↔ CAM1.MOLDE.MA.Frente (só o nome das camadas muda). Grid: uma camada por peça (CAM1.Frente.MA) ↔ uma camada por categoria (CAM1.MOLDE.MA) com os retângulos &lt;peça&gt;_RECT. Se houver alguma camada no padrão antigo, converte para o novo; senão, volta para o antigo. O status diz para qual foi. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Converter documento: padrão antigo ↔ novo" TextWrapping="Wrap" />
+                    </Button>
                     <Separator />
                     <TextBlock Text="Nome do layout (opcional):" Style="{StaticResource Px.SectionLabel}" />
                     <TextBox x:Name="LayoutNameTextBox" />
+                    <!-- Usa o contexto de produção carregado (seção Produção) para preencher o
+                         campo acima — só leitura do arquivo do Nexor; nada volta para o Nexor. -->
+                    <Button x:Name="UseOrderContextLayoutNameButton" Click="OnUseOrderContextLayoutName" IsEnabled="False"
+                            AutomationProperties.AutomationId="output.use-context-layout-name" ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Preenche &quot;Nome do layout&quot; com o pedido informado do contexto de produção carregado (ou, sem pedido, com o nome do arquivo de origem). Disponível depois de carregar um contexto na seção Produção.">
+                        <TextBlock Text="Usar contexto de produção" TextWrapping="Wrap" />
+                    </Button>
                     <TextBlock Text="Pasta de saída (opcional):" Style="{StaticResource Px.SectionLabel}" />
                     <TextBox x:Name="OutputFolderTextBox"
-                             ToolTip="Se vazio, usa a pasta padrão configurada em OutputPreparationService.DefaultOutputFolder (Z:\Neuber\Saídas)." />
-                    <TextBlock x:Name="OutputFolderPreviewText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,4"
-                               TextTrimming="CharacterEllipsis" />
-                    <Button Content="Preparar Escudo" Click="OnPrepareShield"
+                             ToolTip="Vale só enquanto estiver preenchido. Se vazio, usa a pasta padrão desta máquina (&quot;Definir pasta padrão…&quot;) ou, sem ela, o padrão original Z:\Neuber\Saídas." />
+                    <!-- Com contexto de produção carregado, salva dentro de uma subpasta com o nome
+                         do rolo (criada se não existir). Habilitada só com contexto; o "Destino"
+                         abaixo já mostra a subpasta. Não é salva em configuração. -->
+                    <CheckBox x:Name="UseRollSubfolderCheckBox" IsChecked="True" IsEnabled="False" Margin="0,4,0,0"
+                              ToolTipService.ShowOnDisabled="True"
+                              ToolTip="Com um contexto de produção carregado (seção Produção), Escudo/Bandeira/Faixa vão para uma subpasta com o nome do rolo dentro da pasta de saída — criada se não existir. Desmarque para salvar direto na pasta de saída.">
+                        <TextBlock Text="Salvar na subpasta do rolo (contexto de produção)" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <!-- "Destino" diz de onde veio a pasta (digitada / padrão desta máquina /
+                         padrão original); quebra linha em vez de cortar caminhos longos. -->
+                    <TextBlock x:Name="OutputFolderPreviewText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,4" />
+                    <Button Click="OnSetDefaultOutputFolder" AutomationProperties.AutomationId="output.set-default-folder"
+                            ToolTip="Escolhe a pasta usada quando o campo &quot;Pasta de saída&quot; fica vazio. Salva só nesta máquina (não entra nas preferências exportadas).">
+                        <TextBlock Text="Definir pasta padrão…" TextWrapping="Wrap" />
+                    </Button>
+                    <Button x:Name="ResetDefaultOutputFolderButton" Click="OnResetDefaultOutputFolder" AutomationProperties.AutomationId="output.reset-default-folder"
+                            ToolTipService.ShowOnDisabled="True">
+                        <TextBlock Text="Voltar ao padrão original" TextWrapping="Wrap" />
+                    </Button>
+                    <Separator />
+                    <Button Content="Preparar Escudo" Click="OnPrepareShield" AutomationProperties.AutomationId="output.prepare-shield"
                             ToolTip="Prepara e salva a saída 'Escudo' usando o layout e a pasta acima." />
-                    <Button Content="Preparar Bandeira" Click="OnPrepareFlag"
+                    <Button Content="Preparar Bandeira" Click="OnPrepareFlag" AutomationProperties.AutomationId="output.prepare-flag"
                             ToolTip="Prepara e salva a saída 'Bandeira' usando o layout e a pasta acima." />
-                    <Button Content="Preparar Faixa de Capitão" Click="OnPrepareCaptainSash"
+                    <Button Content="Preparar Faixa de Capitão" Click="OnPrepareCaptainSash" AutomationProperties.AutomationId="output.prepare-captain-sash"
                             ToolTip="Prepara e salva a saída 'Faixa De Capitão' usando o layout e a pasta acima." />
                 </StackPanel>
             </Expander>
 
-            <!-- Outras ferramentas: dividido em Tipo de peça, Objetos e Medidas — só os comandos
+            <!-- Tipo de peça, Objetos e Medidas (antes "Outras ferramentas — …") — só os comandos
                  já implementados; nenhum botão para função inexistente. -->
-            <Expander Header="Outras ferramentas — Tipo de peça" IsExpanded="False">
+            <Expander x:Name="PieceTypeSection" Header="Tipo de peça" IsExpanded="False">
                 <StackPanel>
                     <TextBlock Text="Novo tipo de peça:" Style="{StaticResource Px.SectionLabel}" />
                     <ComboBox x:Name="ToTypeCombo" />
-                    <Button Content="Alterar tipo dos objetos selecionados" Click="OnChangeSelectedObjectsType"
+                    <Button Content="Alterar tipo dos objetos selecionados" Click="OnChangeSelectedObjectsType" AutomationProperties.AutomationId="tools.piece-type.selected-objects"
                             ToolTip="Reconhece o tipo pelo nome de cada objeto selecionado (formato TIPO.resto) e troca só o tipo, preservando o restante do nome. Objetos com nome em outro formato são ignorados e contados à parte." />
-                    <Button Content="Alterar tipo da camada ativa" Click="OnChangeActiveLayerType"
+                    <Button Content="Alterar tipo da camada ativa" Click="OnChangeActiveLayerType" AutomationProperties.AutomationId="tools.piece-type.active-layer"
                             ToolTip="Atua SÓ na camada ativa (destacada no Gerenciador de Objetos) — o CorelDRAW não expõe multi-seleção de camadas por automação, então isto NÃO é 'camadas selecionadas' no plural." />
+
+                    <Separator Margin="0,8,0,8" />
+                    <TextBlock Text="Alterar no documento inteiro (busca todas as páginas/camadas pelo tipo de origem abaixo, como antes: ex. CAM1 → CAM2):"
+                               Style="{StaticResource Px.SectionLabel}" />
+                    <TextBlock Text="Tipo de origem:" Style="{StaticResource Px.SectionLabel}" />
+                    <ComboBox x:Name="FromTypeCombo" />
+                    <Button Content="Alterar tipo no documento inteiro" Click="OnChangeDocumentType" AutomationProperties.AutomationId="tools.piece-type.document"
+                            ToolTip="Função original (Correcoes.RenomeiaTipoDePeca): percorre todas as páginas e camadas do documento e troca o tipo de peça de toda camada cujo nome comece pelo tipo de origem (ou qualquer tipo válido, se 'Tudo' estiver selecionado). Não depende de seleção nem de camada ativa." />
                 </StackPanel>
             </Expander>
 
-            <Expander Header="Outras ferramentas — Objetos" IsExpanded="False">
+            <Expander x:Name="ObjectsSection" Header="Objetos" IsExpanded="False">
                 <StackPanel>
                     <TextBlock Text="Novo nome para os objetos selecionados:" Style="{StaticResource Px.SectionLabel}" />
                     <TextBox x:Name="RenameTextBox" />
-                    <Button Content="Renomear Objetos Selecionados" Click="OnRenameSelected"
+                    <!-- Só preenche o campo acima (como em Preparação e saída); renomear continua
+                         sendo o botão abaixo. -->
+                    <Button x:Name="UseOrderContextRenameButton" Click="OnUseOrderContextRename" IsEnabled="False"
+                            AutomationProperties.AutomationId="tools.objects.use-context-name" ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Preenche o campo acima com o pedido informado do contexto de produção carregado (ou, sem pedido, com o nome do arquivo de origem). Não renomeia nada sozinho. Disponível depois de carregar um contexto na seção Produção.">
+                        <TextBlock Text="Usar contexto de produção" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Content="Renomear Objetos Selecionados" Click="OnRenameSelected" AutomationProperties.AutomationId="tools.objects.rename-selected"
                             ToolTip="Aplica o nome acima a todos os objetos atualmente selecionados." />
                     <Separator />
-                    <Button Content="Agrupar Interseção" Click="OnGroupIntersection"
+                    <Button Content="Agrupar Interseção" Click="OnGroupIntersection" AutomationProperties.AutomationId="tools.objects.group-intersection"
                             ToolTip="Agrupa automaticamente os objetos que se sobrepõem na página ativa (não depende da seleção)." />
                 </StackPanel>
             </Expander>
 
-            <Expander Header="Outras ferramentas — Medidas" IsExpanded="False">
+            <Expander x:Name="MeasuresSection" Header="Medidas" IsExpanded="False">
                 <StackPanel>
-                    <TextBlock Text="Soma de medidas dos objetos selecionados (copiada para a área de transferência):"
+                    <TextBlock Text="Soma de medidas dos objetos selecionados, sempre em metros (copiada para a área de transferência):"
                                Style="{StaticResource Px.SectionLabel}" />
-                    <Button Content="Somar Altura (m)" Click="OnSumHeightOnly"
-                            ToolTip="Soma apenas a altura dos objetos selecionados, em metros." />
-                    <Button Content="Somar Altura" Click="OnSumHeight"
-                            ToolTip="Soma a altura dos objetos selecionados na unidade do documento." />
-                    <Button Content="Somar Largura" Click="OnSumWidth"
-                            ToolTip="Soma a largura dos objetos selecionados na unidade do documento." />
-                    <Button Content="Somar Altura e Largura" Click="OnSumBoth"
-                            ToolTip="Soma altura e largura dos objetos selecionados na unidade do documento." />
+                    <Button Content="Somar Altura" Click="OnSumHeight" AutomationProperties.AutomationId="tools.measures.sum-height"
+                            ToolTip="Soma a altura dos objetos selecionados, em metros." />
+                    <Button Content="Somar Largura" Click="OnSumWidth" AutomationProperties.AutomationId="tools.measures.sum-width"
+                            ToolTip="Soma a largura dos objetos selecionados, em metros." />
+                    <Button Content="Somar Altura e Largura" Click="OnSumBoth" AutomationProperties.AutomationId="tools.measures.sum-both"
+                            ToolTip="Soma altura e largura dos objetos selecionados, em metros." />
+                </StackPanel>
+            </Expander>
+
+            <!-- Listas: dois acessos independentes ao ListForge, nenhum deles embute a
+                 interface/processamento do outro.
+                 - "Abrir ListForge Integrado" abre uma área de trabalho própria (janela do PX,
+                   ClassicWorkspaceWindow) que chama o núcleo compartilhado (ListForge.Core),
+                   sem precisar de documento aberto no CorelDRAW nem do executável do standalone.
+                 - "Abrir ListForge Standalone ↗" continua abrindo o executável externo
+                   configurado, como antes (ver OnOpenListForgeStandalone).
+                 Recursos exclusivos da distribuição DEV (ver Integrations/ e ListForgeIntegrated/). -->
+            <Expander x:Name="ListsSection" Header="Listas" IsExpanded="False">
+                <StackPanel>
+                    <Button Content="Abrir ListForge Integrado" Click="OnOpenListForgeIntegrated" AutomationProperties.AutomationId="lists.open-integrated" Style="{StaticResource Px.PrimaryButton}"
+                            ToolTip="Abre o modo Clássico do ListForge Integrado em sua própria área de trabalho, usando o núcleo de processamento compartilhado. Não depende de documento aberto no CorelDRAW." />
+                    <Separator />
+                    <Button Content="Abrir ListForge Standalone ↗" Click="OnOpenListForgeStandalone" AutomationProperties.AutomationId="lists.open-standalone"
+                            ToolTip="Abre o executável do ListForge standalone no caminho configurado abaixo. Não depende de documento aberto no CorelDRAW." />
+                    <Button Content="Localizar executável…" Click="OnLocateListForgeExecutable" AutomationProperties.AutomationId="lists.locate-executable"
+                            ToolTip="Escolhe (ou troca) o caminho do ListForge.exe. Salvo nesta máquina, só para a distribuição DEV." />
+                    <TextBlock x:Name="ListForgePathText" Style="{StaticResource Px.MutedText}" Margin="0,4,0,0"
+                               TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Expander>
+
+            <!-- Produção: primeira etapa da integração com o Nexor (centro de controle de
+                 produção) — só abrir o executável já existente, igual ao padrão de "Abrir
+                 ListForge Standalone" acima (ver NexorLauncher/NexorConfigStore). Nenhuma
+                 interface do Nexor é incorporada, nenhum dado de pedido é compartilhado e
+                 nexor.db nunca é lido/alterado por este botão — recurso exclusivo da
+                 distribuição DEV. -->
+            <Expander x:Name="ProductionSection" Header="Produção" IsExpanded="False">
+                <StackPanel>
+                    <Button Content="Abrir Nexor ↗" Click="OnOpenNexor" AutomationProperties.AutomationId="production.open-nexor"
+                            ToolTip="Abre o executável do Nexor no caminho configurado abaixo. Não depende de documento aberto no CorelDRAW." />
+                    <Button Content="Localizar executável…" Click="OnLocateNexorExecutable" AutomationProperties.AutomationId="production.locate-executable"
+                            ToolTip="Escolhe (ou troca) o caminho do executável do Nexor. Salvo nesta máquina, só para a distribuição DEV — configuração independente da do ListForge." />
+                    <TextBlock x:Name="NexorPathText" Style="{StaticResource Px.MutedText}" Margin="0,4,0,0"
+                               TextTrimming="CharacterEllipsis" />
+                    <Separator />
+                    <Button Content="Carregar contexto de produção…" Click="OnLoadOrderContextClick" AutomationProperties.AutomationId="production.load-context"
+                            ToolTip="Importa manualmente um contexto de produção exportado pelo Nexor (arquivo .json) — um trabalho de impressão dentro de um rolo, não um pedido comercial formal (o Nexor não tem essa entidade). Só leitura, só memória. Não altera nexor.db, não atualiza status no Nexor, não modifica o documento do Corel nem a sessão do ListForge. Funciona sem documento aberto. Ver docs/integrations/nexor-order-context.md." />
+                    <Button Content="Colar caminho do contexto…" Click="OnPasteOrderContextPathClick" AutomationProperties.AutomationId="production.paste-context-path"
+                            ToolTip="Alternativa ao seletor acima: cole diretamente o caminho do arquivo .json (ex.: copiado pela ação &quot;Copiar caminho&quot; do Nexor) em vez de navegar pelo seletor. Mesma validação, mesmo caráter só leitura/só memória. Nada é carregado sozinho numa próxima vez — o caminho só entra em &quot;Recentes&quot;." />
+                    <!-- Recentes (Integrations/OrderContextHistoryStore): só os caminhos dos últimos
+                         .json carregados; escolher um relê e revalida o arquivo. -->
+                    <Button x:Name="RecentOrderContextsButton" Content="Recentes…" Click="OnShowRecentOrderContexts" AutomationProperties.AutomationId="production.recent-contexts"
+                            ToolTip="Lista os últimos contextos de produção carregados nesta máquina (até 10). Escolher um lê e valida o arquivo .json de novo, como um carregamento novo — se o Nexor exportou outra vez, vale a versão atual do arquivo. Só os caminhos ficam salvos, nunca o conteúdo do contexto." />
+                    <!-- Resumo do contexto carregado nesta sessão (UpdateOrderContextSummary): só
+                         dados do arquivo exportado pelo Nexor; some quando não há contexto. -->
+                    <Border x:Name="OrderContextSummaryPanel" Visibility="Collapsed" Margin="0,6,0,2" Padding="8,6,8,6"
+                            Background="{StaticResource Px.Surface0}" BorderBrush="{StaticResource Px.Border}"
+                            BorderThickness="1" CornerRadius="4">
+                        <StackPanel>
+                            <TextBlock Text="Contexto carregado (só consulta)" Style="{StaticResource Px.SectionLabel}" Margin="0,0,0,2" />
+                            <TextBlock x:Name="OrderContextRollText" FontWeight="SemiBold" />
+                            <TextBlock x:Name="OrderContextJobText" Margin="0,2,0,0" />
+                            <TextBlock x:Name="OrderContextPedidoText" Margin="0,2,0,0" />
+                            <TextBlock x:Name="OrderContextExportedText" Style="{StaticResource Px.MutedText}" Margin="0,2,0,0" />
+                            <!-- Saídas salvas com este contexto nesta sessão (resultado de execução). -->
+                            <TextBlock x:Name="OrderContextOutputsText" Style="{StaticResource Px.MutedText}" Margin="0,2,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+                    <Button x:Name="ShowOrderContextDetailsButton" Click="OnShowOrderContextDetails" IsEnabled="False"
+                            AutomationProperties.AutomationId="production.show-context-details" ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Abre a janela com todos os dados do contexto de produção carregado. Disponível depois de carregar um contexto.">
+                        <TextBlock Text="Ver detalhes" TextWrapping="Wrap" />
+                    </Button>
+                    <!-- Única ação desta seção que altera o documento (só o nome da página ativa,
+                         desfazível com Ctrl+Z). -->
+                    <Button x:Name="NameActivePageFromContextButton" Click="OnNameActivePageFromContext" IsEnabled="False"
+                            AutomationProperties.AutomationId="production.name-active-page" ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Renomeia a página ativa do documento com o pedido informado do contexto carregado (ou, sem pedido, com o nome do arquivo de origem). Desfazível com Ctrl+Z. Preparar Escudo/Bandeira/Faixa renomeiam a página de novo para o nome da saída. Disponível depois de carregar um contexto.">
+                        <TextBlock Text="Nomear página ativa com o contexto" TextWrapping="Wrap" />
+                    </Button>
+                    <!-- Caminho de volta (PxExecutionResult): só um arquivo escolhido pelo usuário,
+                         com as saídas salvas — nenhum status, nada gravado no Nexor. -->
+                    <Button x:Name="ExportExecutionResultButton" Click="OnExportExecutionResult" IsEnabled="False"
+                            AutomationProperties.AutomationId="production.export-result" ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Grava um arquivo .json (resultado de execução) com as saídas Escudo/Bandeira/Faixa salvas nesta sessão com o contexto carregado, e com a identificação do rolo e do trabalho de impressão. Não altera o Nexor nem o status do trabalho — o Nexor decide o que fazer com o arquivo. Disponível depois de salvar pelo menos uma saída com o contexto carregado.">
+                        <TextBlock Text="Exportar resultado para o Nexor…" TextWrapping="Wrap" />
+                    </Button>
+                    <Button x:Name="ClearOrderContextButton" Click="OnClearOrderContext" IsEnabled="False"
+                            AutomationProperties.AutomationId="production.clear-context" ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Esquece o contexto carregado nesta sessão. Não altera o Nexor, o arquivo exportado nem nada no Corel ou no ListForge. Disponível depois de carregar um contexto.">
+                        <TextBlock Text="Limpar contexto" TextWrapping="Wrap" />
+                    </Button>
                 </StackPanel>
             </Expander>
 
@@ -419,11 +917,139 @@
 
             <!-- Diagnóstico técnico: versão do CorelDRAW e estado de conexão — fora do
                  cabeçalho principal, recolhido por padrão. -->
-            <Expander Header="Diagnóstico" IsExpanded="False">
+            <!-- Uma coluna só, botões na largura do painel (nada lado a lado, nenhuma largura
+                 fixa): num docker estreito o rótulo quebra linha em vez de ser cortado. Os
+                 resultados ficam recolhidos enquanto vazios — sem espaço reservado. -->
+            <Expander x:Name="DiagnosticsSection" Header="Diagnóstico" IsExpanded="False">
                 <StackPanel>
-                    <TextBlock x:Name="DiagnosticsText" Style="{StaticResource Px.MutedText}" />
+                    <StackPanel.Resources>
+                        <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                            <Setter Property="MinHeight" Value="28" />
+                            <Setter Property="Margin" Value="0,2,0,2" />
+                        </Style>
+                        <Style x:Key="Px.ButtonLabel" TargetType="TextBlock">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                        </Style>
+                        <Style x:Key="Px.DiagnosticOutput" TargetType="TextBlock" BasedOn="{StaticResource Px.MutedText}">
+                            <Setter Property="FontFamily" Value="Consolas" />
+                            <Setter Property="Margin" Value="0,2,0,6" />
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <TextBlock x:Name="DiagnosticsText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,4" />
+
+                    <!-- Manual de uso (Manual/): para que serve e como usar cada ferramenta. Só
+                         texto; janela não modal, para ficar aberta ao lado do Corel. -->
+                    <Button Click="OnOpenUserManual" AutomationProperties.AutomationId="diagnostics.manual"
+                            ToolTip="Abre o manual de uso: para que serve cada seção e cada ferramenta do painel, como usar e o que observar, com filtro por palavra.">
+                        <TextBlock Text="Manual de uso" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+
+                    <!-- Notas da versão (ReleaseNotes/): estava no rodapé na dev.59; aqui por pedido
+                         do usuário. Só consulta — não toca no Corel, documentos ou configuração. -->
+                    <Button Click="OnReleaseNotes" AutomationProperties.AutomationId="diagnostics.release-notes"
+                            ToolTip="Lista o que foi implementado, alterado ou removido na versão em execução.">
+                        <TextBlock Text="Notas da versão" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+
+                    <Button Click="OnInspectShapeProperties" AutomationProperties.AutomationId="diagnostics.inspect-properties"
+                            ToolTip="Mostra, em modo somente leitura, todas as Shape.Properties do único objeto selecionado — usada para investigar como os objetos são marcados (ex.: 'Tamanho padrão'). Nunca cria, altera ou exclui nada. Exclusiva da distribuição DEV.">
+                        <TextBlock Text="Inspecionar propriedades" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+
+                    <!-- Comparação antes/depois (Diagnostics/PageCapture*.cs): observa o que uma
+                         ferramenta (do SISBolt, por exemplo) muda na página ativa. Só leitura. -->
+                    <Button Click="OnOpenCaptureChecklist" AutomationProperties.AutomationId="diagnostics.capture-checklist"
+                            ToolTip="Lista as capturas antes/depois que faltam para as ferramentas de montagem: o que preparar na página e o que fazer na ferramenta original. A comparação já abre com o item escolhido e salva o relatório na pasta de capturas.">
+                        <TextBlock Text="Roteiro de capturas…" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <Button Click="OnCapturePageBefore" AutomationProperties.AutomationId="diagnostics.capture-before"
+                            ToolTip="Captura, só para leitura, a página ativa: Properties do documento, da página, das camadas e de cada objeto (inclusive dentro de grupos e PowerClips), nome, posição, tamanho, rotação, seleção e dados do objeto. Depois use a ferramenta que quer investigar e clique em &quot;Comparar com a captura&quot;. Use num documento de teste pequeno.">
+                        <TextBlock Text="Capturar estado (antes)" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <Button x:Name="ComparePageCaptureButton" Click="OnComparePageCapture" AutomationProperties.AutomationId="diagnostics.capture-compare" IsEnabled="False"
+                            ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Captura a página de novo e mostra tudo o que mudou desde &quot;Capturar estado (antes)&quot; — propriedades criadas, removidas ou alteradas, objetos novos/removidos, posição, tamanho, rotação, grupo. Só leitura; o relatório pode ser copiado ou salvo.">
+                        <TextBlock Text="Comparar com a captura (depois)" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <TextBlock x:Name="PageCaptureStatusText" Margin="0,0,0,4">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Px.MutedText}">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+
+                    <!-- Investigação do sintoma "painel para de redesenhar" (ver
+                         Diagnostics/PanelRenderDiagnostics.cs) — somente leitura, nunca altera
+                         nada do host. Use no MOMENTO em que notar a tela congelada. -->
+                    <Button Click="OnRenderDiagnostics" AutomationProperties.AutomationId="diagnostics.render"
+                            ToolTip="Leitura somente-leitura de Application.Optimization, do estado de renderização do WPF e da Visibility/Opacity/tamanho de cada Expander deste painel — use quando notar ESTE painel sem atualizar visualmente, antes de redimensionar/minimizar a janela do Corel.">
+                        <TextBlock Text="Diagnóstico de redesenho" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <Button Click="OnCopyRenderDiagnostics" AutomationProperties.AutomationId="diagnostics.copy-render"
+                            ToolTip="Copia o resultado do diagnóstico de redesenho para a área de transferência (gera o diagnóstico antes, se ainda não houver resultado).">
+                        <TextBlock Text="Copiar diagnóstico" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <TextBlock x:Name="RenderDiagnosticsText" Style="{StaticResource Px.DiagnosticOutput}" />
+
+                    <!-- Premissa da restauração de camadas (ver
+                         Diagnostics/LayerIdentityDiagnostics.cs): só roda depois de confirmar o
+                         aviso, e só num documento temporário criado por ele. -->
+                    <Button Click="OnLayerIdentityDiagnostics" AutomationProperties.AutomationId="diagnostics.layer-identity"
+                            ToolTip="Cria um documento temporário e verifica se o Corel mantém a mesma identidade de sessão para documento e camadas (acessos repetidos, renomear, reordenar, excluir/recriar, Desfazer, fechar/reabrir). Pede confirmação antes; não altera seus documentos nem grava Properties.">
+                        <TextBlock Text="Testar identidade de camadas…" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <!-- Resultado: só um resumo curto aparece direto no painel; o relatório
+                         completo fica recolhido, numa área de altura limitada com rolagem
+                         própria ("Ver relatório"), e inteiro para "Copiar relatório". -->
+                    <TextBlock x:Name="LayerIdentitySummaryText" Margin="0,2,0,2">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource Px.MutedText}">
+                                <Style.Triggers>
+                                    <Trigger Property="Text" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <Button x:Name="LayerIdentityReportToggleButton" Click="OnToggleLayerIdentityReport" AutomationProperties.AutomationId="diagnostics.layer-identity-report" IsEnabled="False"
+                            ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Mostra ou oculta o relatório completo do teste de identidade, numa área com rolagem própria. Disponível depois que o teste rodar.">
+                        <TextBlock x:Name="LayerIdentityReportToggleLabel" Text="Ver relatório" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <Button x:Name="LayerIdentityCopyButton" Click="OnCopyLayerIdentityDiagnostics" AutomationProperties.AutomationId="diagnostics.copy-layer-identity-report" IsEnabled="False"
+                            ToolTipService.ShowOnDisabled="True"
+                            ToolTip="Copia o relatório completo do teste de identidade para a área de transferência. Disponível depois que o teste rodar.">
+                        <TextBlock Text="Copiar relatório" Style="{StaticResource Px.ButtonLabel}" />
+                    </Button>
+                    <Border x:Name="LayerIdentityReportPanel" Visibility="Collapsed" Margin="0,2,0,6"
+                            Background="{StaticResource Px.Surface0}" BorderBrush="{StaticResource Px.Border}"
+                            BorderThickness="1" CornerRadius="4">
+                        <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                      Padding="6,4,6,4" Focusable="True"
+                                      AutomationProperties.Name="Relatório do teste de identidade de camadas">
+                            <TextBlock x:Name="LayerIdentityDiagnosticsText" Style="{StaticResource Px.DiagnosticOutput}" Margin="0" />
+                        </ScrollViewer>
+                    </Border>
                 </StackPanel>
             </Expander>
+            </StackPanel>
+
+            <!-- Rodapé: versão do PX Tool Box DEV em execução (ver ResolveAppVersion em
+                 ControlUI.xaml.cs — lida do assembly, não cravada aqui). -->
+            <TextBlock x:Name="AppVersionText" Style="{StaticResource Px.MutedText}"
+                       HorizontalAlignment="Center" Margin="0,8,0,0" />
 
         </StackPanel>
     </ScrollViewer>

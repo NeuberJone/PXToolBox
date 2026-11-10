@@ -1,0 +1,232 @@
+<Window x:Class="PXToolBoxDev.Molds.MoldSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Configurações de moldes"
+        Width="800" SizeToContent="Height" MinWidth="640" MinHeight="360" ResizeMode="CanResizeWithGrip"
+        MaxHeight="{Binding Source={x:Static SystemParameters.WorkArea}, Path=Height}"
+        WindowStartupLocation="CenterScreen"
+        Background="#1E1E20"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        Configurações próprias do Cadastro de moldes (MoldSettings / MoldSettingsStore). As três
+        colunas de categoria são montadas no código (mesmos campos). Listas: separadas por vírgula,
+        espaço ou linha. Mesmo ThreadKeyboardRouter das demais janelas, para digitar dentro do Corel.
+    -->
+    <Window.Resources>
+        <Style x:Key="Label" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#B4B4BC" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="Margin" Value="0,8,0,2" />
+        </Style>
+        <Style x:Key="Heading" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#F2F2F4" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="FontSize" Value="13" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="BorderBrush" Value="#3C3C40" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="6,4,6,4" />
+            <Setter Property="CaretBrush" Value="#E4E4E6" />
+        </Style>
+        <!-- ComboBox escuro (mesmo desenho do da janela de comparação, com as cores literais desta). -->
+        <Style TargetType="ComboBoxItem">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="Padding" Value="6,4,6,4" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBoxItem">
+                        <Border x:Name="Bg" Background="Transparent" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsHighlighted" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#3C3C40" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="#8FC7FF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="ComboBox">
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="BorderBrush" Value="#3C3C40" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="6,4,6,4" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <Border x:Name="Bg" Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
+                            <ContentPresenter Margin="{TemplateBinding Padding}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                              Content="{TemplateBinding SelectionBoxItem}"
+                                              ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                              IsHitTestVisible="False" />
+                            <Path Width="8" Height="8" Margin="0,0,8,0" HorizontalAlignment="Right" VerticalAlignment="Center"
+                                  Fill="#4DA3FF" Stretch="Uniform" Data="M 0 0 L 4 4 L 8 0 Z" IsHitTestVisible="False" />
+                            <ToggleButton Background="Transparent" BorderThickness="0" ClickMode="Press" Focusable="False"
+                                          IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="{TemplateBinding Background}" />
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                            <Popup IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Bottom" AllowsTransparency="True"
+                                   PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                   Focusable="False" StaysOpen="False">
+                                <Border Background="#2E2E32" BorderBrush="#3C3C40" BorderThickness="1" Margin="0,2,0,0"
+                                        Width="{Binding ActualWidth, RelativeSource={RelativeSource TemplatedParent}}" MaxHeight="260">
+                                    <ScrollViewer SnapsToDevicePixels="True">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="#4DA3FF" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="#4DA3FF" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style x:Key="Preview" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#8FC7FF" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+        </Style>
+    </Window.Resources>
+
+    <!-- Conteúdo com rolagem (a janela não passa da área útil da tela); avisos e botões sempre visíveis. -->
+    <DockPanel Margin="16">
+        <DockPanel DockPanel.Dock="Bottom" LastChildFill="False" Margin="0,12,0,0">
+            <Button DockPanel.Dock="Left" Content="Restaurar padrão" Click="OnRestoreDefault"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="12,5,12,5"
+                    ToolTip="Preenche os campos com os valores de fábrica. Só vale depois de Salvar." />
+            <Button DockPanel.Dock="Right" Content="Cancelar" Click="OnCancel" IsCancel="True"
+                    Background="#2E2E32" Foreground="#E4E4E6" BorderBrush="#3C3C40" Padding="12,5,12,5" />
+            <Button DockPanel.Dock="Right" Content="Salvar" Click="OnSave"
+                    Background="#4DA3FF" Foreground="#0B1726" FontWeight="SemiBold" Padding="12,5,12,5" Margin="0,0,8,0" />
+        </DockPanel>
+        <TextBlock x:Name="StatusText" DockPanel.Dock="Bottom" Foreground="#B4B4BC" TextWrapping="Wrap" Margin="0,6,0,0" />
+        <TextBlock x:Name="ProblemsText" DockPanel.Dock="Bottom" Foreground="#E0A33E" TextWrapping="Wrap" Margin="0,12,0,0" />
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="0,0,4,0">
+        <TextBlock Foreground="#9A9AA0" FontSize="11" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Text="Usadas por Definir objetos, Criar camadas para a seleção, Criar Grid e Converter para maiúsculas. Tamanhos = prefixo + tamanho base + sufixo (ex.: base G com prefixo BL → BLG). Listas separadas por vírgula ou espaço. Ficam nesta máquina e vão junto em Exportar/Importar preferências (Configurações do ListForge integrado)." />
+
+        <UniformGrid x:Name="CategoryColumns" Columns="3" />
+
+        <Border BorderBrush="#3C3C40" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Grid" Style="{StaticResource Heading}" />
+                    <TextBlock Text="Tamanho base copiado para o Grid (masculino e feminino):" Style="{StaticResource Label}" TextWrapping="Wrap" />
+                    <TextBox x:Name="GridBaseSizeBox" TextChanged="OnFieldChanged" />
+                    <TextBlock x:Name="GridPreview" Style="{StaticResource Preview}" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Objetos do grupo de tamanho" Style="{StaticResource Heading}" />
+                    <TextBlock Text="Laser (nomes aceitos):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="LaserNamesBox" TextChanged="OnFieldChanged" />
+                    <TextBlock Text="TAG:" Style="{StaticResource Label}" />
+                    <TextBox x:Name="TagNameBox" TextChanged="OnFieldChanged" />
+                    <TextBlock Text="Identificador de tamanho (opcional):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="IdentifierNameBox" TextChanged="OnFieldChanged" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border BorderBrush="#3C3C40" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Definir objetos: laser" Style="{StaticResource Heading}" />
+                    <CheckBox x:Name="CreateLaserCopyBox" Content="Criar a cópia do laser (desligado: o contorno vai na própria peça)"
+                              Foreground="#E4E4E6" Margin="0,8,0,0" Checked="OnOptionChanged" Unchecked="OnOptionChanged" />
+                    <TextBlock Text="Cor do contorno (#RRGGBB):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="LaserColorBox" TextChanged="OnFieldChanged" />
+                    <TextBlock Text="Espessura do contorno (mm):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="LaserWidthBox" TextChanged="OnFieldChanged" />
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Definir objetos: TAG" Style="{StaticResource Heading}" />
+                    <CheckBox x:Name="CreateTagBox" Content="Criar a TAG com o tamanho (Arial Black, preta)"
+                              Foreground="#E4E4E6" Margin="0,8,0,0" Checked="OnOptionChanged" Unchecked="OnOptionChanged" />
+                    <TextBlock Text="Tamanho da fonte (pt):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="TagFontSizeBox" TextChanged="OnFieldChanged" />
+                    <TextBlock Text="Contorno branco do texto (mm, 0 = sem):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="TagOutlineWidthBox" TextChanged="OnFieldChanged" />
+                    <TextBlock Text="Posição em relação à peça:" Style="{StaticResource Label}" />
+                    <ComboBox x:Name="TagPositionBox" SelectionChanged="OnPositionChanged" />
+                    <TextBlock Text="Margens (cm) — esquerda, direita, superior, inferior:" Style="{StaticResource Label}" TextWrapping="Wrap" />
+                    <UniformGrid Columns="4">
+                        <TextBox x:Name="TagLeftMarginBox" TextChanged="OnFieldChanged" Margin="0,0,6,0" ToolTip="Esquerda (cm)" />
+                        <TextBox x:Name="TagRightMarginBox" TextChanged="OnFieldChanged" Margin="0,0,6,0" ToolTip="Direita (cm)" />
+                        <TextBox x:Name="TagTopMarginBox" TextChanged="OnFieldChanged" Margin="0,0,6,0" ToolTip="Superior (cm)" />
+                        <TextBox x:Name="TagBottomMarginBox" TextChanged="OnFieldChanged" ToolTip="Inferior (cm)" />
+                    </UniformGrid>
+                    <TextBlock x:Name="TagPreview" Style="{StaticResource Preview}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border BorderBrush="#3C3C40" BorderThickness="0,1,0,0" Margin="0,14,0,0" Padding="0,10,0,0">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Definir objetos: contorno interno" Style="{StaticResource Heading}" />
+                    <CheckBox x:Name="InnerOutlineBox" Foreground="#E4E4E6" Margin="0,8,0,0" Checked="OnOptionChanged" Unchecked="OnOptionChanged">
+                        <TextBlock Text="Contorno interno na peça: a cor diz o tamanho, o estilo diz a categoria (precisa da cópia do laser)" TextWrapping="Wrap" />
+                    </CheckBox>
+                    <TextBlock Text="Espessura (mm):" Style="{StaticResource Label}" />
+                    <TextBox x:Name="InnerWidthBox" TextChanged="OnFieldChanged" />
+                    <TextBlock Text="Estilo da linha — masculino, feminino, infantil:" Style="{StaticResource Label}" TextWrapping="Wrap" />
+                    <UniformGrid Columns="3">
+                        <ComboBox x:Name="InnerMaleStyleBox" SelectionChanged="OnPositionChanged" Margin="0,0,6,0" />
+                        <ComboBox x:Name="InnerFemaleStyleBox" SelectionChanged="OnPositionChanged" Margin="0,0,6,0" />
+                        <ComboBox x:Name="InnerKidsStyleBox" SelectionChanged="OnPositionChanged" />
+                    </UniformGrid>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Cores por tamanho" Style="{StaticResource Heading}" />
+                    <TextBlock Text="Um por linha: tamanho e cor (ex.: G #FF0000). Tamanho sem cor aqui usa a sugerida." Style="{StaticResource Label}" TextWrapping="Wrap" />
+                    <TextBox x:Name="InnerColorsBox" TextChanged="OnFieldChanged" AcceptsReturn="True" Height="64"
+                             VerticalScrollBarVisibility="Auto" TextWrapping="NoWrap" />
+                    <WrapPanel x:Name="InnerColorsPreview" Margin="0,6,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

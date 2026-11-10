@@ -24,5 +24,20 @@ namespace PXToolBox.Outputs.Abstractions
         void Delete();
 
         void MoveAbove(ICorelLayer reference);
+
+        /// <summary>Retângulo novo nesta camada (Layer.CreateRectangle2), na unidade do documento,
+        /// a partir do canto inferior esquerdo.</summary>
+        ICorelShape CreateRectangle(double left, double bottom, double width, double height);
+
+        /// <summary>Texto artístico novo nesta camada (Layer.CreateArtisticText), na frente, com a
+        /// fonte pedida — ou Arial, se ela não estiver instalada. A posição é ajustada por quem chama.</summary>
+        ICorelShape CreateArtisticText(string text, string fontFamily, double sizePoints);
+
+        /// <summary>
+        /// Identidade opaca da camada durante a sessão — no host, o próprio objeto COM (RCW).
+        /// Só pode ser comparada com <see cref="object.ReferenceEquals"/>; nunca invocada nem
+        /// convertida. Não sobrevive ao fechamento do Corel e nunca é gravada no documento.
+        /// </summary>
+        object Identity { get; }
     }
 }

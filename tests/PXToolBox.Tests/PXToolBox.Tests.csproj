@@ -1,11 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <!-- net48 adicionado só para testar a lógica de decisão de
+         Integrations/ListForgeLauncher.cs (host/PXToolBox.CorelHost.Dev), que roda nesse
+         framework e não pode ser referenciada por um projeto net8.0 puro. As suítes existentes
+         (netstandard2.0) continuam rodando normalmente nos dois frameworks. -->
+    <TargetFrameworks>net8.0;net48</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
     <RootNamespace>PXToolBox.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Só na perna net48: UseWPF dá acesso a System.Windows.Input.Key, necessário para testar
+       KeyboardRoutingPolicy (ListForgeIntegrated) sem duplicar o enum/tipo num projeto próprio.
+       UseWPF do host (PXToolBox.CorelHost.Dev) não flui por ProjectReference — precisa ser
+       declarado aqui também. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +29,33 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\PXToolBox.Core\PXToolBox.Core.csproj" />
     <ProjectReference Include="..\..\src\PXToolBox.Outputs\PXToolBox.Outputs.csproj" />
+  </ItemGroup>
+
+  <!-- Só na perna net48: referencia o host DEV para testar ListForgeLauncher/ListForgeConfigStore
+       sem duplicar essa lógica num projeto novo (ver docs/ARCHITECTURE.md). -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <ProjectReference Include="..\..\host\PXToolBox.CorelHost.Dev\PXToolBox.CorelHost.Dev.csproj" />
+    <!-- Só para abrir o .zip gerado pelo teste de Salvar avançado (ZipArchive/ZipFile) — não
+         vem implícito em net48 como em net8.0. -->
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+  </ItemGroup>
+
+  <!-- Só na perna net48: o ProjectReference ao host tem Private=false nas referências
+       Corel.Interop.* (não copia/expõe o tipo transitivamente — ver
+       PXToolBox.CorelHost.Dev.csproj) — precisa do mesmo Reference aqui para compilar
+       ShapePropertiesInspectorTests.cs (construtor de ShapeInspectorWindow recebe
+       Corel.Interop.VGCore.Application). Mesmo HintPath configurável do host. -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net48'">
+    <CorelDrawInstallDir Condition="'$(CorelDrawInstallDir)' == ''">C:\Program Files\Corel\CorelDRAW Graphics Suite\27</CorelDrawInstallDir>
+    <CorelAssembliesDir>$(CorelDrawInstallDir)\Programs64\Assemblies</CorelAssembliesDir>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <Reference Include="Corel.Interop.VGCore">
+      <HintPath>$(CorelAssembliesDir)\Corel.Interop.VGCore.dll</HintPath>
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
 </Project>

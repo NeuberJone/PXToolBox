@@ -7,47 +7,46 @@ namespace PXToolBox.Tests
 {
     public class MeasurementSumServiceTests
     {
+        /// <summary>
+        /// Equivalente ao antigo SumHeightOnly_SumsHeightsInMeters_FromCentimeters — "Somar
+        /// Altura (m)" foi removido por ser uma duplicata exata deste modo (ver comentário de
+        /// classe em MeasurementSumService): os dois sempre somam em metros, qualquer unidade do
+        /// documento.
+        /// </summary>
         [Fact]
-        public void SumHeightOnly_SumsHeightsInMeters_FromCentimeters()
+        public void SumSelected_Height_SumsInMeters_FromCentimeters()
         {
             var service = new MeasurementSumService();
             var sizes = new[] { new ShapeSize(10, 150), new ShapeSize(20, 50) }; // cm
 
-            var result = service.SumHeightOnly(sizes, DocumentUnit.Centimeter);
+            var result = service.SumSelected(sizes, DocumentUnit.Centimeter, MeasurementSumMode.Height);
 
             Assert.True(result.IsSuccess);
             Assert.Equal(2.0, result.Value!.TotalHeightMeters, 3);
             Assert.Equal("2,00m", result.Value!.ClipboardText);
         }
 
-        /// <summary>
-        /// Corrige a suposição anterior (comparação com Medidas.txt mostrou que as DUAS macros
-        /// originais usam o mesmo Select Case de unidades — não há "mm/cm/m só no atalho").
-        /// "Somar Altura (m)" precisa funcionar com o documento em polegada/pé/jarda, igual ao
-        /// modo com escolha.
-        /// </summary>
         [Fact]
-        public void SumHeightOnly_AcceptsInchFootYard_SameAsChoiceMode()
-        {
-            var service = new MeasurementSumService();
-            var sizes = new[] { new ShapeSize(10, 100) }; // 100 polegadas
-
-            var result = service.SumHeightOnly(sizes, DocumentUnit.Inch);
-
-            Assert.True(result.IsSuccess, result.Message);
-            Assert.Equal(2.54, result.Value!.TotalHeightMeters, 3);
-        }
-
-        [Fact]
-        public void SumHeightOnly_NullUnit_Fails()
+        public void SumSelected_Height_NullUnit_Fails()
         {
             var service = new MeasurementSumService();
             var sizes = new[] { new ShapeSize(10, 10) };
 
-            var result = service.SumHeightOnly(sizes, null);
+            var result = service.SumSelected(sizes, null, MeasurementSumMode.Height);
 
             Assert.False(result.IsSuccess);
             Assert.Equal(Core.Result.OperationStatus.InconclusiveRead, result.Status);
+        }
+
+        [Fact]
+        public void SumSelected_Height_EmptySelection_Fails()
+        {
+            var service = new MeasurementSumService();
+
+            var result = service.SumSelected(new List<ShapeSize>(), DocumentUnit.Meter, MeasurementSumMode.Height);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(Core.Result.OperationStatus.InvalidSelection, result.Status);
         }
 
         [Fact]
@@ -72,16 +71,6 @@ namespace PXToolBox.Tests
 
             Assert.True(result.IsSuccess);
             Assert.Equal(2.54, result.Value!.TotalHeightMeters, 3);
-        }
-
-        [Fact]
-        public void SumHeightOnly_EmptySelection_Fails()
-        {
-            var service = new MeasurementSumService();
-            var result = service.SumHeightOnly(new List<ShapeSize>(), DocumentUnit.Meter);
-
-            Assert.False(result.IsSuccess);
-            Assert.Equal(Core.Result.OperationStatus.InvalidSelection, result.Status);
         }
     }
 }

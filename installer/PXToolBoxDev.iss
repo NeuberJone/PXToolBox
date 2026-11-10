@@ -51,20 +51,56 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 Source: "{#MyPublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 
 [Code]
-function InitializeSetup(): Boolean;
+// Mesmo padrão do instalador do MoldMotor (C:\Projetos\MoldMotor\installer\MoldMotor.iss):
+// detecta de verdade se o CorelDRAW está em execução (via WMI), em vez de só perguntar e
+// confiar na resposta do usuário. Se estiver aberto, pede para fechar e RE-VERIFICA de novo
+// antes de continuar — em loop, até o processo não existir mais ou o usuário cancelar. Nunca
+// encerra o CorelDRAW sozinho (para não descartar trabalho não salvo do usuário).
+function IsProcessRunning(const ExeName: String): Boolean;
+var
+  Locator, Service, Items: Variant;
+begin
+  Result := False;
+  try
+    Locator := CreateOleObject('WbemScripting.SWbemLocator');
+    Service := Locator.ConnectServer('.', 'root\CIMV2');
+    Items := Service.ExecQuery('SELECT Name FROM Win32_Process WHERE Name = "' + ExeName + '"');
+    Result := Items.Count > 0;
+  except
+    // Sem WMI não há como confirmar; segue o fluxo e o próprio Windows avisará caso o
+    // PXToolBoxDev.dll esteja em uso (arquivo bloqueado) ao tentar copiar/remover.
+    Result := False;
+  end;
+end;
+
+function EnsureCorelClosed(const Action: String): Boolean;
 begin
   Result := True;
-  if MsgBox('Feche o CorelDRAW antes de continuar (o add-on DEV não pode ser atualizado ' +
-            'enquanto o CorelDRAW estiver em execução). Clique OK para confirmar que o ' +
-            'CorelDRAW está fechado, ou Cancelar para interromper a instalação.',
-            mbConfirmation, MB_OKCANCEL) = IDCANCEL then
-    Result := False;
+  while IsProcessRunning('CorelDRW.exe') do
+  begin
+    if MsgBox('O CorelDRAW está aberto.' + #13#10#13#10 +
+              'Feche o CorelDRAW normalmente, salvando os documentos que precisar, e clique ' +
+              'em Repetir para continuar a ' + Action + ' do PX Tool Box DEV.' + #13#10 +
+              'O instalador não encerra o CorelDRAW para não descartar trabalho não salvo.',
+              mbError, MB_RETRYCANCEL) = IDCANCEL then
+    begin
+      Result := False;
+      Exit;
+    end;
+  end;
+end;
+
+// Chamado pelo Inno Setup logo antes de copiar os arquivos de verdade (depois de todas as
+// telas do assistente) — é aqui que a verificação precisa ser a real, não um MsgBox de
+// confirmação cedo na instalação que poderia ficar desatualizado até a cópia de fato ocorrer.
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  Result := '';
+  if not EnsureCorelClosed('instalação') then
+    Result := 'A instalação foi cancelada porque o CorelDRAW continua aberto.';
 end;
 
 function InitializeUninstall(): Boolean;
 begin
-  Result := True;
-  if MsgBox('Feche o CorelDRAW antes de continuar a remoção do PX Tool Box DEV.',
-            mbConfirmation, MB_OKCANCEL) = IDCANCEL then
-    Result := False;
+  Result := EnsureCorelClosed('remoção');
 end;
