@@ -114,7 +114,48 @@ namespace PXToolBoxDev.Corel
 
         public bool IsInsideGroup => Native.ParentGroup != null;
 
-        public ICorelShape GroupAlone() => new CorelShapeAdapter(Native.Group());
+        // No Corel 2025 (v27), Shape.Group() de um objeto só dá E_FAIL, e ShapeRange/Selection.Group() de um item
+        // devolve o próprio objeto, sem grupo (conferido no Corel, 2026-11-11, smoke 4aw). Funciona: agrupar com um
+        // auxiliar do mesmo tamanho e apagá-lo — fica um grupo com o original como único filho, no tamanho dele.
+        public ICorelShape GroupAlone()
+        {
+            var helper = Native.Layer.CreateRectangle2(Native.LeftX, Native.BottomY, Native.SizeWidth, Native.SizeHeight);
+            Shape group;
+            try
+            {
+                var range = Native.Application.CreateShapeRange();
+                range.Add(Native);
+                range.Add(helper);
+                group = GroupOnTheirLayer(range);
+            }
+            finally
+            {
+                helper.Delete();
+            }
+
+            return new CorelShapeAdapter(group);
+        }
+
+        // Quando os objetos fazem parte da seleção atual, o Corel 2025 cria o grupo na camada do último objeto
+        // selecionado, não na dos objetos agrupados (conferido no Corel, 2026-11-11, smoke 4ax: o bloco do Tactel foi
+        // parar na camada Dry fit). Devolve o grupo à camada dos objetos.
+        private static void KeepOnLayer(Shape group, Layer layer)
+        {
+            if (!SameLayer(group.Layer, layer)) group.MoveToLayer(layer);
+        }
+
+        private static bool SameLayer(Layer a, Layer b) => a.Index == b.Index && a.Page.Index == b.Page.Index;
+
+        /// <summary>ShapeRange.Group() que mantém o grupo na camada dos objetos, se estiverem todos numa só.</summary>
+        internal static Shape GroupOnTheirLayer(ShapeRange range)
+        {
+            var layer = range[1].Layer;
+            var oneLayer = true;
+            for (var i = 2; i <= range.Count && oneLayer; i++) oneLayer = SameLayer(range[i].Layer, layer);
+            var group = range.Group();
+            if (oneLayer) KeepOnLayer(group, layer);
+            return group;
+        }
 
         public void OrderToFront() => Native.OrderToFront();
 
@@ -285,6 +326,45 @@ namespace PXToolBoxDev.Corel
             Native.Fill.ApplyUniformFill(Native.Application.CreateRGBColor(red, green, blue));
 
         public void FlipHorizontally() => Native.Flip(cdrFlipAxes.cdrFlipHorizontal);
+
+        public void PlaceInsidePowerClip(ICorelShape container) =>
+            Native.AddToPowerClip(((CorelShapeAdapter)container).Native, cdrTriState.cdrFalse);
+
+        public void RemoveOutline() => Native.Outline.SetNoOutline();
+
+        public void Rotate(double degrees) => Native.Rotate(degrees);
+
+        public IReadOnlyList<OutlineElement>? ReadOutline()
+        {
+            // Uma chamada COM para o contorno inteiro. Assinaturas conferidas por reflexão
+            // (IVGShape.DisplayCurve, IVGCurve.GetCurveInfo : CurveElement[]); o comportamento real
+            // (null para grupo/texto/bitmap?) só no smoke test — qualquer falha vira "sem contorno".
+            try
+            {
+                var curve = Native.DisplayCurve;
+                if (curve == null) return null;
+                var elements = new List<OutlineElement>();
+                foreach (var element in curve.GetCurveInfo())
+                {
+                    var kind = element.ElementType switch
+                    {
+                        cdrCurveElementType.cdrElementStart => OutlineElementKind.Start,
+                        cdrCurveElementType.cdrElementLine => OutlineElementKind.Line,
+                        cdrCurveElementType.cdrElementControl => OutlineElementKind.Control,
+                        cdrCurveElementType.cdrElementCurve => OutlineElementKind.Curve,
+                        _ => (OutlineElementKind?)null,
+                    };
+                    if (kind == null) return null;
+                    elements.Add(new OutlineElement(kind.Value, element.PositionX, element.PositionY));
+                }
+
+                return elements;
+            }
+            catch (System.Exception)
+            {
+                return null;
+            }
+        }
 
         /// <summary>
         /// cdrShapeType (CorelDRAW 2026 / VGCore v27) não tem mais um valor distinto para

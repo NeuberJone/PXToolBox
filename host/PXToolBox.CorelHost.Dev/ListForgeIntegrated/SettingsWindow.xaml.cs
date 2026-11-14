@@ -53,6 +53,7 @@ namespace PXToolBoxDev.ListForgeIntegrated
         // Configurações de moldes trazidas por uma importação (arquivo próprio — MoldSettingsStore),
         // gravadas só ao Salvar; null = nenhuma importação as trouxe.
         private PXToolBox.Core.Molds.MoldSettings? _importedMoldSettings;
+        private System.Collections.Generic.IReadOnlyList<PXToolBoxDev.Nesting.NestingProfile>? _importedNestingProfiles;
 
         /// <summary>Preenchido só quando o usuário clica "Salvar" com sucesso — null se
         /// cancelado ou se a janela foi fechada sem salvar.</summary>
@@ -219,6 +220,28 @@ namespace PXToolBoxDev.ListForgeIntegrated
                 }
             }
 
+            // Perfis do encaixe: arquivo próprio, nunca gravado por cima de um ilegível.
+            if (_importedNestingProfiles != null)
+            {
+                if (!NestingProfileStore.Load().Readable)
+                {
+                    StatusText.Text = $"Configurações salvas, mas NÃO os perfis do encaixe importados: o arquivo atual de perfis está ilegível e não é gravado por cima ({NestingProfileStore.FilePath}). Corrija ou apague esse arquivo e importe de novo.";
+                    return;
+                }
+
+                try
+                {
+                    NestingProfileStore.Save(_importedNestingProfiles);
+                    _importedNestingProfiles = null;
+                }
+                catch (Exception ex)
+                {
+                    PxLogger.Error("SettingsWindow", "Falha ao salvar os perfis do encaixe importados.", ex, NestingProfileStore.FilePath);
+                    StatusText.Text = $"Configurações salvas, mas NÃO os perfis do encaixe importados: {ex.Message} Clique em \"Salvar\" para tentar de novo.";
+                    return;
+                }
+            }
+
             DialogResult = true;
         }
 
@@ -324,7 +347,7 @@ namespace PXToolBoxDev.ListForgeIntegrated
             }
 
             UseStoredPanelPreferences(currentSettings);
-            var document = PortablePreferencesService.Export(currentSettings, _importedMoldSettings ?? MoldSettingsStore.Load().Settings);
+            var document = PortablePreferencesService.Export(currentSettings, _importedMoldSettings ?? MoldSettingsStore.Load().Settings, CurrentNestingProfiles());
 
             var dialog = new Microsoft.Win32.SaveFileDialog
             {
@@ -403,7 +426,7 @@ namespace PXToolBoxDev.ListForgeIntegrated
             {
                 var backupSource = _workingSettings.Clone();
                 UseStoredPanelPreferences(backupSource);
-                var backupDocument = PortablePreferencesService.Export(backupSource, _importedMoldSettings ?? MoldSettingsStore.Load().Settings);
+                var backupDocument = PortablePreferencesService.Export(backupSource, _importedMoldSettings ?? MoldSettingsStore.Load().Settings, CurrentNestingProfiles());
                 var backupPath = System.IO.Path.Combine(
                     ListForgeIntegratedSettingsStore.ConfigDirectoryForDisplay,
                     $"pxtoolbox-dev-preferencias-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json");
@@ -426,6 +449,7 @@ namespace PXToolBoxDev.ListForgeIntegrated
             _showLabelsImported |= validation.Document!.PanelFavoritesShowLabels != null;
             _customizationImported |= validation.Document!.PanelCustomization != null;
             _importedMoldSettings = PortablePreferencesService.ReadMoldSettings(validation.Document!) ?? _importedMoldSettings;
+            _importedNestingProfiles = PortablePreferencesService.ReadNestingProfiles(validation.Document!) ?? _importedNestingProfiles;
             // Uma personalização importada redefine as seções criadas: o layout gravado junto
             // precisa refletir isso mesmo quando o arquivo não trouxe layout.
             _sectionLayoutImported |= validation.Document!.PanelCustomization != null && _workingSettings.PanelSectionLayout != null;
@@ -435,6 +459,15 @@ namespace PXToolBoxDev.ListForgeIntegrated
             if (applyResult.SkippedSummaries.Count > 0)
                 statusBuilder.Append($" {applyResult.SkippedSummaries.Count} ignorada(s) (perfil não encontrado nesta instalação).");
             StatusText.Text = statusBuilder.ToString();
+        }
+
+        /// <summary>Os perfis do encaixe a exportar: os importados nesta tela, ou os do arquivo — nenhum
+        /// (chave ausente) se o arquivo estiver ilegível.</summary>
+        private System.Collections.Generic.IReadOnlyList<PXToolBoxDev.Nesting.NestingProfile>? CurrentNestingProfiles()
+        {
+            if (_importedNestingProfiles != null) return _importedNestingProfiles;
+            var (profiles, readable, _) = NestingProfileStore.Load();
+            return readable ? profiles : null;
         }
 
         // Esta tela pode ter sido aberta antes de o usuário mudar favoritos ou o layout no

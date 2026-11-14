@@ -8,9 +8,20 @@ CorelDRAW 2026 (v27), com acesso ao **ListForge Standalone** (abre o executável
 incorporar sua interface) e ao **ListForge Integrado** (janela própria dentro do PX, consumindo
 o núcleo de processamento compartilhado do ListForge) nos modos **Clássico** e **PX — em
 desenvolvimento** — os dois sobre o mesmo estado de sessão, nunca duas implementações. Acesso ao
-**Nexor** (abre o executável externo, sem incorporar sua interface nem compartilhar dados de
-pedido — primeira etapa da integração com Produção) também incluído. A incorporação de contexto
-de pedido do Nexor e a integração de Moldes não estão incluídas — ver [`ROADMAP.md`](ROADMAP.md).
+**Nexor** também incluído, com abertura do standalone, importação de contexto de produção,
+resumo, nomes e exportação de resultados por arquivos versionados. O **Cadastro de moldes**
+inclui definição individual/em lote, propagação de logos, duplicação, Grid, configurações,
+salvamento e validação. O estado de implementação e de validação no Corel está em
+[`CHANGELOG.md`](CHANGELOG.md) e [`ROADMAP.md`](ROADMAP.md).
+
+As referências funcionais do SISBolt e eCut e a sequência de trabalho estão em
+[`docs/reference-feature-roadmap.md`](docs/reference-feature-roadmap.md). A prioridade eCut
+é **Nesting e Slice**. O Slice em desenvolvimento oferece o botão
+**Montagem → Dividir em partes (Slice)…**, com prévia por tabela ou dimensão máxima,
+sobreposição, cópia das medidas e divisão no documento (cada parte um PowerClip). O encaixe
+está em **Montagem → Encaixar peças…** (página ou rolo, pela caixa de cada peça ou pelo contorno
+real), com quantidade por peça, em várias áreas digitadas (retalhos) e busca do melhor encaixe. O Slice também divide pelas
+guias da página. A lista de retalhos vinda do Nexor continua planejada.
 
 ## Requisitos
 

@@ -4407,3 +4407,697 @@ conferidos, peças, problemas). Só leitura.
 logo faltando e fora do lugar; mesmo número em duas peças, logo repetido, sem TAG, tamanho
 repetido, peça não reconhecida; página sem grupos e camada especial ignorada; janela com resumo,
 ordem e texto copiado). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4ac).
+
+## 61. Medidas — régua em tamanho real (dev.94)
+
+Pedido do usuário: botões que façam uma régua em tamanho real, com mm e cm, "como uma trena" — um
+para a altura, um para a largura e um para os dois — com a distância do objeto personalizável.
+
+- `Outputs/Tools/TapeMeasureService.Create(seleção, página, millimeter, Axis, gapMm)`: mede a caixa
+  da seleção inteira. Largura embaixo (esquerda → direita), altura à esquerda (baixo → cima),
+  começando no canto inferior esquerdo; `gapMm` (padrão 3, 0 = encostada) afasta a régua.
+- Cada régua é um grupo ("Régua largura"/"Régua altura") na camada `RÉGUA` da página ativa (criada se
+  não existir): faixa branca de 12 mm com contorno de 0,2 mm ("Faixa"; amarela na dev.94, branca a
+  pedido do usuário desde a dev.95), traços numa curva só ("Traços": 2 mm a cada mm,
+  3,5 mm a cada 5 mm, 5 mm a cada cm, mais o fim exato quando não cai em mm inteiro), números de cm
+  (Arial 7 pt; a cada 5 cm acima de 2 m e 10 cm acima de 5 m) e o total ("52,3 cm (523 mm)") depois
+  do fim.
+- Nova abstração `ICorelLayer.CreateLines(IReadOnlyList<CurveLine>)`: no Corel,
+  `Application.CreateCurve(ActiveDocument)` + `CreateSubPath` + `AppendLineSegment` por traço +
+  `Layer.CreateCurve` — um objeto para milhares de traços, em vez de um retângulo por traço.
+- Unidade: o painel passa `ConvertUnits(1, cdrMillimeter, ActiveDocument.Unit)`; o serviço trabalha
+  em mm e converte (mesmo caminho de Duplicar peça). Recusa: sem seleção, medida menor que 1 mm,
+  distância negativa — sem criar a camada.
+- Painel (Medidas): campo `RulerGapTextBox` (não salvo entre sessões) e botões
+  `tools.measures.ruler-width/-height/-both` (catálogo 84). Manual: as três entradas e a introdução
+  da seção.
+
+**Verificação:** 6 testes novos (traços, números, total e faixa da largura em mm; altura em outra
+unidade; as duas do mesmo canto e camada reaproveitada; distância 12,5, 0 e negativa; recusas sem
+criar a camada; numeração de réguas longas). **Não verificado no Corel** (`docs/mvp-smoke-test.md`,
+4ad) — em especial `CreateCurve` com muitos traços e a medida impressa em 100%.
+
+## 62. Montagem — Planejar divisão (Slice), prévia (dev.96)
+
+Primeira etapa do Slice (referência funcional: telas do eCut; inventário e sequência em
+`docs/reference-feature-roadmap.md`). Só planejamento e prévia: nada é recortado nem alterado.
+
+- `PXToolBox.Core.Slicing.SlicePlanner`: retângulos em mm a partir do canto superior esquerdo,
+  por tabela (`ByTable`: linhas × colunas) ou por dimensão máxima (`ByMaximumSize`). Sobreposição
+  = faixa TOTAL compartilhada em cada emenda (decisão do PX; equivalência com o eCut não
+  comprovada): na tabela, metade para cada lado da divisão; na dimensão máxima, a parte avança
+  (máximo − sobreposição) e a última é cortada na borda. Limite de 1000 partes. Entrada inválida →
+  `ArgumentException` com a mensagem para o usuário. Dados imutáveis, sem COM nem WPF.
+- `ControlUI.OnSlicePreview` (Montagem, `assembly.slice-preview`): caixa da seleção por centro e
+  tamanho, convertida de `Document.Unit` para mm; sem grupo de desfazer (é consulta).
+- `Slicing/SlicePreviewWindow`: não modal e única (`ShowFor`; abrir de novo troca as medidas),
+  `ThreadKeyboardRouter` para digitar dentro do Corel, prévia desenhada, relatório com X/Y/tamanho
+  de cada parte e "Copiar plano". Entrada inválida apaga o plano e desliga a cópia.
+- Integração (a partir do patch `Referência/pxtoolbox-slice-preview-changes`, feito sobre a dev.93):
+  janela passou de modal para não modal e única; "Fechar" com clique próprio (`IsCancel` só fecha
+  diálogo modal); cor do texto explícita no estilo; comentários em português; seções da
+  documentação movidas do topo para o fim, roteiro renumerado para 4ae (4ad é a régua).
+- Catálogo 85; manual com a entrada `assembly.slice-preview`.
+
+Próximas etapas: recorte real (feito na dev.97, seção 64), guias, depois Nesting retangular e por
+contorno.
+
+**Verificação:** 13 testes novos (12 do planejador; a janela: monta, entrada inválida apaga o
+plano, nova medida refaz). No Windows, suítes net8.0 e net48 completas. **Não verificado no Corel**
+(`docs/mvp-smoke-test.md`, 4ae).
+
+## 63. Buscar ferramenta no painel (dev.96)
+
+Pedido do usuário (na dev.92 o filtro tinha ido para o Manual de uso; o pedido era o do painel).
+
+- Campo `ToolFilterBox` abaixo do cabeçalho, com dica "Buscar ferramenta…" e ✕ (Esc também limpa).
+- `PanelLayout/PanelToolFilter.Filter`: entra a ferramenta cujo nome, título ATUAL da seção (nome
+  personalizado) ou dica do botão original têm todas as palavras, com a normalização do Manual
+  (`UserManual.Normalize`). Busca vazia = nada.
+- Com texto: as seções ficam ocultas (só visibilidade; o layout salvo não muda e `ApplySectionLayout`
+  respeita a busca ativa) e `ToolFilterResults` mostra os resultados na ordem das seções do painel e do
+  catálogo, agrupados pela seção onde a ferramenta está agora (`_customization.SectionOf`). Cada
+  resultado é um `FavoriteShortcut` do botão original (mesmo clique, habilitação e dica); o título
+  da seção é um link que limpa a busca, abre a seção e rola até ela (seção oculta → aviso no status).
+  O status do último comando continua visível.
+- Inclui ferramentas de seções ocultas pelo layout (o atalho funciona como nos Favoritos).
+- Manual: parágrafo no assunto "Começando".
+
+**Verificação:** 4 testes novos de `PanelToolFilter` (nome/seção/dica sem acento nem maiúscula, nome
+personalizado da seção, todas as palavras e ordem, busca vazia). O painel não é montado nos testes
+automatizados; conferido pela captura isolada (vazio, "regua" → as três réguas, "camada" → 25,
+nada encontrado, limpar). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4af) — em especial
+digitar no campo dentro do docker.
+
+## 64. Slice — dividir no documento (dev.97)
+
+Etapa S2 de `docs/reference-feature-roadmap.md`. O botão de Montagem passou a "Dividir em partes
+(Slice)…" (mesmo id `assembly.slice-preview`, favoritos e layouts continuam valendo).
+
+- `Outputs/Tools/SliceCutService.Apply(seleção, página, mm, SlicePlan, afastamentoMm, apagarOriginal)`:
+  - recusa sem mexer em nada se a caixa da seleção não tiver a área do plano (tolerância 0,5 mm) —
+    é o que invalida um plano feito para outra seleção ou com a área digitada à mão;
+  - por parte: `CreateRectangle` na camada do primeiro objeto selecionado, sem contorno
+    (`RemoveOutline` → `Outline.SetNoOutline`), nome "Parte L<linha> C<coluna>"; `Duplicate` de cada
+    objeto selecionado (agrupados se forem vários) e `PlaceInsidePowerClip`
+    (`Shape.AddToPowerClip(contêiner, cdrFalse)`: não centraliza, a cópia fica onde estava);
+    depois o contêiner anda o afastamento × (coluna − 1) para a direita e × (linha − 1) para baixo;
+  - escolha do PowerClip em vez de interseção: preserva texto, bitmap, grupo, cores e Properties sem
+    conversão; o custo é uma cópia da arte por parte (a janela pede confirmação acima de 50 partes);
+  - grupo "Divisão (Slice)"; só então o original é ocultado (ou apagado). Exceção no meio: apaga as
+    partes e cópias já criadas e devolve falha, com o original intacto. Tudo dentro de
+    `RunWithWorkspace` → um Ctrl+Z.
+- Abstração: `ICorelShape.PlaceInsidePowerClip` e `RemoveOutline` (assinaturas conferidas por
+  reflexão no `Corel.Interop.VGCore.dll` v27: `IVGShape.AddToPowerClip(Shape, cdrTriState)`,
+  `IVGOutline.SetNoOutline()`); fakes correspondentes; `FakeLayer.RectanglesBeforeFailure` simula
+  falha no meio.
+- Janela: `ISliceHost` (implementado por `ControlUI.SliceHost`) mede a seleção e aplica; a janela
+  continua sem referências COM. Novos campos "Afastar as partes (cm)" (padrão 1) e "Apagar a arte
+  original"; botões "Usar seleção atual" e "Dividir no Corel". Depois de dividir, o botão desliga até
+  um campo mudar (a seleção passa a ser o grupo de partes; com afastamento 0 ele teria a mesma área e
+  seria dividido de novo).
+
+**Verificação:** 4 testes de `SliceCutService` (posições com Y do documento para cima e afastamento,
+conteúdo agrupado em cada parte, original oculto ou apagado, objeto único sem grupo, área diferente
+recusada, falha no meio desfeita) e 1 da janela (aplica com o plano e o afastamento, desliga, "Usar
+seleção atual" libera, afastamento negativo recusado). Suítes net8.0 e net48 completas. **Não
+verificado no Corel** (`docs/mvp-smoke-test.md`, 4ag) — em especial: `AddToPowerClip` sem centralizar
+mantendo a posição, PowerClip de arte com bitmap/texto, contorno ausente e o Ctrl+Z único.
+
+## 65. Montagem — Encaixar peças (retangular) (dev.98)
+
+Etapas N1/N2 de `docs/reference-feature-roadmap.md` (encaixe pela caixa; o contorno real é a N3).
+
+- `PXToolBox.Core.Nesting.RectangleNester.Nest(peças, largura, altura?, margem, distância, girar)`, em
+  mm, sem COM: MaxRects com a regra "fundo da peça mais alto, depois mais à esquerda" — a mesma regra
+  serve à página (altura fixa) e ao rolo (altura null = comprimento livre; o espaço inicial é a soma
+  dos maiores lados, que sempre cabe). Ordem: maior lado, maior área, ordem de entrada →
+  determinístico. Distância: cada peça ocupa (w + d) × (h + d) e a área útil ganha + d, para a última
+  peça encostar na margem. Giro só de 90°. Peça que não cabe vai para `Unplaced` (ordem de entrada).
+  `UsedLength` = fundo da peça mais baixa + margem; `Utilization` = Σ área das peças ÷ (largura ×
+  `UsedLength`). Até 2000 peças; entrada inválida → `ArgumentException` com a mensagem.
+- `Outputs/Tools/NestingService`: `ReadItems` (cada objeto selecionado, pela caixa `Width`/`Height`,
+  nome vazio → "Peça n"); `Apply` recusa se a seleção não tiver as mesmas peças (quantidade e tamanho
+  na mesma ordem, tolerância 0,5 mm). Rolo com "ajustar a página": página = largura × comprimento
+  usado ANTES de posicionar (o canto é relido depois). Peça girada: `ICorelShape.Rotate(90)`
+  (`IVGShape.Rotate(Double)`, conferido por reflexão) e depois movida pelo centro, a partir do canto
+  superior esquerdo da página. Só move/gira; dentro de `RunWithWorkspace` (um Ctrl+Z).
+- `Nesting/NestingWindow` + `INestingHost` (implementado por `ControlUI.NestingHost`), no molde da
+  janela do Slice: não modal e única, "Usar seleção atual", prévia (giradas em laranja), relatório,
+  "Encaixar no Corel" desliga depois de aplicar. Giro desligado por padrão (direção da arte/tecido).
+- Catálogo 86 (`assembly.nesting-rect`); manual com a entrada.
+
+**Verificação:** 9 testes do encaixe (página cheia com 100 %, distância e margem exatas, giro no rolo
+e proibido, o que não coube, 120 peças aleatórias sem sobreposição/fora da área e repetindo o mesmo
+resultado, mensagens), 4 do serviço (posições a partir do topo da página, giro e página ajustada,
+peça que não coube fica, seleção mudada recusada) e 1 da janela. Suítes net8.0 e net48 completas.
+Janela conferida fora do Corel (página e rolo). **Não verificado no Corel** (`docs/mvp-smoke-test.md`,
+4ah) — em especial: `Rotate(90)` girando em volta do centro, caixa de grupos/PowerClips (`SizeWidth`),
+e redimensionar a página antes de posicionar.
+
+## 66. Encaixar peças — pelo contorno real (dev.99)
+
+Etapa N3 de `docs/reference-feature-roadmap.md`. Mesmo botão e janela da seção 65 (agora "Encaixar
+peças…", id `assembly.nesting-rect` mantido), com o método "Pelo contorno real".
+
+- Leitura (`NestingService.ReadContours`): `ICorelShape.ReadOutline` = `Shape.DisplayCurve.GetCurveInfo()`
+  (uma chamada COM por objeto; assinaturas `IVGShape.DisplayCurve` e `IVGCurve.GetCurveInfo :
+  CurveElement[]` conferidas por reflexão; qualquer exceção ou tipo de elemento desconhecido → null).
+  `OutlineRings` transforma Start/Line/Control/Curve em anéis (Bézier em 12 retas), mm com Y para baixo.
+  Grupo: cada objeto vira um "objeto" da peça (somados; par/ímpar só dentro de um objeto — um logo
+  sobre a peça não vira furo). Texto/bitmap: a própria caixa. Contorno ilegível ou mais de 400 objetos:
+  a caixa da peça inteira. Ambos listados em `ContourReading.BoxFallbacks`. A leitura guarda também a
+  distância entre o centro do objeto e o centro da caixa do contorno (para posicionar depois de girar).
+- Cálculo (`PXToolBox.Core.Nesting.ContourNester`): grade de células de lado = precisão (0,5–50 mm,
+  padrão 5). Cada peça/giro vira bits: célula marcada se o contorno a cruza (amostras a cada 1/5 de
+  célula) ou se o meio da linha de células está dentro (par/ímpar por objeto, OR entre objetos) — a peça
+  nunca sai das células marcadas. Distância: ao colocar, bloqueia ⌈distância ÷ célula⌉ células em
+  volta (quadrado), e a próxima peça só ocupa células não bloqueadas → distância real ≥ pedida.
+  Busca: por giro (0; 0/180; 0/90/180/270), primeira posição de cima para baixo e da esquerda para a
+  direita (teste por AND de palavras de 64 bits); fica o giro de fundo mais alto. Ordem: maior caixa,
+  depois a entrada. Rolo: linhas criadas sob demanda (abaixo da última, tudo livre). Limites: 500 peças,
+  40 milhões de células.
+- Conferência independente (`ContourNester.Verify`): nos polígonos exatos, sem a grade — fora da área,
+  lados que se cruzam ou vértice dentro da outra peça (par/ímpar) = sobreposição; menor distância entre
+  lados < distância − 0,01 mm = perto demais. A janela só libera "Encaixar no Corel" sem problemas, e
+  `ApplyContour` confere de novo antes de mexer.
+- Aplicação (`NestingService.ApplyContour`): mesma checagem de seleção; giro com `Shape.Rotate(graus)`
+  (anti-horário, igual ao `ContourNester.Rotate` com Y para baixo: 90° leva (x, y) a (y, −x)); o centro
+  do objeto vai para o centro da caixa do contorno colocado + a distância guardada, girada junto.
+- Janela: "Encaixe: pela caixa / pelo contorno real", "Precisão do contorno (mm)", giro em três opções
+  (só 180° desligado pela caixa). Pelo contorno, calcula só no botão "Calcular encaixe" (síncrono; tempo
+  no relatório) e lê os contornos uma vez por seleção (`NestingSelection.Contours`). Prévia desenha os
+  polígonos (par/ímpar, furo vazio).
+
+**Verificação:** 7 testes do `ContourNester` (dois L encaixados com meia-volta em 100 de comprimento,
+contra 200 pela caixa; peça dentro do furo; logo sobre a peça não é furo; sentido do giro; 40 estrelas
+irregulares com giro, margem e distância conferidas pelo `Verify` e resultado repetido; `Verify` acha
+sobreposição, distância curta e fora da área; o que não coube), 5 do serviço (Bézier, leitura com
+grupo/texto/sem contorno, aplicação com meia-volta, distância centro-contorno girada, recusa quando a
+conferência acha sobreposição) e 1 da janela (calcula só no botão, lê contornos uma vez, aplica pelo
+contorno). Suítes net8.0 e net48 completas. Janela desenhada fora do Corel com 11 peças de camisa (rolo
+160 cm: 153,5 cm pelo contorno sem girar, contra 164,5 cm pela caixa girando 90°; cálculo 0,1 s).
+**Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4ai) — principalmente: se `DisplayCurve`/
+`GetCurveInfo` funcionam pelo interop (array de struct), o que devolvem para grupo, texto, bitmap e
+PowerClip, e o tempo de leitura com peças reais.
+
+## 67. Slice — pelas guias da página (dev.100)
+
+Etapa S3 de `docs/reference-feature-roadmap.md` (guias; o corte livre/inclinado e formas irregulares
+continuam fora).
+
+- `SlicePlanner.ByCuts(largura, altura, cortesX, cortesY, sobreposição)`: emendas dadas em mm a partir
+  da esquerda/topo; como na tabela, metade da sobreposição para cada lado. Cortes fora da área, a menos de
+  0,5 mm da borda ou de outro corte são ignorados; sem corte num eixo, o eixo não é dividido.
+  `SlicePlanner.SeamCenters(plano)` faz o caminho inverso (meio de cada emenda) — `ByCuts` com essas
+  emendas refaz o mesmo plano da tabela (teste).
+- Abstração: `ICorelPage.Guides` (horizontais e verticais da página e da página mestra:
+  `Page.Guides[cdrHorizontalGuide/cdrVerticalGuide]`, posição em `Shape.Guide.Point1Y/Point1X`) e
+  `ICorelPage.CreateGuide` (`Page.GuidesLayer.CreateGuide` com dois pontos na mesma linha) — assinaturas
+  conferidas por reflexão; `ICorelGuide` com nome e `Delete`. Inclinadas ficam de fora.
+- `Outputs/Tools/SliceGuideService`: `ReadCuts` (guias que cruzam a caixa da seleção → cortes em mm;
+  conta as de fora), `CreateGuides` (apaga as "PX Slice" anteriores e cria nas emendas, nome "PX Slice"),
+  `RemoveGuides` (só as "PX Slice"). Criar/remover passam por `RunWithWorkspace` (um Ctrl+Z); ler é
+  consulta.
+- Janela: opção "Pelas guias da página", texto com quantas guias foram lidas, "Ler as guias", "Criar
+  guias do plano" (das emendas da prévia por tabela/dimensão máxima), "Remover guias do Slice". As
+  guias lidas valem para a seleção do momento: "Usar seleção atual" lê de novo. A divisão em si é a
+  mesma da seção 64 (`SliceCutService`).
+
+**Verificação:** 6 testes (cortes com sobreposição; cortes ignorados e sem cortes; emendas de volta da
+tabela e da dimensão máxima; leitura das guias que cruzam a arte; sem guias sobre a arte; criar troca só as
+guias do PX e remover mantém as do usuário) e 1 da janela (cria guias das emendas, explica quando não há
+guias, lê guias e divide por elas). Suítes net8.0 e net48 completas; janela desenhada fora do Corel.
+**Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4aj) — em especial: `Page.Guides` pelo interop
+(propriedade indexada), se a página mestra traz as guias globais e se `CreateGuide` com dois pontos cria
+guia horizontal/vertical "de verdade".
+
+## 68. Encaixar peças — quantidade por peça (dev.101)
+
+Pendência da N1 em `docs/reference-feature-roadmap.md` ("quantidades").
+
+- `PXToolBox.Core.Nesting.NestQuantities.Expand(peças, quantidades)` (caixa e contorno): cada peça vira
+  `quantidade` itens com índice novo (0…n−1) e nome "Frente (2/3)" quando há mais de um; `Sources[k]` =
+  índice do objeto selecionado de onde veio o item k. 0 = fora; 0 a 999 por peça; tudo 0 → erro.
+- `NestingService.Apply`/`ApplyContour` recebem `sources` (opcional; null = item k é o objeto k, como
+  antes). `ShapesFor`: o 1º item encaixado de cada objeto usa o próprio objeto; os outros,
+  `ICorelShape.Duplicate()` — TODAS as duplicatas antes de mover/girar qualquer coisa (senão herdariam o
+  giro do original) e só para itens que couberam. Pelo contorno, a distância centro-contorno usada é a do
+  objeto de origem. A conferência de seleção continua sobre os objetos selecionados (um por peça).
+- Janela: "Quantidade por peça" com uma linha por peça (campo + nome) e "Em todas"; `INestingHost.Apply`
+  /`ApplyContour` levam `sources`.
+
+**Verificação:** 3 testes (expansão com nomes, fonte, 0 e limites; pela caixa, 5 cópias numa página onde
+cabem 4 → 3 duplicatas e a 5ª não criada, posições conferidas; pelo contorno, duas cópias de um L com
+meia-volta → a duplicata é feita antes do giro e gira uma vez só) e 1 da janela (quantidade por linha,
+"Em todas", 0 tira a peça, entrada inválida, fontes enviadas). Suítes net8.0 e net48 completas; janela
+desenhada fora do Corel (20 peças). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4ak) — em
+especial `Shape.Duplicate` de grupos/PowerClips grandes (tempo) e o Ctrl+Z único incluindo as cópias.
+
+## 69. Encaixar peças — várias áreas (retalhos) (dev.102)
+
+Parte de N4/N5 em `docs/reference-feature-roadmap.md` que não depende do Nexor: as áreas são digitadas na
+janela. O contrato de tecidos/retalhos com o Nexor continua por fazer (ver `AGENTS.md`, responsabilidades).
+
+- `PXToolBox.Core.Nesting.NestAreas`: `Parse(texto)` — uma área por linha ou ";", "L x A" em cm (`x`, `×` ou
+  `*`, vírgula decimal), nome opcional antes de ":" (senão "Área n"), até `MaximumAreas` = 20. `Nest(peças,
+  áreas, …)` (caixa e contorno) chama o `RectangleNester`/`ContourNester` de página para a 1ª área com todas
+  as peças, para a 2ª com o `Unplaced` da 1ª, e assim por diante, parando quando nada sobra. Erro de uma
+  área sai com o nome dela ("Retalho: A margem não deixa espaço…"). `AreaNestResult<TResult, TItem>`:
+  `Areas` (todas), `Lefts` (lado a lado, `GapMm` = 20 entre elas, topo alinhado), `Fills` (só as que
+  receberam peça, com o resultado normal de cada uma, em coordenadas da área), `Unplaced` (as que não
+  couberam em nenhuma), `TotalWidth`/`TotalHeight`.
+- Ordem = a digitada: é a escolha do usuário (retalhos primeiro). Não há busca da melhor combinação de
+  áreas — fica para N4 (busca/perfis).
+- `NestingService.ApplyAreas`/`ApplyContourAreas`: mesma conferência da seleção (e, pelo contorno, o
+  `ContourNester.Verify` de cada área) antes de mexer; opcionalmente página = todas as áreas; opcionalmente
+  um retângulo por área (`ICorelLayer.CreateRectangle`, estilo padrão do documento, nome
+  `AreaShapeName` "Área: Retalho (80 × 60 cm)") na camada da 1ª peça; depois `ShapesFor` (cópias de
+  quantidade antes de girar) e a posição = canto da página + `Left` da área + posição na área. Aproveitamento
+  por área = área das peças ÷ área inteira (o retalho é consumido todo, diferente do rolo).
+- Janela: 3ª opção "Várias áreas (retalhos)", campo de várias linhas, "Desenhar as áreas no Corel"
+  (ligado); "Ajustar a página ao encaixe" vale no rolo e nas áreas. A prévia desenha todas as áreas lado a
+  lado; o relatório tem uma linha por área ("não usada" quando vazia). `INestingHost.ApplyAreas`/
+  `ApplyContourAreas`.
+
+**Verificação:** 14 testes (`NestAreasTests`: leitura do texto e mensagens; enchimento em ordem pela caixa
+e pelo contorno, parada quando tudo coube, peça que não cabe em nenhuma, erro com o nome da área;
+aplicação com posições, retângulos desenhados e mensagem; quantidades com página ajustada a todas as áreas
+e cópias só das que couberam; contorno em duas áreas; seleção mudada recusada sem desenhar nada) e 1 da
+janela (modo áreas, campos ligados/desligados, relatório por área, aplicação pelo host de áreas, texto
+inválido). Suítes net8.0 e net48 completas; janela desenhada fora do Corel. **Não verificado no Corel**
+(`docs/mvp-smoke-test.md`, 4al) — em especial a posição das áreas depois de ajustar a página e o estilo
+dos retângulos desenhados.
+
+## 70. Encaixar peças — procurar o melhor encaixe, tempo máximo e cancelar (dev.103)
+
+Parte de N4 em `docs/reference-feature-roadmap.md` (tempo limite, cancelar, melhor resultado).
+
+- `PXToolBox.Core.Nesting.NestOrder`/`NestOrders`: maior lado, maior área, mais largas, mais altas, maior
+  perímetro (da caixa sem giro); empate por área e depois pela ordem de entrada. `RectangleNester.Nest` e
+  `ContourNester.Nest` (e `NestAreas.Nest`) recebem a ordem, com o padrão de antes (maior lado / maior área):
+  sem busca, o resultado é idêntico às versões anteriores (teste `DefaultOrder_IsUnchanged` e os antigos).
+- `ContourNester.Nest` recebe um `CancellationToken`, conferido antes de cada peça.
+- `NestSearch.Best(ordens, run, score, limite, cancel, progress)`: roda cada ordem e fica com o melhor
+  `NestScore` (mais peças → mais área de peças → menos áreas → menor comprimento da última; empate: a
+  primeira). A 1ª tentativa sempre termina (só o cancelamento a interrompe, com OperationCanceledException);
+  da 2ª em diante, `CancelAfter(limite − decorrido)` interrompe e descarta a tentativa, e o cancelamento do
+  usuário devolve o melhor até ali (`TimedOut`/`Cancelled`/`Tried` no resultado).
+- Janela: "Procurar o melhor encaixe" (desligado) e "Tempo máximo (s)" (30, de 1 a 600). Pela caixa a busca
+  roda na hora. Pelo contorno, os contornos são lidos no Corel (thread da janela) e o cálculo vai para
+  `Task.Run`; o resultado volta por `Dispatcher.BeginInvoke` e só é usado se `_generation` não mudou (todo
+  `UpdatePlan` e o fechamento incrementam e cancelam). Durante o cálculo: "Calcular encaixe" desligado,
+  "Cancelar cálculo" visível, mensagem com "ordem k de 5". Nada do Corel é tocado fora da thread da janela.
+- Relatório: linha "Busca: n de 5 ordem(ns) testada(s) em x s; melhor: …" logo abaixo do título.
+
+**Verificação:** 6 testes do núcleo (`NestSearchTests`: ordem padrão inalterada; busca acha a ordem que
+encaixa 4 em vez de 3; regras da nota; tempo máximo interrompe a 2ª tentativa e fica a 1ª; cancelar depois da
+1ª fica com ela e cancelar a 1ª pelo contorno lança; busca em várias áreas 5 em vez de 3) e janela (busca
+pela caixa com linha no relatório e tempo inválido; o teste do contorno agora espera o cálculo em segundo
+plano, confere "Cancelar cálculo" visível e o descarte do resultado quando um campo muda, e roda a busca).
+Testes da janela repetidos 3 vezes sem falha. Suítes net8.0 e net48 completas. **Não verificado no Corel**
+(`docs/mvp-smoke-test.md`, 4am) — em especial a janela continuar respondendo durante o cálculo e o
+cancelamento.
+
+## 71. Encaixar peças — ordem de preenchimento das áreas (dev.104)
+
+Parte de N4 em `docs/reference-feature-roadmap.md` (escolher/ordenar as áreas).
+
+- `PXToolBox.Core.Nesting.NestAreaOrder` (`AsTyped`, `SmallestFirst`, `LargestFirst`) e
+  `NestAreas.Arrange(áreas, ordem)`: ordena pela área (L × A) de cada uma; empate fica na ordem digitada;
+  `AsTyped` devolve a própria lista. `NestAreas.Nest` não mudou: enche a lista na ordem recebida, e
+  `Lefts`/desenho seguem essa ordem.
+- Janela: "Preencher as áreas" (três opções, só em "Várias áreas"); `ChosenAreas()` = `Parse` + `Arrange`,
+  usado pela caixa e pelo contorno. Relatório ganha "Áreas preenchidas: …" quando não é a ordem digitada.
+  A busca do melhor encaixe (§70) continua variando só a ordem das peças, com a ordem de áreas escolhida —
+  de propósito: a nota da busca prefere menos áreas, o que brigaria com "gastar os retalhos".
+- Aplicação no Corel (`NestingService.ApplyAreas`/`ApplyContourAreas`) sem mudança: usa `Areas`/`Lefts` do
+  resultado, já na ordem escolhida.
+
+**Verificação:** testes do núcleo (`Arrange` com empate; menores primeiro enche o retalho pequeno antes e
+desloca o desenho) e da janela (opção desligada fora de "Várias áreas", linha no relatório, ordem das áreas e
+cantos entregues ao host). Suítes net8.0 e net48 completas. Janela desenhada fora do Corel com 3 retalhos.
+**Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4an).
+
+## 72. Encaixar peças — perfis salvos (dev.105)
+
+Parte de N4 em `docs/reference-feature-roadmap.md` (perfis).
+
+- `PXToolBoxDev.Nesting.NestingProfile`: os campos da janela **como texto digitado** (aplicar um perfil é o
+  mesmo que digitar; a validação de sempre vale) e as escolhas como enum (área, ordem das áreas, encaixe,
+  giro). Sem quantidades. `Validate`: nome obrigatório, até 40 letras, sem repetir (ignorando maiúsculas),
+  até 30 perfis.
+- `PXToolBoxDev.Integrations.NestingProfileStore`: `nesting-profiles.json` na pasta de configuração do PX
+  DEV (`schema` 1, `profiles`), gravado por `AtomicFileWriter`; `SetFilePathForTesting` como os outros
+  stores. Campo ausente ou enum desconhecido (inclusive número) vale o inicial da janela. Arquivo ilegível,
+  de outra versão ou inválido: nenhum perfil, aviso e `Readable = false` — a janela desliga Salvar/Excluir e
+  **não grava por cima** do arquivo.
+- Janela: seção "Perfis" no topo da coluna da esquerda (um botão por perfil, nome, Salvar, Excluir).
+  Aplicar preenche os campos com `_applyingProfile` ligado (sem recalcular a cada campo) e recalcula uma vez;
+  pelo contorno, como sempre, só no botão. Os testes da janela apontam o store para um arquivo temporário.
+- Ainda não: exportar/importar os perfis junto das preferências portáteis.
+
+**Verificação:** `NestingProfileTests` (ida e volta do arquivo; campos ausentes/desconhecidos; 4 arquivos
+ilegíveis; validação; janela salvando, atualizando sem duplicar, aplicando noutra janela, excluindo; arquivo
+ilegível intocado). Suítes net8.0 e net48 completas; testes das janelas repetidos 3 vezes. Janela desenhada
+fora do Corel com 3 perfis (arquivo isolado). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4ao).
+
+## 73. Preferências portáteis — perfis do encaixe (dev.106)
+
+- `PortablePreferencesService.Document.NestingProfiles` (`nestingProfiles`, aditivo no esquema 1): lista no
+  formato do `nesting-profiles.json` (`NestingProfileStore.ToJson`/`FromJson`). `Export(..., nestingProfiles)`
+  só leva a chave quando quem chama passa a lista; a tela de configurações passa a importada ou a do arquivo,
+  e **nada** se o arquivo local estiver ilegível (exportar "nenhum perfil" apagaria os do destino).
+- `Validate`: perfil a perfil — não objeto, campo de tipo errado, sem nome, nome longo, repetido (ignorando
+  maiúsculas) ou além de 30 é relatado e ignorado sozinho; lista vazia é válida (importar limpa). Tipo
+  errado na chave inteira: ignorada, mantidos os atuais. `ReadNestingProfiles` devolve null sem a chave.
+- Tela de configurações: guarda os importados e grava ao "Salvar", depois das configurações de moldes,
+  com `NestingProfileStore.Save` — mas recusa (e avisa) se o arquivo atual estiver ilegível. O backup antes
+  de importar também leva os perfis.
+- Janela do encaixe: `LoadProfiles` de novo antes de salvar/excluir e no `Activated`, para uma janela aberta
+  antes da importação não regravar a lista antiga.
+
+**Verificação:** `PortablePreferencesNestingTests` (ida e volta; sem a chave; lista vazia; perfis ruins um a
+um; tipo errado) e `NestingProfileTests` (janela relê o arquivo antes de salvar). Suítes net8.0 e net48
+completas. A parte da tela de configurações (gravar ao Salvar, recusar arquivo ilegível, backup) só
+compilada e revista — não há teste automatizado dessa tela (usa diálogos de arquivo e confirmação).
+**Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4ap).
+
+## 74. Slice — contorno da arte na prévia (dev.107)
+
+Parte de S2 em `docs/reference-feature-roadmap.md` ("prévia da arte"), como contorno — não miniatura com cores.
+
+- `PXToolBox.Outputs.Tools.SliceOutlineService.Read(seleção, mm)`: usa a leitura do encaixe pelo contorno
+  (`NestingService.ReadContours`: Bézier em retas, grupos somados, texto/imagem e contorno ilegível pela caixa)
+  e passa os anéis para mm a partir do canto superior esquerdo da caixa da seleção
+  (`SliceGuideService.Box`, agora `internal`, a mesma origem das emendas). Limite de
+  `MaximumPoints` = 20 000 pontos (`Trimmed`); `Approximate` quando algo entrou pela caixa. Só leitura.
+- `ISliceHost.ReadArtOutline` (ponte no ControlUI, sem grupo de desfazer, como medir a seleção).
+- Janela: lê o contorno em `ShowFor` e em "Usar seleção atual"; falha só mostra a mensagem em "ArtText" e o
+  plano continua. `Draw` desenha os polígonos antes das partes (as partes ficam por cima), na escala da
+  prévia, sem esticar quando as medidas digitadas diferem das lidas. "Mostrar o contorno da arte" liga e
+  desliga.
+
+**Verificação:** `SliceOutlineServiceTests` (origem e unidades com documento em 2 mm, texto pela caixa,
+limite de pontos, sem seleção) e `SlicePreviewWindowTests.ArtOutline_IsDrawnUnderTheParts_AndCanBeHidden`.
+Suítes net8.0 e net48 completas; testes do Slice repetidos 3 vezes. Janela desenhada fora do Corel com um
+contorno de camiseta. **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4aq) — em especial a posição do
+contorno em relação às partes e o tempo de leitura com arte pesada.
+
+## 75. Slice — corte livre por guias inclinadas (dev.108)
+
+Parte de S3 em `docs/reference-feature-roadmap.md` ("manual livre"), na forma de linhas retas que atravessam a arte.
+
+- `PXToolBox.Core.Slicing.SliceRegionPlanner.ByLines(largura, altura, linhas, sobreposição)`: cada `SliceLine`
+  (dois pontos, mm do canto superior esquerdo, Y para baixo) é uma reta infinita; a caixa da arte é cortada por
+  todas (recorte convexo de Sutherland–Hodgman por semiplano) e cada parte guarda de que lado de cada linha
+  ficou. Polígono final = caixa ∩ semiplanos deslocados de metade da sobreposição para fora (bordas da arte não
+  crescem). Linha que não cruza o interior é ignorada (`Outside`; `Crosses` é público para quem lê as guias).
+  Recusa: linha sem direção, nenhuma linha cruzando, mais de `SlicePlanner.MaximumTiles` partes e parte com
+  2·área/perímetro < `SlicePlanner.MinimumCutGap` (fina demais). Numeração pelo centro (Y arredondado a 0,1 mm,
+  depois X). Só retas verticais/horizontais dão as mesmas partes que `ByTable` (teste).
+- `ICorelGuide` ganha `Slanted` e `Points` (Guide.Point1X/Y, Point2X/Y); o adaptador lê também
+  `Guides(cdrSlantedGuide)`. `SliceGuideService.ReadCuts` passa as inclinadas para mm da arte em
+  `SliceGuideCuts.Slanted`; mensagem sem guias agora vale para qualquer tipo.
+- `ICorelLayer.CreatePolygon` (Application.CreateCurve + CreateSubPath + AppendLineSegment + Closed + Layer.CreateCurve,
+  assinaturas conferidas por reflexão). `SliceCutService.ApplyRegions` usa o mesmo caminho de `Apply` (agora
+  `Divide` com a lista de partes): polígono sem contorno "Parte n", cópia da arte em PowerClip, falha no meio
+  apaga o que foi criado, original oculto/apagado só no fim. Afastamento radial: do centro da arte para o
+  centro da parte.
+- Janela: no modo das guias, havendo alguma inclinada, todas as guias viram linhas (`ShowRegions`), a prévia
+  desenha polígonos sobre o contorno da arte (`DrawFrame`, compartilhado) e "Dividir no Corel" chama
+  `ISliceHost.ApplyRegions`. Sem inclinadas, nada muda.
+
+**Verificação:** `SliceRegionTests` (diagonal em dois triângulos e numeração; sobreposição de meia faixa e sem
+passar da arte; retas = `ByTable`; linhas fora/no canto; parte fina, mais de 1000 partes e entradas inválidas;
+leitura de guia inclinada em documento de 2 mm; `ApplyRegions` com polígono, PowerClip, afastamento diagonal;
+falha no meio) e `SlicePreviewWindowTests` (guias inclinadas → plano livre, 4 polígonos, aplicar vai ao host
+certo, parte fina recusada, sem inclinadas volta ao retangular). Suítes net8.0 e net48; testes do Slice
+repetidos 3 vezes. Janela desenhada fora do Corel com duas guias inclinadas. **Não verificado no Corel**
+(`docs/mvp-smoke-test.md`, 4ar) — em especial a leitura das guias inclinadas, a criação do polígono
+(CreateSubPath/Closed) e o PowerClip nele.
+
+## 76. Encaixe — canto de início (dev.109)
+
+Parte de N4 em `docs/reference-feature-roadmap.md` ("origem").
+
+- `PXToolBox.Core.Nesting.NestOrigin` (`TopLeft` padrão, `TopRight`, `BottomLeft`, `BottomRight`) e `NestOrigins`
+  (`FromRight`, `FromBottom`, `Name`, `Check`). Parâmetro opcional no fim de `RectangleNester.Nest`,
+  `ContourNester.Nest` e das duas sobrecargas de `NestAreas.Nest` (vale dentro de cada área); quem não passa
+  nada continua igual.
+- Pela caixa: o cálculo de sempre e as caixas espelhadas na área (`X' = largura − X − w`, idem Y).
+- Pelo contorno: espelhar só as posições sobreporia peças assimétricas. As peças são espelhadas antes
+  (`ContourPiece` novo com o mesmo índice/nome), encaixadas a partir do canto superior esquerdo e o resultado
+  espelhado de volta: espelho duplo devolve a peça original; um espelho só inverte o giro (`θ → 360 − θ`,
+  sempre permitido porque as listas de giros são simétricas). `Placement.Piece` e `Unplaced` voltam a ser os
+  objetos originais (o preenchimento de várias áreas passa o que sobrou adiante). `Verify` continua igual.
+- `UsedLength` é o mesmo do cálculo espelhado (começando por baixo, medido do fundo). Rolo + canto de baixo:
+  `ArgumentException` ("No rolo o encaixe começa no início do rolo: escolha um canto de cima.").
+- Janela: "Começar pelo canto" (4 opções, cantos de baixo desligados no rolo), linha "Começa pelo canto …" no
+  relatório quando não é o padrão. `NestingProfile.Origin` com a chave aditiva `origin` (perfis antigos =
+  superior esquerdo); as preferências portáteis levam junto.
+
+**Verificação:** `NestOriginTests` (caixas = espelho exato do padrão nos 3 cantos; contorno com L assimétricas e
+giros de 90° nos 4 cantos: conferido sem sobreposição e cada contorno final = peça original girada pelo ângulo
+informado, como o Corel faz; rolo recusa canto de baixo; várias áreas), `NestingProfileTests` (gravar/ler e
+chave ausente) e `NestingWindowTests` (prévia no canto, aplicar envia o resultado espelhado, rolo desliga os
+cantos de baixo). Suítes net8.0 e net48. **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4as).
+
+## 77. Encaixe — comparar com o original (dev.110)
+
+Fecha o "Comparar original" de N2 em `docs/reference-feature-roadmap.md`.
+
+- `NestingService.ReadOrigins(selection, page, mm)`: canto superior esquerdo da caixa de cada peça, em mm a
+  partir do canto superior esquerdo da página (mesma referência de `Apply`). Só leitura; o painel lê junto com
+  a seleção e passa em `NestingSelection.Origins` (opcional — sem ele, nada muda).
+- `PXToolBox.Core.Nesting.NestComparison.Of(items, origens, caixas do encaixe)`: largura × altura da caixa ocupada
+  hoje e no encaixe, aproveitamento (soma das caixas das peças ÷ caixa ocupada, a mesma conta dos dois lados) e
+  variação da área da caixa. Null com o motivo se não houver uma caixa por peça.
+- Janela: linha "Original: …" logo abaixo do título (página/rolo, pela caixa e pelo contorno); quantidade ≠ 1 ou
+  peça que não coube → "só quando cada peça entra uma vez e todas cabem". "Mostrar a posição original" desenha as
+  caixas atuais (cinza tracejado) e alarga o desenho quando há peças fora da página; mostrar/esconder só redesenha
+  (`_redraw`), sem recalcular — pelo contorno o resultado continua.
+
+**Verificação:** `NestComparisonTests` (caixas e aproveitamentos, sem comparação quando falta peça, leitura das
+posições num documento de 2 mm) e `NestingWindowTests` (linha do relatório, desenho e deslocamento com peça fora
+da página, esconder volta ao desenho anterior, quantidades e várias áreas). Suítes net8.0 e net48. **Não
+verificado no Corel** (`docs/mvp-smoke-test.md`, 4at) — em especial as posições lidas.
+
+## 78. Encaixe — rolo em folhas e quantidade opcional (dev.111)
+
+Pedido no smoke test de 2026-11-11: rolo com largura **e altura**, montado na vertical; quantidade por peça ligável
+(montagens com centenas de objetos).
+
+- `NestAreas.Sheets(peças, largura, altura, …)` (caixa e contorno): folha "Folha k" de largura × altura; enche uma,
+  continua na seguinte com o que sobrou, até acabar, até `MaximumSheets` (200) ou até uma folha vazia não receber
+  nada (o resto vai para `Unplaced`). As folhas ficam uma embaixo da outra, sem espaço (é o mesmo rolo).
+- `AreaFill.Top` e `AreaNestResult.Tops` (novos; 0 nas áreas lado a lado); `TotalWidth`/`TotalHeight` passam a ser
+  o maior canto direito/inferior. `NestingService.ApplyAreas`/`ApplyContourAreas` somam `Top` no Y e desenham as
+  áreas na altura certa — o rolo em folhas reaproveita todo o caminho de "várias áreas" (prévia, conferência,
+  aplicar, desenhar, ajustar a página = largura × n·altura).
+- Janela: campo "Altura da folha" (vazio = comprimento livre, como antes); com altura, qualquer canto de início,
+  "Desenhar as áreas" ligado e "Mostrar a posição original" desligado. Perfil guarda `rollSheetHeightCm` (perfis
+  antigos: vazio). Rolo livre na prévia: moldura com pelo menos a largura de altura (`RollFrameLength`), em pé.
+- "Quantidade por peça" é um CheckBox desligado por padrão: desligado, nenhuma linha é criada e cada peça entra
+  uma vez; ligar monta a lista, desligar desmonta e volta a 1 de cada. Fora dos perfis, como as quantidades.
+
+**Verificação:** `NestSheetsTests` (folhas uma embaixo da outra, peça maior que a folha sem laço infinito, altura
+inválida, contorno com conferência por folha, aplicar e desenhar as folhas na página), `NestingWindowTests`
+(rolo em folhas, prévia em pé, cantos, voltar ao comprimento livre; quantidade desligada por padrão) e
+`NestingProfileTests` (altura no perfil). Suítes net8.0 e net48. **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4au).
+
+Fica para depois (precisa de contrato com o Nexor, que é o dono dos tecidos): escolher as áreas a partir dos
+tecidos/retalhos cadastrados no Nexor, além de digitar.
+
+## 79. Encaixe pelo contorno — fileiras alinhadas, velocidade e últimas opções (dev.112)
+
+Do smoke test de 2026-11-11 (comparação com o eCut, peças G/GG de ~75 × 62 cm, áreas 175 × 1000, 180°): o PX
+alternava fileiras de 2 e de 1. Causa: a regra "posição mais alta" — com topo/base curvos, a 3ª peça sobe uns
+milímetros no "vale" entre as duas de cima, no meio, e a fileira seguinte já não comporta duas lado a lado.
+
+- `ContourNester.Fill` (o laço de antes) recebe `leftTolerance`. 0 = regra antiga. > 0 = depois de achar a posição
+  mais alta de cada giro, `Grid.LeftmostAbove` procura a de coluna menor com o fundo até `tolerância × altura da
+  peça` abaixo; entre os giros, fica a de coluna menor (empate: o fundo mais alto).
+- `Nest` roda a regra antiga e as tolerâncias de `AlignTolerances` (0,12; 0,06; 0,03) e fica com o melhor
+  `NestScore` (empate: a de fileiras alinhadas). Resultado nunca pior que antes. Experimento (peças sintéticas de
+  75 × 62 cm com topo/base curvos de 3 cm e recortes laterais, rolo 175, distância 12 mm, 180°): 28 peças de
+  11,5 m para 8,9 m (14 fileiras de 2); 60 peças de 24,3 m para 19,1 m. Tolerância 0,1+ volta a desalinhar — por
+  isso várias pequenas.
+- Velocidade: `Grid._firstFree` guarda, por formato (`Mask.Key` = células), a linha acima da qual a peça já não
+  cabia; como as células só são bloqueadas, a próxima busca do mesmo formato começa dali. 60 peças iguais (net48):
+  regra antiga 5,0 s → 0,5 s; com as quatro regras, 1,9 s. Mesmo resultado (é exato).
+- Janela: `NestingProfileStore.LoadLast/SaveLast` ("nesting-last.json", ao lado dos perfis; ilegível = ignora).
+  Grava ao fechar (`CaptureProfile`), aplica ao abrir antes de ligar os eventos (`FillFields`). Quantidades não
+  entram. Nada coube → `NothingFits()`: área, maior peça e, na página, a sugestão de rolo/áreas.
+
+**Verificação:** `ContourNesterTests` (peças curvas: a regra antiga tem fileira de 1; a nova, 14 fileiras de 2 e
+< 85% do comprimento; regra nova nunca pior), `NestingWindowTests` (mensagem com 45 × 45 e as peças G/GG; a
+próxima janela abre em várias áreas, 180°, 1,2) e `NestingProfileTests` (ajustado: a 2ª janela abre com as
+últimas opções). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4av) — em especial com as peças reais.
+
+## 80. Encaixe — agrupar por bloco, lado a lado (dev.113)
+
+Pedido do usuário: o resultado agrupado por blocos, com os blocos lado a lado no Corel (as folhas do rolo da dev.111
+ficavam uma embaixo da outra).
+
+- `NestAreas.SideBySide(result)`: as mesmas áreas e encaixes, com `Lefts` acumulando `largura + GapMm` e `Tops` 0.
+  Só muda o desenho; o cálculo (`FillSheets`) continua igual. Áreas digitadas já eram lado a lado.
+- Janela: `GroupBlocks` (perfil/últimas opções: `groupBlocks`, padrão desligado), habilitado em várias áreas e no
+  rolo em folhas. Os resultados guardados continuam os do cálculo; `Laid()` aplica `SideBySide` na prévia
+  (`_redraw`) e no "Aplicar" quando é rolo em folhas com a opção marcada. Marcar/desmarcar só redesenha.
+- `NestingService.ApplyAreas/ApplyContourAreas(..., groupBlocks)`: depois de mover, um grupo por área preenchida com
+  o retângulo dela (se desenhado — `PrepareAreas` agora devolve os retângulos) e as peças; nome
+  `BlockName` = "Bloco: <área>". Um objeto sozinho usa `GroupAlone` (Shape.Group de um item), para todo bloco ser
+  grupo. Mensagem: "N bloco(s) agrupado(s)". Tudo no mesmo passo de desfazer.
+
+**Verificação:** `NestSheetsTests` (`SideBySide`: posições 0/120/240 e os mesmos encaixes; aplicar com grupos:
+"Bloco: Folha 1" = retângulo + P1 + P2, "Bloco: Folha 2" lado a lado; sem retângulo, peça sozinha também agrupada),
+`NestingWindowTests` (marcar redesenha deitado sem recalcular; aplicar manda as folhas lado a lado e o pedido de
+agrupar) e `NestingProfileTests` (ida e volta; perfis antigos = desligado). **Não verificado no Corel**
+(`docs/mvp-smoke-test.md`, 4aw) — em especial o `ShapeRange.Group` com peças em camadas diferentes.
+
+## 81. Encaixe — separar por camada (material) (dev.114)
+
+Item "material/cor" do N4 (`docs/reference-feature-roadmap.md`): o material de cada peça é a **camada** do Corel
+(uma camada por tecido/cor). Cor de preenchimento não serve para peças de sublimação (grupos e PowerClips).
+
+- `NestAreas.ByGroup(items, groupOf, nest, indexOf)`: agrupa na ordem em que cada grupo aparece, encaixa cada
+  grupo com `nest` (rolo livre: `NestAreas.Roll(resultado)` = uma área "Rolo" largura × comprimento usado; em
+  folhas: `Sheets`), renomeia as áreas ("Tactel — Folha 1"), desloca cada grupo por `TotalWidth + GapMm` e junta
+  as peças que não couberam. Grupo vazio/sem nome = "Sem camada"; grupo em que nada coube não ocupa lugar.
+- Leitura: `NestingService.ReadLayers` (nome da camada por objeto) → `NestingSelection.Layers`. Com quantidades,
+  a camada de cada item vem de `sources`. Sem camadas lidas (janela sem painel), um grupo só.
+- Janela: `SplitByLayer` (perfil `splitByLayer`, padrão desligado), só no rolo; recalcula. O resultado vai pelo
+  caminho de várias áreas (`_areasResult`/`_contourAreasResult`), então prévia, relatório ("…no rolo, separado por
+  camada[, em folhas]"), "Desenhar as áreas", "Agrupar por bloco" (folhas numa fileira só) e "Aplicar" são os
+  mesmos. Cantos de baixo seguem a regra do rolo (só em folhas).
+- Aplicar: o retângulo de cada área é desenhado na camada da 1ª peça encaixada nela (`AreaLayers`), para o bloco
+  agrupado ficar na camada do seu tecido.
+
+**Verificação:** `NestByLayerTests` (rolo livre e folhas por camada, ordem, deslocamento, "Sem camada", grupo que
+não cabe, contorno conferido, aplicar com um bloco por camada na camada certa), `NestingWindowTests` (habilitação,
+relatório, aplicar lado a lado, em folhas numa fileira) e `NestingProfileTests`. **Não verificado no Corel**
+(`docs/mvp-smoke-test.md`, 4ax).
+
+## 82. Slice — linhas desenhadas: cortes curvos e que param no meio da arte (dev.115)
+
+O que faltava em S3 (`docs/reference-feature-roadmap.md`). Guias do Corel são retas infinitas; um corte que para ou
+curva precisa ser desenhado. As linhas ficam numa camada própria, `SliceDrawnCutService.LayerName` = "Cortes
+(Slice)", fora da seleção — medir, conferir a área e dividir continuam usando só a arte selecionada.
+
+- `PXToolBox.Core.Slicing.SlicePathPlanner.ByPaths(largura, altura, polilinhas, sobreposição)`:
+  - `Arrange`: começa da caixa e corta cada parte pelo primeiro trecho de cada linha que vai de uma borda a outra
+    por dentro dela (`TrySplit`: interseções ordenadas ao longo da linha; o meio do trecho precisa estar dentro e a
+    mais de 1e-6 mm da borda; a corda é inserida na borda e o polígono vira dois). Repete até nenhuma linha cortar
+    mais nada (cada par linha × parte tentado uma vez; parte nova = tenta de novo). Cada ponta estendida
+    `JoinToleranceMm` (2 mm) para um "T" desenhado à mão encostar; o que passa do encontro fica solto e não corta.
+  - Linha que nunca cortou nada → `Outside`. Nenhuma parte → mensagem. Parte fina e limite de partes como em
+    `SliceRegionPlanner`; numeração igual.
+  - Sobreposição (`Expanded`): ponto bem dentro da parte (`InteriorPoint`, meio do trecho mais largo de uma
+    horizontal), cada linha perto dela deslocada metade da faixa para o lado oposto (`Offset`, esquadria limitada;
+    lado pelo trecho mais perto) e estendida mais `2 × metade`; a divisão é refeita e fica a parte que contém o
+    ponto. Bordas da arte não crescem. Retas dão as mesmas partes que `ByTable` (teste).
+  - `SliceRegionPlan` ganhou `Paths`; `Area`/`Perimeter`/`Centroid` de `SliceRegionPlanner` agora `internal`.
+- `NestingService.OutlinePaths`: os subcaminhos com 2 pontos ou mais (abertos também); `OutlineRings` = os de 3+.
+- `Outputs/Tools/SliceDrawnCutService`: `ReadCuts` (cada objeto da camada, dentro de grupos também, pelo
+  `ReadOutline`; texto/imagem/ilegível contados em `Unreadable`; mm da arte pela mesma `SliceGuideService.Box`) e
+  `CreateLayer` (cria se não existe). `ISliceHost.ReadDrawnCuts` (só leitura) e `CreateCutLayer` (desfazer).
+- Janela: "Pelas linhas desenhadas", "Ler as linhas", "Criar camada de cortes"; `ShowRegions` agora recebe o plano
+  (guias inclinadas ou linhas) e desenha as linhas tracejadas em vermelho por cima. "Dividir no Corel" usa
+  `ApplyRegions` (polígonos, seção 75) — sem mudança no serviço de corte.
+
+**Verificação:** `SlicePathTests` (T com 3 partes e sobreposição só nas emendas; retas = tabela; arco com
+sobreposição seguindo a curva; soltas contadas e nada que divida recusado; "U" que entra e sai pelo mesmo lado;
+parte fina; 60 planos aleatórios com curvas e T sem perder nem dobrar área), `SliceDrawnCutServiceTests` (reta e
+Bézier dentro de grupo em documento de 2 mm, texto ignorado, sem camada/sem linhas, criar a camada uma vez) e
+`SlicePreviewWindowTests` (sem camada explica; T + solta = 3 partes, polígonos e linhas na prévia, aplicar vai ao
+host de regiões). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4ay) — em especial `CreateLayer` (onde a
+camada aparece e se fica ativa), a leitura de curvas desenhadas (`DisplayCurve` de linha aberta) e o PowerClip em
+polígono não convexo.
+
+## 83. Slice — miniatura com cores na prévia (dev.116)
+
+O que faltava em S2 (`docs/reference-feature-roadmap.md`): a prévia mostrava só o contorno.
+
+- `ICorelDocument.ExportSelectionPng(arquivo, largura, altura)`: `Document.ExportBitmap(arquivo, cdrPNG,
+  cdrSelection, cdrRGBColorImage, largura, altura, 72, 72, cdrNormalAntiAliasing, Dithered=false, Transparent=true,
+  UseColorProfile=true, MaintainLayers=false, cdrCompressionNone, Application.CreateStructPaletteOptions())` e
+  `ExportFilter.Finish()` — assinaturas conferidas por reflexão no VGCore v27 (`ExportBitmap` devolve
+  `ExportFilter`/`ICorelExportFilter`: `Finish`, `Reset`, `ShowDialog`, `HasDialog`). `ExportArea` omitido (a
+  seleção inteira).
+- `Outputs/Tools/SliceThumbnailService.Read(documento, seleção, mm, pasta)`: lado maior com 600 pixels,
+  proporcional à caixa da seleção (`SliceGuideService.Box`); arquivo `px-slice-<guid>.png` na pasta pedida (o painel
+  passa `%TEMP%\PXToolBox-Dev`), lê os bytes e apaga o arquivo (também se falhar). Devolve o PNG e a caixa em mm.
+  `ISliceHost.ReadArtThumbnail`, só leitura (sem grupo de desfazer).
+- Janela: "Mostrar a arte em cores", desmarcado por padrão (o Corel pode demorar com arte pesada). Gera ao marcar
+  (se ainda não tem), em "Usar seleção atual" e ao reabrir pelo painel; mudar campos só redesenha. `DrawFrame`
+  põe a imagem primeiro (por baixo do contorno e das partes), no tamanho da seleção lida — não estica com medidas
+  digitadas, como o contorno. PNG ilegível ou falha → só a mensagem em "ArtText".
+
+**Verificação:** `SliceThumbnailServiceTests` (600 × 150 pixels para 200 × 50 mm em documento de 2 unidades/mm,
+bytes lidos, arquivo apagado, nada exportado ou sem seleção explicam) e
+`SlicePreviewWindowTests.ColorThumbnail_IsReadOnlyWhenAsked_AndDrawnUnderTheParts` (desligada não chama o Corel; falha
+só mostra a mensagem; PNG de verdade desenhado primeiro, no tamanho certo; campos não geram de novo; desmarcar
+esconde). **Não verificado no Corel** (`docs/mvp-smoke-test.md`, 4az) — em especial se `ExportBitmap` com
+`cdrSelection` e `ExportArea` omitido exporta só a seleção, com fundo transparente e sem margem (a imagem precisa
+coincidir com o contorno), e o tempo com arte pesada.
+
+## 84. Grupo de um objeto só no Corel 2025 (dev.117)
+
+Smoke 4aw passo 2 (dev.116, 2026-11-11): encaixe no rolo, "Agrupar por bloco", sem desenhar as áreas — a folha 2,
+com uma peça só, ficou solta (sem grupo e sem o nome "Bloco: Folha 2"); a folha 1 (4 peças) foi agrupada.
+Investigado por COM num documento de teste próprio (`smoke-groupalone.cdr`), CorelDRAW 2025 (v27):
+
+- `Shape.Group()` de um objeto só → `E_FAIL` (sozinho, com outros selecionados e depois de outro grupo);
+- `ShapeRange.Group()` / `Selection().Group()` com um item → devolve o próprio objeto (tipo retângulo), sem grupo;
+- agrupar o objeto com um auxiliar e apagar o auxiliar → grupo (tipo 7) com o original como único filho, mesmo
+  StaticID, caixa igual à do filho.
+
+`CorelShapeAdapter.GroupAlone` passou a fazer o terceiro: retângulo auxiliar do mesmo tamanho na camada do objeto,
+`ShapeRange` [objeto, auxiliar] → `Group()`, apaga o auxiliar (também se o agrupar falhar). Usado por
+`NestingService.GroupBlocks` (bloco de uma peça sem retângulo) e por `SingleItemGroupService` ("Criar grupo com item
+único", que portanto também falhava no Corel — nunca tinha passado por smoke test).
+
+**Verificação:** a sequência foi conferida por COM no Corel (acima). O código do adaptador só roda no Corel — sem
+teste automatizado novo (os falsos não reproduzem o `E_FAIL`). **Não verificado no Corel pelo add-on**: 4aw passo 2
+de novo, e "Criar grupo com item único" (`docs/mvp-smoke-test.md`).
+
+## 85. Camada do grupo criado pelo PX (dev.118)
+
+Smoke 4ax passo 1 (dev.117, 2026-11-11): encaixe no rolo, "Separar por camada" + "Agrupar por bloco" — o grupo
+"Bloco: Tactel — Folha 1" (só peças da camada Tactel) foi criado na camada Dry fit; a Tactel ficou vazia.
+Investigado por COM num documento de teste próprio (`smoke-grouplayer.cdr`), CorelDRAW 2025 (v27):
+
+- objetos fora da seleção: `ShapeRange.Group()` cria o grupo na camada deles, seja qual for a camada ativa;
+- objetos que fazem parte da seleção atual (o caso do encaixe, que trabalha sobre a seleção): os dois grupos —
+  inclusive o de objetos de outra camada — vão para a camada do último objeto selecionado;
+- `Shape.MoveToLayer(camada)` devolve o grupo inteiro (filhos junto) à camada certa.
+
+`CorelShapeAdapter.GroupOnTheirLayer(ShapeRange)`: agrupa e, se todos os objetos estavam numa só camada e o grupo
+caiu em outra (`Layer.Index` + `Page.Index`), `MoveToLayer` de volta. Objetos de camadas diferentes: fica onde o
+Corel puser. Usado por `CorelPageAdapter.Group`, `CorelWorkspaceAdapter.Group` e `GroupAlone` (§84).
+
+**Verificação:** a sequência (seleção em duas camadas, mover dentro de um grupo de desfazer, agrupar,
+`MoveToLayer`) foi conferida por COM no Corel. O código só roda no Corel — sem teste automatizado novo.
+**Não verificado no Corel pelo add-on**: 4ax de novo.
+
+## 86. Encaixe — distância entre blocos e legenda (dev.119)
+
+Itens do inventário eCut "ordem/distância de blocos" e "legenda/nome" (`docs/reference-feature-roadmap.md`, N4).
+
+- `NestAreas.GapMm` (20 mm) passa a ser só o padrão: `Nest`, `SideBySide` e `ByGroup` recebem `gap` (0 a
+  `MaximumGapMm` = 10 000 mm; fora disso `ArgumentException` com a mensagem da janela). A janela tem
+  "Distância entre os blocos (cm)", habilitada junto com "Desenhar áreas" (só faz sentido com mais de um bloco);
+  `_blockGap` guarda o valor do último cálculo para "Agrupar por bloco" redesenhar sem recalcular. Perfil:
+  `blockGapCm` (padrão "2") e `legends` (padrão falso) — perfis antigos continuam iguais.
+- `NestingService.ApplyAreas`/`ApplyContourAreas(..., legends)`: com `groupBlocks`, cada bloco ganha um texto
+  artístico `"Legenda: {área}"` (`LegendText`: nome · L × A cm · n peça(s)), Arial, preto, na camada da 1ª peça do
+  bloco, com a borda esquerda na esquerda da área e a base `LegendGapMm` (10 mm) acima do topo dela, e entra no
+  grupo "Bloco: …". Letra: `LegendPoints` = largura ÷ 40, entre 18 e 120 pt. Sem agrupar, não há legenda (a
+  janela desabilita a caixa).
+- Limites conhecidos: a prévia não desenha a legenda; "Ajustar a página" mede só as áreas, então a legenda pode
+  ficar fora da página; num bloco estreito o texto pode passar da largura dele; a distância entre blocos não
+  reserva espaço vertical para a legenda (ela fica acima de todos os blocos, que têm o topo alinhado).
+
+**Verificação:** compilação e testes automatizados (`NestBlockOptionsTests`, `NestingWindowTests`,
+`NestingProfileTests`) com fakes. **Não verificado no Corel**: smoke 4ba.

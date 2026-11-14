@@ -41,6 +41,18 @@ namespace PXToolBoxDev.Corel
             Native.SaveAsCopy(fullPath, options);
         }
 
+        // Assinatura conferida por reflexão no VGCore v27: ExportBitmap(FileName, Filter, Range, ImageType, Width,
+        // Height, ResolutionX, ResolutionY, AntiAliasing, Dithered, Transparent, UseColorProfile, MaintainLayers,
+        // Compression, PaletteOptions, ExportArea) : ExportFilter. ExportArea omitido = a seleção inteira (a conferir
+        // no smoke test).
+        public void ExportSelectionPng(string fullPath, int widthPixels, int heightPixels)
+        {
+            var filter = Native.ExportBitmap(fullPath, cdrFilter.cdrPNG, cdrExportRange.cdrSelection, cdrImageType.cdrRGBColorImage,
+                widthPixels, heightPixels, 72, 72, cdrAntiAliasingType.cdrNormalAntiAliasing, false, true, true, false,
+                cdrCompressionType.cdrCompressionNone, Native.Application.CreateStructPaletteOptions());
+            filter.Finish();
+        }
+
         public double ConvertFromInches(double inches) =>
             Native.Application.ConvertUnits(inches, cdrUnit.cdrInch, Native.Rulers.HUnits);
 

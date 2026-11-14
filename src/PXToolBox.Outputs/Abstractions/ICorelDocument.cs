@@ -56,5 +56,9 @@ namespace PXToolBox.Outputs.Abstractions
         /// <summary>Salva SÓ a seleção atual num arquivo novo, sem que o documento passe a apontar
         /// para ele (Document.SaveAsCopy com Range = cdrSelection, sobrescrevendo).</summary>
         void SaveSelectionAsCopy(string fullPath);
+
+        /// <summary>Imagem PNG (RGB, fundo transparente) SÓ da seleção atual, com o tamanho pedido em pixels
+        /// (Document.ExportBitmap com Range = cdrSelection + ExportFilter.Finish). Não muda o documento.</summary>
+        void ExportSelectionPng(string fullPath, int widthPixels, int heightPixels);
     }
 }

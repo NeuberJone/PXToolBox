@@ -861,6 +861,68 @@ Não implementadas nesta entrega; apenas registradas na arquitetura (ver
    repetido, mesmo número em peças diferentes, numeração trocada, logo faltando ou fora do lugar,
    tamanho repetido, sem TAG/laser). Smoke test **pendente** (4ac). Ver `docs/ARCHITECTURE.md`, 60.
    Falta do MoldMotor: o metadado em Shape.Comment e a sincronização do objeto identificador.
+   **`0.1.0-dev.94`**: Medidas → régua em tamanho real da largura, da altura ou das duas (trena com mm
+   e cm, camada RÉGUA, distância do objeto no painel). **Aprovada pelo usuário no Corel** ("deu bom"),
+   com um ajuste: fundo branco. Ver `docs/ARCHITECTURE.md`, 61.
+   **`0.1.0-dev.95`**: faixa da régua branca em vez de amarela (só a cor). Smoke test **pendente**
+   (4ad passo 1) — conferir a cor da faixa.
+   **`0.1.0-dev.96`**: "Buscar ferramenta…" no topo do painel (resultados por seção, atalhos dos
+   botões originais) e Montagem → "Planejar divisão (Slice)…" (prévia por linhas/colunas ou tamanho
+   máximo, com sobreposição; sem recorte), integrado do patch de referência com ajustes. Smoke test
+   **pendente** (4ae, 4af). Ver `docs/ARCHITECTURE.md`, 62 e 63.
+   **`0.1.0-dev.97`**: Slice divide no documento — "Dividir no Corel" cria cada parte como PowerClip
+   com uma cópia da arte, afastamento opcional, original oculto ou apagado, um Ctrl+Z (botão agora
+   "Dividir em partes (Slice)…"). Smoke test **pendente** (4ag). Ver `docs/ARCHITECTURE.md`, 64.
+   **`0.1.0-dev.98`**: Montagem → "Encaixar peças (retangular)…" — encaixe pela caixa na página ou em
+   rolo de largura fixa, margem/distância, giro de 90° opcional, prévia com aproveitamento, aplicar com
+   um Ctrl+Z. Smoke test **pendente** (4ah). Ver `docs/ARCHITECTURE.md`, 65.
+   **`0.1.0-dev.99`**: "Encaixar peças…" ganha o encaixe pelo contorno real (grade com precisão em mm,
+   furos e recortes livres, giro 0/180 ou 0/90/180/270, conferência independente nos polígonos antes
+   de aplicar). Smoke test **pendente** (4ai). Ver `docs/ARCHITECTURE.md`, 66.
+   **`0.1.0-dev.100`**: Slice pelas guias da página (cada guia horizontal/vertical que cruza a arte é uma
+   emenda) e "Criar guias do plano"/"Remover guias do Slice". Smoke test **pendente** (4aj). Ver
+   `docs/ARCHITECTURE.md`, 67.
+   **`0.1.0-dev.101`**: "Encaixar peças…" com quantidade por peça (cópias criadas só se couberem, um
+   Ctrl+Z). Smoke test **pendente** (4ak). Ver `docs/ARCHITECTURE.md`, 68.
+   **`0.1.0-dev.102`**: "Encaixar peças…" em várias áreas digitadas (retalhos), enchidas em ordem, com as
+   áreas desenhadas no Corel. Smoke test **pendente** (4al). Ver `docs/ARCHITECTURE.md`, 69.
+   **`0.1.0-dev.103`**: "Encaixar peças…" com "Procurar o melhor encaixe" (5 ordens, tempo máximo) e
+   cálculo pelo contorno em segundo plano com "Cancelar cálculo". Smoke test **pendente** (4am). Ver
+   `docs/ARCHITECTURE.md`, 70.
+   **`0.1.0-dev.104`**: "Encaixar peças…" em várias áreas com "Preencher as áreas" (digitada, menores ou
+   maiores primeiro). Smoke test **pendente** (4an). Ver `docs/ARCHITECTURE.md`, 71.
+   **`0.1.0-dev.105`**: "Encaixar peças…" com perfis salvos (campos da janela por nome, neste computador).
+   Smoke test **pendente** (4ao). Ver `docs/ARCHITECTURE.md`, 72.
+   **`0.1.0-dev.106`**: Exportar/Importar preferências levam os perfis do encaixe. Smoke test **pendente**
+   (4ap). Ver `docs/ARCHITECTURE.md`, 73.
+   **`0.1.0-dev.107`**: Slice com o contorno da arte na prévia. Smoke test **pendente** (4aq). Ver
+   `docs/ARCHITECTURE.md`, 74.
+   **`0.1.0-dev.108`**: Slice com corte livre por guias inclinadas (partes poligonais). Smoke test
+   **pendente** (4ar). Ver `docs/ARCHITECTURE.md`, 75.
+   **`0.1.0-dev.109`**: Encaixe começando por qualquer canto da área. Smoke test **pendente** (4as). Ver
+   `docs/ARCHITECTURE.md`, 76.
+   **`0.1.0-dev.110`**: Encaixe comparado com o arranjo original (relatório e prévia). Smoke test **pendente**
+   (4at). Ver `docs/ARCHITECTURE.md`, 77.
+   **`0.1.0-dev.111`**: Encaixe com rolo em folhas (largura × altura, folhas uma embaixo da outra) e "Quantidade
+   por peça" opcional (desligada por padrão). Smoke test **pendente** (4au). Ver `docs/ARCHITECTURE.md`, 78.
+   **`0.1.0-dev.112`**: Encaixe pelo contorno em fileiras alinhadas (comparação com o eCut), cálculo mais rápido
+   com peças repetidas, janela abre com as últimas opções e explica quando nada cabe. Smoke test **pendente**
+   (4av). Ver `docs/ARCHITECTURE.md`, 79.
+   **`0.1.0-dev.113`**: Encaixe com "Agrupar por bloco, lado a lado" (cada área/folha vira um grupo; folhas do rolo
+   lado a lado). Smoke test **aprovado** na dev.117 (4aw, depois da correção abaixo). Ver `docs/ARCHITECTURE.md`, 80.
+   **`0.1.0-dev.114`**: Encaixe no rolo "Separar por camada" (um bloco por tecido, lado a lado). Smoke test
+   **aprovado** na dev.118 (4ax, depois da correção abaixo). Ver `docs/ARCHITECTURE.md`, 81.
+   **`0.1.0-dev.115`**: Slice "Pelas linhas desenhadas" — cortes curvos e que param no meio da arte, na camada
+   "Cortes (Slice)". Smoke test **aprovado** na dev.118 (4ay). Ver `docs/ARCHITECTURE.md`, 82.
+   **`0.1.0-dev.116`**: Slice "Mostrar a arte em cores" (miniatura com cores na prévia). Smoke test **aprovado**
+   na dev.118 (4az; arte pesada não medida). Ver `docs/ARCHITECTURE.md`, 83.
+   **`0.1.0-dev.117`**: correção — agrupar um objeto sozinho (`Shape.Group()` de um item dá `E_FAIL` no Corel 2025),
+   achada no smoke 4aw (passo 1 aprovado na dev.116). Ver `docs/ARCHITECTURE.md`, 84. 4aw aprovado na dev.117
+   (passos 1, 2 e desfazer).
+   **`0.1.0-dev.118`**: correção — o grupo ia para a camada do último objeto selecionado (smoke 4ax). Ver
+   `docs/ARCHITECTURE.md`, 85. 4ax aprovado na dev.118.
+   **`0.1.0-dev.119`**: encaixe — distância entre os blocos digitada e legenda em cada bloco (nome, medidas e
+   peças). Smoke test pendente (4ba). Ver `docs/ARCHITECTURE.md`, 86.
 2. **Nexor**: compartilhar contexto de pedido, navegar com o pedido carregado, comunicar
    resultados de execução (o Nexor continua validando as transições) — abrir o standalone (sem
    incorporar interface nem contexto de pedido) já está implementado desde a 18ª rodada acima.

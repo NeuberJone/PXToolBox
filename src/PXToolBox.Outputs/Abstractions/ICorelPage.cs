@@ -44,5 +44,12 @@ namespace PXToolBox.Outputs.Abstractions
         /// (CorelHost) delega para a seleção nativa do Corel; não deve filtrar por conta própria.
         /// </summary>
         IReadOnlyList<ICorelShape> GetSelectableShapes();
+
+        /// <summary>Guias horizontais e verticais da página e da página mestra (Page.Guides; as
+        /// inclinadas ficam de fora).</summary>
+        IReadOnlyList<ICorelGuide> Guides { get; }
+
+        /// <summary>Guia nova na camada de guias da página (Page.GuidesLayer.CreateGuide).</summary>
+        ICorelGuide CreateGuide(bool horizontal, double position);
     }
 }

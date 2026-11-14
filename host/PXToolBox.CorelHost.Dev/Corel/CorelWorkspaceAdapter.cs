@@ -41,7 +41,7 @@ namespace PXToolBoxDev.Corel
 
         public void CopyToClipboard(string text) => System.Windows.Clipboard.SetText(text);
 
-        public ICorelShape Group(IReadOnlyList<ICorelShape> shapes) => new CorelShapeAdapter(Range(shapes).Group());
+        public ICorelShape Group(IReadOnlyList<ICorelShape> shapes) => new CorelShapeAdapter(CorelShapeAdapter.GroupOnTheirLayer(Range(shapes)));
 
         public void Select(IReadOnlyList<ICorelShape> shapes) => Range(shapes).CreateSelection();
 

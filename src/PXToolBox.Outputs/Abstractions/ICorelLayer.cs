@@ -33,6 +33,15 @@ namespace PXToolBox.Outputs.Abstractions
         /// fonte pedida — ou Arial, se ela não estiver instalada. A posição é ajustada por quem chama.</summary>
         ICorelShape CreateArtisticText(string text, string fontFamily, double sizePoints);
 
+        /// <summary>Uma curva só, nesta camada e na frente, com um trecho reto por linha
+        /// (Application.CreateCurve + CreateSubPath + AppendLineSegment + Layer.CreateCurve) — muitos
+        /// traços sem um objeto para cada um.</summary>
+        ICorelShape CreateLines(IReadOnlyList<CurveLine> lines);
+
+        /// <summary>Polígono fechado novo nesta camada, na frente (Application.CreateCurve + CreateSubPath +
+        /// AppendLineSegment + SubPath.Closed + Layer.CreateCurve), na unidade do documento, Y para cima.</summary>
+        ICorelShape CreatePolygon(IReadOnlyList<(double X, double Y)> points);
+
         /// <summary>
         /// Identidade opaca da camada durante a sessão — no host, o próprio objeto COM (RCW).
         /// Só pode ser comparada com <see cref="object.ReferenceEquals"/>; nunca invocada nem

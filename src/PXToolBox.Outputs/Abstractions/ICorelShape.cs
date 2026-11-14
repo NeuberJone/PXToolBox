@@ -54,8 +54,9 @@ namespace PXToolBox.Outputs.Abstractions
         /// <summary>True se o objeto está dentro de um grupo (Shape.ParentGroup != null).</summary>
         bool IsInsideGroup { get; }
 
-        /// <summary>Agrupa ESTE objeto sozinho (Shape.Group() no VGCore, que aceita um único
-        /// item) e devolve o grupo criado — o objeto original vira o filho dele.</summary>
+        /// <summary>Agrupa ESTE objeto sozinho e devolve o grupo criado — o objeto original vira o
+        /// único filho dele. (Shape.Group() de um item falha no Corel 2025; o adaptador agrupa com um
+        /// auxiliar e apaga o auxiliar.)</summary>
         ICorelShape GroupAlone();
 
         /// <summary>Traz para a frente na camada (Shape.OrderToFront).</summary>
@@ -162,5 +163,24 @@ namespace PXToolBox.Outputs.Abstractions
 
         /// <summary>Shape.Flip(cdrFlipHorizontal): espelho horizontal (o centro pode se deslocar).</summary>
         void FlipHorizontally();
+
+        // ---- Dividir em partes (SliceCutService) ----
+
+        /// <summary>Shape.AddToPowerClip(container, cdrFalse): este objeto vai para dentro do PowerClip
+        /// de <paramref name="container"/> sem ser centralizado (fica onde estava).</summary>
+        void PlaceInsidePowerClip(ICorelShape container);
+
+        /// <summary>Shape.Outline.SetNoOutline.</summary>
+        void RemoveOutline();
+
+        // ---- Encaixe retangular (NestingService) ----
+
+        /// <summary>Shape.Rotate(graus): gira em volta do centro de rotação (o centro, salvo se o usuário
+        /// o moveu); positivo = anti-horário. Largura/altura passam a ser as da caixa girada.</summary>
+        void Rotate(double degrees);
+
+        /// <summary>Contorno como o Corel desenha o objeto (Shape.DisplayCurve.GetCurveInfo: serve para
+        /// curva, retângulo, elipse, polígono e contêiner de PowerClip). Null se o Corel não der um.</summary>
+        IReadOnlyList<OutlineElement>? ReadOutline();
     }
 }

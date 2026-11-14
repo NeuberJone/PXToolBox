@@ -1,0 +1,134 @@
+<Window x:Class="PXToolBoxDev.Slicing.SlicePreviewWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Dividir em partes (Slice)"
+        Width="820" Height="720" MinWidth="640" MinHeight="560"
+        WindowStartupLocation="CenterScreen" Background="#1E1E20" Foreground="#E4E4E6"
+        ShowInTaskbar="False"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        "Dividir em partes (Slice)": prévia do plano (Core/Slicing/SlicePlanner) e, pelo ISliceHost
+        do painel, a divisão no documento (Outputs/Tools/SliceCutService). Não modal e uma só
+        (ShowFor): pode ficar aberta ao lado do Corel. Campos digitados dentro do processo do Corel,
+        por isso o ThreadKeyboardRouter.
+    -->
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,4,0,4" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="CaretBrush" Value="#E4E4E6" />
+            <Setter Property="SelectionBrush" Value="#326AB1" />
+            <Setter Property="BorderBrush" Value="#56565E" />
+            <Setter Property="Padding" Value="6,4" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="BorderBrush" Value="#56565E" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="Margin" Value="0,8,8,0" />
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="Margin" Value="0,8,0,4" />
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="Margin" Value="0,8,0,4" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="Divide a arte selecionada em partes retangulares — ou em polígonos, com guias inclinadas ou linhas desenhadas (retas ou curvas). Todas as medidas estão em centímetros. A sobreposição é a faixa total compartilhada entre partes vizinhas. Cada parte é um PowerClip com uma cópia da arte: nada é convertido, e Ctrl+Z desfaz tudo de uma vez." Margin="0,0,0,12" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,14,0">
+                <StackPanel>
+                    <TextBlock x:Name="SourceText" Foreground="#9A9AA0" />
+                    <Button x:Name="UseSelectionButton" Content="Usar seleção atual" Click="OnUseSelection" Margin="0,0,0,4"
+                            ToolTip="Lê de novo a largura, a altura e o contorno da seleção no Corel." />
+                    <CheckBox x:Name="ShowArt" Content="Mostrar o contorno da arte" IsChecked="True" Margin="0,4,0,0"
+                              ToolTip="Desenha na prévia o contorno dos objetos selecionados (texto e imagem aparecem pela caixa). Só leitura: nada muda no Corel." />
+                    <CheckBox x:Name="ShowColors" Content="Mostrar a arte em cores" Margin="0,2,0,0"
+                              ToolTip="Miniatura com cores da seleção por baixo das partes. O Corel gera uma imagem pequena da arte (com arte pesada pode levar alguns segundos); nada muda no documento." />
+                    <TextBlock x:Name="ArtText" Foreground="#9A9AA0" />
+                    <TextBlock Text="Largura da área (cm)" />
+                    <TextBox x:Name="ArtworkWidth" />
+                    <TextBlock Text="Altura da área (cm)" />
+                    <TextBox x:Name="ArtworkHeight" />
+                    <TextBlock Text="Sobreposição (cm)" />
+                    <TextBox x:Name="Overlap" Text="1,5" />
+                    <RadioButton x:Name="TableMode" Content="Por linhas e colunas" IsChecked="True" GroupName="Method" />
+                    <TextBlock Text="Linhas" />
+                    <TextBox x:Name="Rows" Text="2" />
+                    <TextBlock Text="Colunas" />
+                    <TextBox x:Name="Columns" Text="1" />
+                    <RadioButton x:Name="SizeMode" Content="Por dimensão máxima" GroupName="Method" />
+                    <TextBlock Text="Largura máxima da parte (cm)" />
+                    <TextBox x:Name="MaximumWidth" Text="100" />
+                    <TextBlock Text="Altura máxima da parte (cm)" />
+                    <TextBox x:Name="MaximumHeight" Text="100" />
+                    <RadioButton x:Name="GuideMode" Content="Pelas guias da página" GroupName="Method"
+                                 ToolTip="Cada guia que cruza a arte é uma emenda. Horizontais e verticais dão partes retangulares; com alguma guia inclinada, cada guia é uma linha de corte que atravessa a arte inteira e as partes viram polígonos. Ponha as guias à mão ou com “Criar guias do plano” e arraste-as." />
+                    <TextBlock x:Name="GuideText" Foreground="#9A9AA0" Text="Guias ainda não lidas." />
+                    <Button x:Name="ReadGuidesButton" Content="Ler as guias" Click="OnReadGuides" Margin="0,0,0,4"
+                            ToolTip="Lê de novo as guias da página no Corel (depois de criar ou arrastar guias)." />
+                    <RadioButton x:Name="PathMode" Content="Pelas linhas desenhadas" GroupName="Method"
+                                 ToolTip="Desenhe as linhas de corte (reta, curva ou Bézier) na camada “Cortes (Slice)”, por cima da arte. Cada linha vai de uma borda da arte, ou de outro corte, até outra: pode parar no meio da arte encostando noutro corte. A seleção continua sendo só a arte." />
+                    <TextBlock x:Name="PathText" Foreground="#9A9AA0" Text="Linhas ainda não lidas." />
+                    <Button x:Name="ReadPathsButton" Content="Ler as linhas" Click="OnReadPaths" Margin="0,0,0,4"
+                            ToolTip="Lê de novo as linhas da camada “Cortes (Slice)” (depois de desenhar ou mexer nelas)." />
+                    <Button x:Name="CreateCutLayerButton" Content="Criar camada de cortes" Click="OnCreateCutLayer" Margin="0,0,0,4"
+                            ToolTip="Cria a camada “Cortes (Slice)” na página, para desenhar as linhas de corte. Ela não é dividida: o Slice só lê o traçado." />
+                    <Button Content="Atualizar prévia" Click="OnPreview" />
+                    <TextBlock Text="Guias" Margin="0,14,0,0" />
+                    <Button x:Name="CreateGuidesButton" Content="Criar guias do plano" Click="OnCreateGuides" Margin="0,4,0,0"
+                            ToolTip="Põe uma guia no meio de cada emenda da prévia (linhas e colunas ou dimensão máxima), com o nome “PX Slice”. Depois arraste-as no Corel e escolha “Pelas guias da página”." />
+                    <Button x:Name="RemoveGuidesButton" Content="Remover guias do Slice" Click="OnRemoveGuides" Margin="0,4,0,0"
+                            ToolTip="Apaga só as guias “PX Slice” da página; as outras guias ficam." />
+                </StackPanel>
+            </ScrollViewer>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Viewbox Stretch="Uniform" Margin="4">
+                    <Canvas x:Name="PreviewCanvas" Width="400" Height="300" Background="#151517" />
+                </Viewbox>
+                <TextBox x:Name="ReportText" Grid.Row="1" Height="160" Margin="0,12,0,0"
+                         IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled" />
+            </Grid>
+        </Grid>
+        <StackPanel Grid.Row="2">
+            <TextBlock x:Name="MessageText" Foreground="#E0A33E" />
+            <!-- Opções de "Dividir no Corel" junto do botão, sempre à vista (a coluna da esquerda rola). -->
+            <WrapPanel Margin="0,8,0,0">
+                <TextBlock Text="Afastar as partes (cm)" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <TextBox x:Name="Separation" Text="1" Width="70" VerticalAlignment="Center"
+                         ToolTip="Distância entre partes vizinhas depois de dividir (0 = no lugar da arte). Com guias inclinadas, cada parte se afasta isso do centro da arte." />
+                <CheckBox x:Name="DeleteOriginal" Content="Apagar a arte original" VerticalAlignment="Center" Margin="18,0,0,0"
+                          ToolTip="Desmarcado, a arte original fica oculta no mesmo lugar." />
+            </WrapPanel>
+            <WrapPanel>
+                <Button x:Name="ApplyButton" Content="Dividir no Corel" Click="OnApply" IsEnabled="False"
+                        ToolTip="Cria as partes com a seleção atual, que precisa ter a área da prévia." />
+                <Button x:Name="CopyButton" Content="Copiar plano" Click="OnCopy" IsEnabled="False" />
+                <Button Content="Fechar" Click="OnCloseClick" />
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</Window>

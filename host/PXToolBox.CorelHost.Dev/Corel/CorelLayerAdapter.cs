@@ -58,6 +58,30 @@ namespace PXToolBoxDev.Corel
             return new CorelShapeAdapter(shape);
         }
 
+        /// <summary>A camada é da página ativa (quem chama trabalha nela), então a curva nasce no
+        /// documento ativo, com as coordenadas na unidade dele.</summary>
+        public ICorelShape CreateLines(IReadOnlyList<CurveLine> lines)
+        {
+            var curve = Native.Application.CreateCurve(Native.Application.ActiveDocument);
+            foreach (var line in lines)
+            {
+                curve.CreateSubPath(line.X1, line.Y1).AppendLineSegment(line.X2, line.Y2);
+            }
+
+            return new CorelShapeAdapter(Native.CreateCurve(curve));
+        }
+
+        // Assinaturas conferidas por reflexão (IVGCurve.CreateSubPath, IVGSubPath.AppendLineSegment/Closed);
+        // comportamento real só no smoke test (4ar).
+        public ICorelShape CreatePolygon(IReadOnlyList<(double X, double Y)> points)
+        {
+            var curve = Native.Application.CreateCurve(Native.Application.ActiveDocument);
+            var path = curve.CreateSubPath(points[0].X, points[0].Y);
+            for (var k = 1; k < points.Count; k++) path.AppendLineSegment(points[k].X, points[k].Y);
+            path.Closed = true;
+            return new CorelShapeAdapter(Native.CreateCurve(curve));
+        }
+
         // O RCW: o CLR mantém um único RCW por ponteiro IUnknown, e a regra de identidade do COM
         // exige o mesmo IUnknown para o mesmo objeto — então ReferenceEquals só é verdadeiro
         // para o mesmo objeto COM. Se o Corel entregar objetos diferentes para a mesma camada,

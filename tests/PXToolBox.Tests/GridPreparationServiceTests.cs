@@ -197,6 +197,10 @@ namespace PXToolBox.Tests
             public void SetOutline(ShapeOutline outline) => throw new NotSupportedException();
             public void SetUniformFill(int red, int green, int blue) => throw new NotSupportedException();
             public void FlipHorizontally() => throw new NotSupportedException();
+            public void PlaceInsidePowerClip(ICorelShape container) => throw new NotSupportedException();
+            public void RemoveOutline() => throw new NotSupportedException();
+            public void Rotate(double degrees) => throw new NotSupportedException();
+            public IReadOnlyList<OutlineElement>? ReadOutline() => throw new NotSupportedException();
         }
     }
 }

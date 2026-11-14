@@ -74,6 +74,17 @@ namespace PXToolBox.Tests.Fakes
 
         public List<FakeLayer> LayersList { get; } = new List<FakeLayer>();
 
+        public List<FakeGuide> GuidesList { get; } = new List<FakeGuide>();
+
+        public IReadOnlyList<ICorelGuide> Guides => GuidesList;
+
+        public ICorelGuide CreateGuide(bool horizontal, double position)
+        {
+            var guide = new FakeGuide(horizontal, position) { Owner = this };
+            GuidesList.Add(guide);
+            return guide;
+        }
+
         // Camada excluída some da página, como no Corel.
         public IReadOnlyList<ICorelLayer> Layers => LayersList.Where(l => !l.IsDeleted).ToList();
 

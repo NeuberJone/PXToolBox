@@ -6,6 +6,7 @@
         "O PX Tool Box é um painel (docker) dentro do CorelDRAW que junta as ferramentas do dia a dia: preparar Grid e moldes, marcar objetos para a montagem, trocar códigos de texto, cuidar das camadas, gerar as saídas (Escudo, Bandeira, Faixa), abrir o ListForge e o Nexor e investigar problemas.",
         "O painel é dividido em seções recolhíveis. Clique no título de uma seção para abrir ou fechar. A ordem, os nomes e quais seções aparecem podem ser mudados em “Personalizar painel…”, no topo do painel.",
         "A linha abaixo do título mostra o documento ativo. O rodapé mostra a versão em execução — use esse número ao relatar um problema.",
+        "O campo “Buscar ferramenta…”, abaixo do título, acha qualquer ferramenta do painel: digite parte do nome ou do que ela faz (ex.: régua, camada, logo). As seções saem de cena e ficam só as ferramentas que combinam, agrupadas por seção, prontas para clicar. Clique no nome da seção para abrir a seção inteira (onde ficam campos como nome e tamanho). ✕ ou Esc volta ao painel normal.",
         "Parando o mouse sobre qualquer botão aparece uma dica curta. Este manual explica cada ferramenta com mais detalhe: para que serve, como usar e o que observar. Use o campo Filtrar, no alto desta janela, para ficar só com o que tem uma palavra (ex.: “laser”, “camada”, “Ctrl+Z”); o ✕ limpa o filtro."
       ]
     },
@@ -44,7 +45,7 @@
       "title": "Preferências e configurações",
       "paragraphs": [
         "As configurações do PX ficam só nesta máquina. Para levar para outro computador use, no ListForge Integrado, Configurações… → “Exportar preferências…” e, na outra máquina, “Importar preferências…”.",
-        "As preferências portáteis levam: favoritos, “Mostrar nomes”, ordem/nomes/seções do painel, lugar de cada ferramenta, as Configurações de moldes, o tamanho de fonte e o modo preferido do ListForge. Não levam caminhos de executáveis, pastas desta máquina, licença nem perfis de trabalho.",
+        "As preferências portáteis levam: favoritos, “Mostrar nomes”, ordem/nomes/seções do painel, lugar de cada ferramenta, as Configurações de moldes, os perfis do “Encaixar peças”, o tamanho de fonte e o modo preferido do ListForge. Não levam caminhos de executáveis, pastas desta máquina, licença nem perfis de trabalho.",
         "Importar mostra um resumo e pede confirmação; antes de aplicar, o PX guarda uma cópia de segurança das preferências atuais. Valores com problema no arquivo são apontados e ignorados, sem estragar o resto."
       ]
     },
@@ -66,13 +67,82 @@
     "Camadas": "Mostrar e ocultar camadas rapidamente: por categoria (MA = masculino, FE = feminino, C = infantil) ou pelas camadas dos objetos selecionados, com volta das últimas ocultadas.",
     "Objetos": "Renomear objetos selecionados e agrupar automaticamente os objetos sobrepostos.",
     "Tipo de peça": "O tipo de peça é o primeiro segmento do nome da camada ou do objeto (ex.: CAM1 em CAM1.Frente.MA). Aqui você troca esse tipo na seleção, na camada ativa ou no documento inteiro, sem mexer no resto do nome.",
-    "Medidas": "Somas rápidas das medidas dos objetos selecionados, sempre em metros. O resultado aparece na mensagem e já vai para a área de transferência (Ctrl+V para colar).",
+    "Medidas": "Somas rápidas das medidas dos objetos selecionados, sempre em metros — o resultado aparece na mensagem e já vai para a área de transferência (Ctrl+V para colar). E réguas em tamanho real, como uma trena, ao lado da seleção (largura, altura ou as duas), na distância que você escolher.",
     "Preparação e saída": "Preparar Grid e Molde novos (no padrão antigo ou no padrão novo de camadas), converter o documento entre os padrões e gerar as saídas Escudo, Bandeira e Faixa de Capitão, salvas na pasta de saída.",
     "Produção": "Ligação com o Nexor: abrir o programa, carregar um contexto de produção exportado por ele (rolo e trabalho de impressão), usar esse contexto nos nomes e devolver um arquivo com o resultado. O PX só lê o arquivo exportado — nunca altera o Nexor nem o status do trabalho.",
     "Listas": "Acesso ao ListForge, o programa que lê e organiza as listas de nomes, números e tamanhos: a versão integrada, que abre dentro do PX, e a versão standalone (o executável separado).",
     "Diagnóstico": "Ferramentas para entender o que está acontecendo: este manual, as notas da versão, inspeção das propriedades de um objeto, comparação antes/depois de uma página e testes técnicos do painel. Nenhuma delas altera o seu documento (o teste de identidade usa um documento temporário próprio)."
   },
   "tools": [
+    {
+      "id": "assembly.slice-preview",
+      "purpose": "Divide a arte selecionada em partes retangulares, com sobreposição entre as partes: mostra a prévia e, ao confirmar, cria as partes no documento.",
+      "steps": [
+        "Selecione os objetos da arte e clique em “Dividir em partes (Slice)…” em Montagem.",
+        "Confira largura e altura em centímetros: são as da seleção. Se a seleção mudar, clique em “Usar seleção atual”.",
+        "Escolha como dividir: linhas e colunas, dimensão máxima da parte ou “Pelas guias da página” (cada guia horizontal ou vertical que cruza a arte é uma emenda). Informe a sobreposição total por emenda, em centímetros.",
+        "Para ajustar as emendas à mão: faça a prévia por linhas e colunas (ou dimensão máxima), clique em “Criar guias do plano”, arraste as guias no Corel e escolha “Pelas guias da página” (ou clique em “Ler as guias” depois de mexer nelas).",
+        "Para cortes em qualquer ângulo: crie guias inclinadas no Corel sobre a arte e escolha “Pelas guias da página” (ou “Ler as guias”). Cada guia vira uma linha de corte que atravessa a arte inteira, e as partes viram polígonos.",
+        "Para cortes curvos ou que param no meio da arte: clique em “Criar camada de cortes”, escolha a camada “Cortes (Slice)” no Gerenciador de objetos e desenhe as linhas por cima da arte (reta, curva ou Bézier). Selecione só a arte e escolha “Pelas linhas desenhadas” (ou “Ler as linhas” depois de mexer nelas).",
+        "Confira a prévia (com o contorno da arte por baixo das partes, se “Mostrar o contorno da arte” estiver marcado) e as medidas de cada parte. “Copiar plano” copia o relatório completo.",
+        "Para dividir: informe quanto afastar as partes (0 = no lugar da arte), marque “Apagar a arte original” se não quiser mantê-la oculta, e clique em “Dividir no Corel”."
+      ],
+      "notes": [
+        "Cada parte é um retângulo sem contorno (“Parte L1 C1”…) com uma cópia da arte inteira dentro, como PowerClip: textos, imagens, grupos, cores e marcações não são convertidos. Todas ficam no grupo “Divisão (Slice)”, na camada do primeiro objeto selecionado.",
+        "Ctrl+Z desfaz a divisão inteira de uma vez. Se algo falhar no meio, as partes já criadas são apagadas e a arte original não muda.",
+        "A divisão usa a seleção do momento do clique, que precisa ter a área da prévia (até 0,5 mm de diferença); senão nada é feito e o painel avisa. Depois de dividir, o botão fica desligado até você mudar algum campo, para não dividir as partes de novo por engano.",
+        "As guias criadas pelo PX se chamam “PX Slice”: criar de novo troca essas guias, e “Remover guias do Slice” apaga só elas — as suas guias ficam. Valem guias da página e da página mestra; guias inclinadas e guias que não cruzam a arte são ignoradas (a janela diz quantas). Se a seleção mudar, “Usar seleção atual” lê as guias de novo.",
+        "Por tabela, a faixa compartilhada é dividida igualmente entre os lados da emenda. Por dimensão máxima, a parte avança pela dimensão máxima menos a sobreposição e a última parte é limitada à borda da arte.",
+        "A divisão considera a caixa que envolve toda a seleção. A área vazia entre os objetos também faz parte dessa caixa. Limite de 1000 partes; acima de 50 o PX pede confirmação, porque cada parte leva uma cópia da arte.",
+        "Os campos aceitam vírgula ou ponto decimal, sem separador de milhar. Medidas inválidas limpam a prévia e desligam “Copiar plano” e “Dividir no Corel”.",
+        "Contorno da arte na prévia: é lido do Corel ao abrir a janela e em “Usar seleção atual” (só leitura, nada muda no documento). Curvas, retângulos, elipses e grupos aparecem pelo contorno; texto e imagem aparecem pela caixa. Arte muito pesada mostra só parte do contorno (a janela avisa). O contorno fica no tamanho real da seleção: se você digitar outra largura ou altura, ele não estica. Para ver as cores, marque “Mostrar a arte em cores”.",
+        "Arte em cores: com “Mostrar a arte em cores” marcado, o Corel gera uma imagem pequena só da seleção (600 pixels no lado maior), mostrada por baixo das partes e do contorno. É gerada ao marcar a opção e de novo em “Usar seleção atual” — mudar os campos não gera outra. A imagem vai para a pasta temporária do Windows e é apagada logo depois; nada muda no documento. Com arte muito pesada pode levar alguns segundos; por isso a opção começa desmarcada.",
+        "Guias inclinadas: basta uma para o plano ficar livre — aí todas as guias que cruzam a arte (inclusive as retas) são linhas de corte inteiras, e as partes são os polígonos entre elas, numeradas de cima para baixo e da esquerda para a direita (“Parte 1”, “Parte 2”…). A sobreposição é a mesma faixa total por emenda, metade para cada lado. “Afastar as partes” afasta cada parte do centro da arte. O PX recusa partes com menos de 0,5 mm de espessura (guias quase juntas ou raspando um canto) e mais de 1000 partes. Uma guia que só encosta num canto ou fica fora da arte é ignorada. Para linhas curvas ou cortes que param no meio da arte, use “Pelas linhas desenhadas”.",
+        "Linhas desenhadas: cada linha da camada “Cortes (Slice)” (dentro de grupos também) separa uma parte quando vai de uma borda dela a outra — da borda da arte ou de outro corte. Um corte pode parar no meio da arte encostando noutro (um “T”); cada ponta conta 2 mm a mais, para um traço que para um pouco antes do outro ainda encostar. Linha solta no meio, fora da arte ou um laço fechado por dentro da arte não separa nada (o relatório diz quantas). As partes seguem a curva; a sobreposição avança metade da faixa além de cada linha que limita a parte. A camada de cortes não é dividida nem apagada: oculte ou apague quando quiser. Texto e imagem nessa camada são ignorados."
+      ]
+    },
+    {
+      "id": "assembly.nesting-rect",
+      "purpose": "Arruma as peças selecionadas, sem sobrepor, na página atual, num rolo de largura fixa (comprimento livre ou em folhas) ou em várias áreas (retalhos), usando o menor comprimento que conseguir — pela caixa de cada peça (rápido) ou pelo contorno real (aproveita recortes e furos).",
+      "steps": [
+        "Selecione as peças (cada objeto ou grupo selecionado é uma peça) e clique em “Encaixar peças…” em Montagem.",
+        "A janela abre com as opções da última vez que foi usada (área, medidas, canto, encaixe, giro e busca); as quantidades começam sempre desligadas.",
+        "Se já salvou um perfil, clique nele em “Perfis” para preencher os campos de uma vez.",
+        "Escolha a área: “Página atual”, “Rolo” (a largura do rolo em centímetros e, se quiser, a “Altura da folha”: quando uma folha enche, o encaixe continua numa nova folha logo abaixo; vazio = comprimento livre) ou “Várias áreas (retalhos)” (uma área por linha, largura x altura em cm, ex.: “100 x 150” ou “Retalho azul: 80 x 60”). “Ajustar a página ao encaixe” deixa a página com a largura do rolo e o comprimento usado (em folhas, todas as folhas usadas), ou do tamanho de todas as áreas.",
+        "No rolo, “Separar por camada (um bloco por tecido)” encaixa as peças de cada camada do Corel sozinhas, num rolo (ou folhas) próprio, e põe os blocos lado a lado, na ordem em que as camadas aparecem na seleção: deixe uma camada por tecido ou cor. Cada bloco aparece no relatório com o nome da camada (“Tactel — Rolo”, “Tactel — Folha 2”) e, desenhado, fica na camada do seu tecido. Peças fora de camada vão para “Sem camada”.",
+        "Em várias áreas, no rolo em folhas ou separado por camada, “Agrupar por bloco, lado a lado” faz de cada área (ou folha) um grupo no Corel, com as peças e o retângulo dela, chamado “Bloco: Folha 1”, “Bloco: Folha 2”…; as folhas do rolo ficam lado a lado, em vez de uma embaixo da outra. Marcar ou desmarcar só redesenha a prévia, sem recalcular.",
+        "“Distância entre os blocos (cm)” (padrão 2 cm, de 0 a 1000) é o espaço entre as áreas, entre as folhas lado a lado e entre os blocos de cada camada; mudar recalcula. Com “Agrupar por bloco”, “Legenda em cada bloco (nome, medidas e peças)” põe um texto preto acima de cada bloco, encostado na esquerda dele e dentro do grupo — por exemplo “Tactel — Folha 1 · 160 × 300 cm · 12 peça(s)”. A letra acompanha a largura do bloco (de 18 a 120 pt). A legenda não aparece na prévia, e fica acima da área: com “Ajustar a página”, a página não cresce para incluí-la.",
+        "Em várias áreas, escolha em “Preencher as áreas” a ordem: “Na ordem digitada”, “Menores primeiro (gasta retalhos)” ou “Maiores primeiro”.",
+        "Informe a margem em volta da área e a distância entre as peças, em centímetros.",
+        "Em “Começar pelo canto”, escolha onde as peças se juntam: superior esquerdo (padrão), superior direito, inferior esquerdo ou inferior direito. Em várias áreas, vale para cada área. No rolo de comprimento livre, só os cantos de cima; com altura de folha, qualquer canto (vale para cada folha).",
+        "Para repetir peças, marque “Quantidade por peça” (desligado, cada peça entra uma vez e a lista nem aparece — melhor com centenas de peças) e diga quantas vezes cada peça entra (ex.: 3 frentes, 6 mangas); “Em todas” põe o mesmo número em todas. 0 deixa a peça de fora.",
+        "Escolha o encaixe: “Pela caixa” (a prévia acompanha os campos) ou “Pelo contorno real” (clique em “Calcular encaixe”; o cálculo roda sem travar o Corel e “Cancelar cálculo” interrompe; a “Precisão do contorno” em mm é o tamanho do quadradinho usado no cálculo — menor é mais justo e mais lento).",
+        "Escolha o giro: “Não girar” (padrão), “Só 180°” (só pelo contorno; mantém a direção do tecido) ou “90°, 180° e 270°” (muda a direção da arte e do tecido).",
+        "Se quiser, marque “Procurar o melhor encaixe”: o PX tenta várias ordens de peças e fica com a que encaixa mais peças no menor comprimento. “Tempo máximo (s)” limita a busca.",
+        "Para guardar os campos atuais, digite um nome ao lado de “Salvar” e clique em “Salvar” (mesmo nome atualiza o perfil; “Excluir” apaga o perfil com o nome digitado).",
+        "Confira a prévia (peças giradas em laranja), o comprimento usado e o aproveitamento. “Copiar relatório” copia a posição de cada peça.",
+        "Para comparar com o arranjo de hoje, veja a linha “Original: …” no relatório e, se quiser, marque “Mostrar a posição original”: a prévia desenha em cinza tracejado onde as peças estão agora.",
+        "Clique em “Encaixar no Corel”."
+      ],
+      "notes": [
+        "Pela caixa, cada peça ocupa o retângulo em volta dela. Pelo contorno, vale o formato: recortes, cavas e furos ficam livres para outras peças. Num grupo, os objetos se somam (um logo por cima da peça não vira furo). Textos e imagens entram pela caixa deles; um grupo com mais de 400 objetos ou um contorno que o Corel não entrega vai pela caixa inteira — o relatório e a mensagem dizem quais.",
+        "Quantidades: a primeira cópia encaixada de cada peça é o próprio objeto; as outras são duplicatas criadas no Corel na hora de encaixar (com o mesmo conteúdo, PowerClip e marcações). Cópias que não couberem não são criadas e aparecem como “Frente (3/3)” em “Não couberam”. Peça com quantidade 0 não se move. Ctrl+Z desfaz também as cópias.",
+        "Várias áreas: o PX enche a 1ª área com o que couber, a 2ª com o que sobrou, e assim por diante, na ordem escolhida em “Preencher as áreas”: a digitada (ponha primeiro os retalhos que quer gastar antes), as menores primeiro (gasta as sobras pequenas antes) ou as maiores primeiro (costuma usar menos áreas); empate de tamanho fica na ordem digitada. No Corel e no relatório as áreas aparecem nessa mesma ordem. Cada área tem a mesma margem e distância. No Corel as áreas ficam lado a lado a partir do canto superior esquerdo da página, alinhadas no topo, com 2 cm entre elas (as que passam da página ficam fora dela, a menos que “Ajustar a página” esteja marcado). “Desenhar as áreas no Corel” cria um retângulo por área, na camada das peças, com o nome “Área: … (L × A cm)”. Aproveitamento de cada área = área das peças ÷ área inteira. Até 20 áreas; áreas sem peça aparecem como “não usada”. A lista de tecidos e retalhos do Nexor ainda não entra aqui: as áreas são digitadas.",
+        "Procurar o melhor encaixe: tenta 5 ordens (maior lado, maior área, mais largas, mais altas e maior perímetro primeiro) e fica com a que encaixa mais peças; empate: mais área de peças, depois menos áreas usadas, depois menor comprimento. O relatório diz quantas ordens foram testadas e qual ganhou. Pela caixa é instantâneo; pelo contorno leva até 5 vezes o tempo de um cálculo. A primeira tentativa sempre termina; as seguintes param no tempo máximo, e “Cancelar cálculo” depois da primeira fica com o melhor até ali. Desligado, o encaixe é o mesmo das versões anteriores. Mudar qualquer campo durante o cálculo descarta o cálculo em andamento.",
+        "Pelo contorno, a distância pedida é sempre respeitada (o cálculo pode deixar as peças até uma “precisão” mais afastadas que o necessário). Antes de liberar “Encaixar no Corel”, o PX confere o resultado nos formatos exatos: se achar peças sobrepostas, mais perto que a distância ou fora da área, não deixa aplicar.",
+        "As peças só são movidas e, se for o caso, giradas — tamanho, conteúdo, PowerClips e marcações não mudam. A área começa no canto superior esquerdo da página. Ctrl+Z desfaz o encaixe inteiro de uma vez.",
+        "Peças que não cabem (nem giradas) ficam onde estavam e aparecem na mensagem e no relatório.",
+        "Aproveitamento = área das peças ÷ (largura da área × comprimento usado). Pelo contorno, a área das peças é medida na grade e fica um pouco acima da real (por isso o “~”). O comprimento usado vai do topo da área até a peça mais baixa, mais a margem.",
+        "A seleção no momento do clique precisa ser a mesma da prévia (mesmas peças, mesmos tamanhos); senão nada é feito e o painel avisa. Se mudou, clique em “Usar seleção atual”. Depois de encaixar, o botão fica desligado até algum campo mudar.",
+        "O resultado é sempre o mesmo para as mesmas peças e opções.",
+        "Perfis: guardam área (página, rolo ou várias áreas), largura do rolo, áreas e a ordem delas, desenhar áreas, ajustar a página, margem, distância, canto de início, encaixe, precisão do contorno, giro, busca e tempo máximo — não as quantidades, que dependem das peças selecionadas. Ficam só neste computador (nesting-profiles.json na pasta de configuração do PX DEV), até 30, com nomes de até 40 letras. Se o arquivo estiver ilegível, a janela avisa, funciona sem perfis e não grava por cima dele. As preferências portáteis levam os perfis: importar troca a lista inteira (perfil inválido ou repetido é ignorado e listado), mas nunca grava por cima de um arquivo de perfis ilegível.",
+        "Começar por outro canto usa o mesmo cálculo, espelhado na área. As peças continuam as mesmas (nunca espelhadas), só giradas pelos ângulos permitidos; a margem e a distância continuam valendo. Começando por baixo, a “altura usada” é medida a partir do fundo da página.",
+        "Comparar com o original (página ou rolo): o relatório mostra a caixa que as peças ocupam hoje e a que ocupam no encaixe, com o aproveitamento de cada uma (soma das caixas das peças ÷ caixa ocupada — a mesma conta dos dois lados, sem margem). Só aparece quando cada peça entra uma vez e todas cabem; em várias áreas, não. Mostrar o original não recalcula nada.",
+        "Rolo em folhas: com “Altura da folha” preenchida, o rolo é dividido em folhas de largura × altura, uma embaixo da outra e sem espaço entre elas (com “Agrupar por bloco, lado a lado”: lado a lado, com 2 cm entre elas). Cada folha recebe a margem e o canto de início; o relatório diz quantas folhas e o comprimento total, e mostra o aproveitamento de cada uma. “Desenhar as áreas no Corel” desenha o contorno de cada folha. Uma peça que não cabe numa folha vazia fica em “Não couberam”. A prévia do rolo sempre fica em pé (o rolo desce).",
+        "Pelo contorno, o PX calcula com duas regras de posição — a posição mais alta possível e “fileiras alinhadas” (a mais à esquerda entre as quase tão altas) — e fica com a que encaixa mais peças no menor comprimento. A segunda evita fileiras alternando 2 e 1 peça quando as peças têm topo e base curvos. O cálculo leva um pouco mais de tempo.",
+        "Quando nenhuma peça cabe, a mensagem diz o tamanho da área e o da maior peça; na página atual, sugere “Rolo” ou “Várias áreas”."
+      ]
+    },
     {
       "id": "grid.prepare",
       "purpose": "Deixa a página ativa pronta como Grid: a página fica do tamanho do conjunto de peças, tudo centralizado, objetos e camadas organizados para a montagem.",
@@ -801,6 +871,54 @@
       ],
       "notes": [
         "Sempre em metros."
+      ]
+    },
+    {
+      "id": "tools.measures.ruler-width",
+      "purpose": "Desenha embaixo da seleção uma régua do tamanho da largura dela, como uma trena: faixa branca com traço a cada milímetro, maior a cada 5 mm, número a cada centímetro e o total no fim.",
+      "steps": [
+        "Selecione o que quer medir.",
+        "Se quiser, mude a “Distância do objeto (mm)”.",
+        "Clique em “Régua da largura”."
+      ],
+      "notes": [
+        "Mede a caixa da seleção inteira (todos os objetos selecionados juntos), no tamanho real: imprimir em 100% dá a medida de verdade.",
+        "A régua fica num grupo na camada RÉGUA (criada se não existir): esconda ou apague a camada sem mexer no desenho. Cada clique cria uma régua nova.",
+        "Distância do objeto: em mm, no campo acima dos botões; 0 deixa a régua encostada. Começa em 3 mm.",
+        "Réguas longas numeram a cada 5 cm (acima de 2 m) ou a cada 10 cm (acima de 5 m), para os números não embolarem; os traços de mm continuam.",
+        "Desfazível com Ctrl+Z. A seleção não muda."
+      ]
+    },
+    {
+      "id": "tools.measures.ruler-height",
+      "purpose": "Desenha à esquerda da seleção uma régua do tamanho da altura dela, de baixo para cima, como uma trena: traço a cada milímetro, maior a cada 5 mm, número a cada centímetro e o total no topo.",
+      "steps": [
+        "Selecione o que quer medir.",
+        "Se quiser, mude a “Distância do objeto (mm)”.",
+        "Clique em “Régua da altura”."
+      ],
+      "notes": [
+        "Mede a caixa da seleção inteira (todos os objetos selecionados juntos), no tamanho real: imprimir em 100% dá a medida de verdade.",
+        "A régua fica num grupo na camada RÉGUA (criada se não existir): esconda ou apague a camada sem mexer no desenho. Cada clique cria uma régua nova.",
+        "Distância do objeto: em mm, no campo acima dos botões; 0 deixa a régua encostada. Começa em 3 mm.",
+        "Réguas longas numeram a cada 5 cm (acima de 2 m) ou a cada 10 cm (acima de 5 m), para os números não embolarem; os traços de mm continuam.",
+        "Desfazível com Ctrl+Z. A seleção não muda."
+      ]
+    },
+    {
+      "id": "tools.measures.ruler-both",
+      "purpose": "Faz as duas réguas de uma vez: a da largura embaixo e a da altura à esquerda, começando no mesmo canto (inferior esquerdo da seleção).",
+      "steps": [
+        "Selecione o que quer medir.",
+        "Se quiser, mude a “Distância do objeto (mm)”.",
+        "Clique em “Régua da largura e da altura”."
+      ],
+      "notes": [
+        "Mede a caixa da seleção inteira (todos os objetos selecionados juntos), no tamanho real: imprimir em 100% dá a medida de verdade.",
+        "A régua fica num grupo na camada RÉGUA (criada se não existir): esconda ou apague a camada sem mexer no desenho. Cada clique cria uma régua nova.",
+        "Distância do objeto: em mm, no campo acima dos botões; 0 deixa a régua encostada. Começa em 3 mm.",
+        "Réguas longas numeram a cada 5 cm (acima de 2 m) ou a cada 10 cm (acima de 5 m), para os números não embolarem; os traços de mm continuam.",
+        "Desfazível com Ctrl+Z. A seleção não muda."
       ]
     },
     {

@@ -353,8 +353,44 @@ namespace PXToolBox.Tests.Fakes
             CenterX += FlipShiftX;
         }
 
+        // ---- Dividir em partes ----
+
+        /// <summary>Como no Corel: sai da camada/grupo e vai para o conteúdo do PowerClip do contêiner,
+        /// e acompanha o contêiner quando ele se move.</summary>
+        public void PlaceInsidePowerClip(ICorelShape container)
+        {
+            var target = (FakeShape)container;
+            Container?.Remove(this);
+            ParentGroup = null;
+            CurrentLayer = null;
+            target.PowerClipShapesList.Add(this);
+            target.HasPowerClipContents = true;
+        }
+
+        public bool OutlineRemoved { get; private set; }
+
+        public void RemoveOutline() => OutlineRemoved = true;
+
+        /// <summary>O que ReadOutline devolve (null = o Corel não deu contorno).</summary>
+        public IReadOnlyList<OutlineElement>? OutlineElements { get; set; }
+
+        public IReadOnlyList<OutlineElement>? ReadOutline() => OutlineElements;
+
+        /// <summary>Como no Corel, em volta do centro: 90°/270° trocam largura e altura da caixa.</summary>
+        public void Rotate(double degrees)
+        {
+            RotationAngle += degrees;
+            if (System.Math.Abs(System.Math.IEEERemainder(degrees, 180)) > 1e-9) (Width, Height) = (Height, Width);
+        }
+
         /// <summary>Conteúdo do texto artístico criado por FakeLayer.CreateArtisticText.</summary>
         public string? Text { get; set; }
+
+        /// <summary>Traços da curva criada por FakeLayer.CreateLines.</summary>
+        public IReadOnlyList<CurveLine> Lines { get; set; } = new List<CurveLine>();
+
+        /// <summary>Vértices do polígono criado por FakeLayer.CreatePolygon (antes de mover).</summary>
+        public IReadOnlyList<(double X, double Y)> PolygonPoints { get; set; } = new List<(double X, double Y)>();
 
         public string? FontFamily { get; set; }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using PXToolBoxDev.Nesting;
 using MoldSettingsModel = PXToolBox.Core.Molds.MoldSettings;
 
 namespace PXToolBoxDev.Integrations
@@ -48,6 +49,11 @@ namespace PXToolBoxDev.Integrations
     ///   mold-settings.json, exportado sempre que quem chama passa as configurações em vigor. Arquivo
     ///   sem a chave mantém as atuais; configurações inválidas são relatadas e ignoradas inteiras
     ///   (nunca meio aplicadas). Quem grava é a janela, ao Salvar.
+    /// - Perfis do "Encaixar peças" (<see cref="NestingProfileStore"/>, arquivo próprio): a mesma lista
+    ///   do nesting-profiles.json, exportada quando quem chama passa os perfis em vigor (arquivo local
+    ///   ilegível = não exporta). Importar SUBSTITUI a lista; perfil inválido ou repetido é relatado e
+    ///   ignorado sozinho. Arquivo sem a chave mantém os atuais. Quem grava é a janela, ao Salvar — e
+    ///   nunca por cima de um nesting-profiles.json ilegível.
     ///
     /// NÃO exportados, nunca: caminhos de executáveis (ListForgeConfigStore/NexorConfigStore —
     /// arquivos próprios, nem tocados aqui), pasta de instalação do Corel, licença/autorização
@@ -87,6 +93,10 @@ namespace PXToolBoxDev.Integrations
             /// <summary>null = arquivo sem a chave (não altera as configurações de moldes atuais ao
             /// importar). Mesmo formato do mold-settings.json.</summary>
             public JObject? MoldSettings { get; set; }
+
+            /// <summary>null = arquivo sem a chave (não altera os perfis do encaixe atuais ao importar).
+            /// Cada item no formato de um perfil do nesting-profiles.json.</summary>
+            public JArray? NestingProfiles { get; set; }
         }
 
         public sealed class ValidationResult
@@ -130,7 +140,8 @@ namespace PXToolBoxDev.Integrations
         /// NOME do perfil correspondente — nunca exporta o Id (específico desta máquina/
         /// instalação). Uma entrada cujo perfil não existe mais (removido) é simplesmente
         /// ignorada — nunca exportada como "órfã".</summary>
-        public static Document Export(ListForgeIntegratedSettings settings, MoldSettingsModel? moldSettings = null)
+        public static Document Export(ListForgeIntegratedSettings settings, MoldSettingsModel? moldSettings = null,
+            IReadOnlyList<NestingProfile>? nestingProfiles = null)
         {
             // Só ferramentas conhecidas: posições de uma versão mais nova preservadas aqui não viajam.
             var customization = (settings.PanelCustomization?.Clone() ?? PanelLayout.PanelCustomization.Default()).Normalize();
@@ -147,6 +158,7 @@ namespace PXToolBoxDev.Integrations
                 PanelFavoritesShowLabels = settings.PanelFavoritesShowLabels == true,
                 PanelCustomization = customization,
                 MoldSettings = moldSettings == null ? null : MoldSettingsStore.ToJson(moldSettings),
+                NestingProfiles = nestingProfiles == null ? null : new JArray(nestingProfiles.Select(NestingProfileStore.ToJson)),
             };
 
             foreach (var entry in settings.PreferredWorkspaceModeByProfileId)
@@ -199,6 +211,10 @@ namespace PXToolBoxDev.Integrations
             if (molds != null)
                 lines.Add(DescribeMolds(molds));
 
+            var nestingProfiles = ReadNestingProfiles(document);
+            if (nestingProfiles != null)
+                lines.Add(DescribeNestingProfiles(nestingProfiles));
+
             return lines;
         }
 
@@ -206,6 +222,16 @@ namespace PXToolBoxDev.Integrations
         /// null se o arquivo não as traz.</summary>
         public static MoldSettingsModel? ReadMoldSettings(Document document) =>
             document.MoldSettings == null ? null : MoldSettingsStore.FromJson(document.MoldSettings);
+
+        /// <summary>Os perfis do encaixe do arquivo (já filtrados por <see cref="Validate"/>); null se o
+        /// arquivo não os traz.</summary>
+        public static IReadOnlyList<NestingProfile>? ReadNestingProfiles(Document document) =>
+            document.NestingProfiles?.Select(token => NestingProfileStore.FromJson((JObject)token)).ToList();
+
+        private static string DescribeNestingProfiles(IReadOnlyList<NestingProfile> profiles) =>
+            profiles.Count == 0
+                ? "Perfis do encaixe: nenhum (lista vazia)."
+                : $"Perfis do encaixe ({profiles.Count}): {string.Join(", ", profiles.Select(p => p.Name))}";
 
         private static string DescribeMolds(MoldSettingsModel settings) =>
             $"Configurações de moldes: {string.Join(", ", settings.Categories.Select(c => $"{c.Code} ({c.Sizes.Count} tamanhos)"))}; " +
@@ -394,6 +420,17 @@ namespace PXToolBoxDev.Integrations
                 incompatible.Add("Configurações de moldes com tipo inesperado — ignoradas, mantidas as atuais.");
             }
 
+            var nestingToken = root["nestingProfiles"];
+            if (nestingToken is JArray nestingArray)
+            {
+                document.NestingProfiles = ValidateNestingProfiles(nestingArray, incompatible);
+                recognized.Add(DescribeNestingProfiles(ReadNestingProfiles(document)!));
+            }
+            else if (nestingToken != null && nestingToken.Type != JTokenType.Null)
+            {
+                incompatible.Add("Perfis do encaixe com tipo inesperado — ignorados, mantidos os atuais.");
+            }
+
             var customIds = document.PanelCustomization?.CustomSections.Select(s => s.Id).ToList() ?? new List<string>();
             var layoutToken = root["panelSectionLayout"];
             if (layoutToken is JArray layoutArray)
@@ -424,6 +461,36 @@ namespace PXToolBoxDev.Integrations
             }
 
             return ValidationResult.Ok(document, recognized, incompatible);
+        }
+
+        // Perfil a perfil: um inválido, repetido ou além do limite é relatado e ignorado sozinho.
+        private static JArray ValidateNestingProfiles(JArray profiles, List<string> incompatible)
+        {
+            var accepted = new List<NestingProfile>();
+            foreach (var item in profiles)
+            {
+                NestingProfile profile;
+                try
+                {
+                    profile = NestingProfileStore.FromJson(item as JObject ?? throw new FormatException("não é um perfil"));
+                }
+                catch (Exception ex) when (ex is FormatException || ex is InvalidCastException || ex is JsonException || ex is ArgumentException)
+                {
+                    incompatible.Add($"Perfil do encaixe inválido ({ex.Message}) — ignorado.");
+                    continue;
+                }
+
+                var problems = NestingProfile.Validate(accepted.Concat(new[] { profile }).ToList());
+                if (problems.Count > 0)
+                {
+                    incompatible.Add($"Perfil do encaixe “{profile.Name}”: {problems[0]} — ignorado.");
+                    continue;
+                }
+
+                accepted.Add(profile);
+            }
+
+            return new JArray(accepted.Select(NestingProfileStore.ToJson));
         }
 
         // Campo a campo, como o resto de Validate: uma entrada ruim é relatada e ignorada, nunca

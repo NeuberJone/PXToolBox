@@ -62,5 +62,17 @@ namespace PXToolBox.Tests.Fakes
                 SavedCopy.Add((((FakeShape)shape).CurrentLayer?.Name ?? "", shape.Name));
             }
         }
+
+        /// <summary>Cada ExportSelectionPng: arquivo e tamanho pedidos.</summary>
+        public List<(string Path, int Width, int Height)> Exported { get; } = new List<(string Path, int Width, int Height)>();
+
+        /// <summary>O que o "Corel" grava no arquivo (null = não grava nada).</summary>
+        public byte[]? ExportBytes { get; set; } = { 137, 80, 78, 71 };
+
+        public void ExportSelectionPng(string fullPath, int widthPixels, int heightPixels)
+        {
+            Exported.Add((fullPath, widthPixels, heightPixels));
+            if (ExportBytes != null) System.IO.File.WriteAllBytes(fullPath, ExportBytes);
+        }
     }
 }

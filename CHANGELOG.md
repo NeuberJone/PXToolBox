@@ -12,6 +12,25 @@ Tudo num lugar só, da mais nova para a mais antiga. Gerado a partir de:
 
 | Versão | Roteiro | O quê |
 |---|---|---|
+| dev.119 | 4ba | Encaixe: “Distância entre os blocos (cm)” — o espaço entre as áreas, as folhas lado a lado e os blocos de cada camada, antes fixo em 2 cm… |
+| dev.112 | 4av | Encaixar peças: a janela abre com as opções da última vez (área, medidas, canto, encaixe, giro e busca). |
+| dev.111 | 4au | Encaixar peças → rolo em folhas: além da largura, a “Altura da folha”; quando uma folha enche, o encaixe continua numa nova folha logo ab… |
+| dev.110 | 4at | Encaixar peças → comparar com o original: o relatório mostra a caixa que as peças ocupam hoje e a do encaixe, com o aproveitamento de cad… |
+| dev.109 | 4as | Encaixar peças → “Começar pelo canto”: o encaixe pode começar pelo canto superior esquerdo (como antes), superior direito, inferior esque… |
+| dev.108 | 4ar | Slice → “Pelas guias da página” com guias inclinadas: cada guia vira uma linha de corte em qualquer ângulo e a arte é dividida em polígon… |
+| dev.107 | 4aq | Slice: a prévia mostra o contorno da arte selecionada por baixo das partes (“Mostrar o contorno da arte”), lido do Corel ao abrir e em “U… |
+| dev.106 | 4ap | Exportar/Importar preferências levam os perfis do “Encaixar peças”: importar troca a lista (perfil inválido ou repetido é ignorado e list… |
+| dev.105 | 4ao | Encaixar peças → “Perfis”: salve os campos da janela com um nome (ex.: “Rolo 160 sublimação”, “Retalhos”) e preencha tudo de novo com um… |
+| dev.104 | 4an | Encaixar peças → várias áreas → “Preencher as áreas”: na ordem digitada, menores primeiro (gasta os retalhos pequenos antes) ou maiores p… |
+| dev.103 | 4am | Encaixar peças → “Procurar o melhor encaixe”: tenta 5 ordens de peças e fica com a que encaixa mais peças no menor comprimento (página, r… |
+| dev.102 | 4al | Encaixar peças → “Várias áreas (retalhos)”: digite as áreas (uma por linha, largura x altura em cm, com nome opcional, ex.: “Retalho azul… |
+| dev.101 | 4ak | Encaixar peças → “Quantidade por peça”: diga quantas vezes cada peça selecionada entra no encaixe (ex.: 3 frentes, 6 mangas), pela caixa… |
+| dev.100 | 4aj | Slice → “Pelas guias da página”: cada guia horizontal ou vertical que cruza a arte vira uma emenda, com a sobreposição dividida meio a me… |
+| dev.99 | 4ai | Encaixar peças → “Pelo contorno real”: usa o formato de cada peça — cavas, decotes, recortes e furos ficam livres para outras peças (ex.:… |
+| dev.98 | 4ah | Montagem → “Encaixar peças (retangular)…”: arruma as peças selecionadas (cada objeto ou grupo, pela caixa dele) na página atual ou num ro… |
+| dev.97 | 4ag | Slice: botão “Dividir no Corel” na janela. Cada parte vira um retângulo sem contorno (“Parte L1 C1”…) com uma cópia da arte inteira dentr… |
+| dev.96 | 4ae, 4af | Campo “Buscar ferramenta…” no topo do painel: digite parte do nome ou do que a ferramenta faz (ex.: régua, camada, logo) e o painel mostr… |
+| dev.95 | 4ad | Régua em tamanho real: a faixa agora é branca (antes amarela), com o mesmo contorno, traços e números. |
 | dev.93 | 4ac | Cadastro de moldes → “Validar molde”: confere os grupos de tamanho da página ativa e mostra um relatório, sem alterar nada. Erros: peça n… |
 | dev.92 | 4ab | Diagnóstico → “Manual de uso”: janela com o manual completo do painel — o que é cada seção e, para cada ferramenta, para que serve, como… |
 | dev.91 | 4aa | Configurações de moldes → “Definir objetos: contorno interno”: ligado, o Definir objetos (e o lote) põe na peça um contorno por dentro co… |
@@ -54,6 +73,263 @@ Tudo num lugar só, da mais nova para a mais antiga. Gerado a partir de:
 | dev.45 | 4i | Camadas: "Ocultar camadas dos objetos selecionados" e o complemento "Mostrar últimas camadas ocultadas" — restaura só as camadas que a úl… |
 
 ## Versões
+
+### 0.1.0-dev.119
+
+**Implementado**
+
+- Encaixe: “Distância entre os blocos (cm)” — o espaço entre as áreas, as folhas lado a lado e os blocos de cada camada, antes fixo em 2 cm, agora é digitado (e salvo no perfil).
+- Encaixe: “Legenda em cada bloco (nome, medidas e peças)”, com “Agrupar por bloco” — um texto acima de cada bloco, dentro do grupo, como “Tactel — Folha 1 · 160 × 300 cm · 12 peça(s)”.
+
+_Teste no Corel: 4ba — pendente. Detalhes: ARCHITECTURE §86._
+
+### 0.1.0-dev.118
+
+**Alterado**
+
+- Corrigido: o grupo criado pelo PX ia para a camada do último objeto selecionado, e não para a camada dos objetos agrupados. No encaixe “Separar por camada” com “Agrupar por bloco”, o bloco de um tecido ia parar na camada de outro.
+
+_Teste no Corel: 4ax — ver ROADMAP. Detalhes: ARCHITECTURE §85._
+
+### 0.1.0-dev.117
+
+**Alterado**
+
+- Corrigido: agrupar um objeto sozinho falhava no Corel. Afetava o encaixe com “Agrupar por bloco” (uma folha com uma peça só e sem o desenho das áreas ficava solta) e “Criar grupo com item único”.
+
+_Teste no Corel: ver ROADMAP. Detalhes: ARCHITECTURE §84._
+
+### 0.1.0-dev.116
+
+**Implementado**
+
+- Dividir em partes (Slice): “Mostrar a arte em cores” — miniatura com cores da seleção na prévia, por baixo das partes (o Corel gera uma imagem pequena; nada muda no documento).
+
+_Teste no Corel: ver ROADMAP. Detalhes: ARCHITECTURE §83._
+
+### 0.1.0-dev.115
+
+**Implementado**
+
+- Dividir em partes (Slice): “Pelas linhas desenhadas” — cortes retos ou curvos desenhados na camada “Cortes (Slice)”, que podem parar no meio da arte encostando noutro corte; partes que seguem a curva, com sobreposição, prévia e Ctrl+Z único. Botões “Ler as linhas” e “Criar camada de cortes”.
+
+_Teste no Corel: 4ay — ver ROADMAP. Detalhes: ARCHITECTURE §82._
+
+### 0.1.0-dev.114
+
+**Implementado**
+
+- Encaixar peças: no rolo, “Separar por camada (um bloco por tecido)” — as peças de cada camada são encaixadas sozinhas, num rolo ou folhas próprios, lado a lado; o retângulo de cada bloco fica na camada do tecido.
+
+_Teste no Corel: ver ROADMAP. Detalhes: ARCHITECTURE §81._
+
+### 0.1.0-dev.113
+
+**Implementado**
+
+- Encaixar peças: opção “Agrupar por bloco, lado a lado” — cada área ou folha do rolo vira um grupo no Corel (“Bloco: Folha 1”…), com as peças e o retângulo dela, e as folhas do rolo ficam lado a lado em vez de uma embaixo da outra.
+
+_Teste no Corel: ver ROADMAP. Detalhes: ARCHITECTURE §80._
+
+### 0.1.0-dev.112
+
+**Implementado**
+
+- Encaixar peças: a janela abre com as opções da última vez (área, medidas, canto, encaixe, giro e busca).
+
+**Alterado**
+
+- Encaixar peças pelo contorno: fileiras alinhadas — peças de topo e base curvos não alternam mais fileiras de 2 e de 1; o PX compara com a regra antiga e fica com o menor comprimento.
+- Encaixar peças pelo contorno: cálculo bem mais rápido com peças repetidas (o mesmo formato continua a busca de onde parou).
+- Encaixar peças: quando nada cabe, a mensagem diz o tamanho da área e o da maior peça e, na página, sugere “Rolo” ou “Várias áreas”.
+
+_Teste no Corel: 4av — pendente. Detalhes: ARCHITECTURE §79._
+
+### 0.1.0-dev.111
+
+**Implementado**
+
+- Encaixar peças → rolo em folhas: além da largura, a “Altura da folha”; quando uma folha enche, o encaixe continua numa nova folha logo abaixo (vazio = comprimento livre, como antes).
+
+**Alterado**
+
+- Encaixar peças: “Quantidade por peça” virou uma opção que começa desligada — a lista de quantidades só é montada quando ligada (janela leve com centenas de peças).
+- Encaixar peças: a prévia do rolo fica sempre em pé (o rolo desce), mesmo quando as peças usam pouco comprimento.
+
+_Teste no Corel: 4au — pendente. Detalhes: ARCHITECTURE §78._
+
+### 0.1.0-dev.110
+
+**Implementado**
+
+- Encaixar peças → comparar com o original: o relatório mostra a caixa que as peças ocupam hoje e a do encaixe, com o aproveitamento de cada uma, e “Mostrar a posição original” desenha na prévia onde as peças estão agora.
+
+_Teste no Corel: 4at — pendente. Detalhes: ARCHITECTURE §77._
+
+### 0.1.0-dev.109
+
+**Implementado**
+
+- Encaixar peças → “Começar pelo canto”: o encaixe pode começar pelo canto superior esquerdo (como antes), superior direito, inferior esquerdo ou inferior direito da página ou de cada área; no rolo, pelos cantos de cima. Vale pela caixa e pelo contorno, e entra nos perfis.
+
+_Teste no Corel: 4as — pendente. Detalhes: ARCHITECTURE §76._
+
+### 0.1.0-dev.108
+
+**Implementado**
+
+- Slice → “Pelas guias da página” com guias inclinadas: cada guia vira uma linha de corte em qualquer ângulo e a arte é dividida em polígonos (PowerClip em cada parte), com a mesma sobreposição por emenda e prévia das partes sobre o contorno da arte.
+
+**Alterado**
+
+- Slice: “Afastar as partes” no corte por guias inclinadas afasta cada parte do centro da arte.
+
+_Teste no Corel: 4ar — pendente. Detalhes: ARCHITECTURE §75._
+
+### 0.1.0-dev.107
+
+**Implementado**
+
+- Slice: a prévia mostra o contorno da arte selecionada por baixo das partes (“Mostrar o contorno da arte”), lido do Corel ao abrir e em “Usar seleção atual”; texto e imagem aparecem pela caixa.
+
+_Teste no Corel: 4aq — pendente. Detalhes: ARCHITECTURE §74._
+
+### 0.1.0-dev.106
+
+**Implementado**
+
+- Exportar/Importar preferências levam os perfis do “Encaixar peças”: importar troca a lista (perfil inválido ou repetido é ignorado e listado) e nunca grava por cima de um arquivo de perfis ilegível.
+
+**Alterado**
+
+- Encaixar peças: a lista de perfis é lida de novo antes de salvar ou excluir e ao voltar para a janela, para não desfazer perfis importados com a janela aberta.
+
+_Teste no Corel: 4ap — pendente. Detalhes: ARCHITECTURE §73._
+
+### 0.1.0-dev.105
+
+**Implementado**
+
+- Encaixar peças → “Perfis”: salve os campos da janela com um nome (ex.: “Rolo 160 sublimação”, “Retalhos”) e preencha tudo de novo com um clique. Mesmo nome atualiza; “Excluir” apaga. As quantidades não entram no perfil.
+
+_Teste no Corel: 4ao — pendente. Detalhes: ARCHITECTURE §72._
+
+### 0.1.0-dev.104
+
+**Implementado**
+
+- Encaixar peças → várias áreas → “Preencher as áreas”: na ordem digitada, menores primeiro (gasta os retalhos pequenos antes) ou maiores primeiro. O desenho no Corel e o relatório seguem a ordem escolhida.
+
+_Teste no Corel: 4an — pendente. Detalhes: ARCHITECTURE §71._
+
+### 0.1.0-dev.103
+
+**Implementado**
+
+- Encaixar peças → “Procurar o melhor encaixe”: tenta 5 ordens de peças e fica com a que encaixa mais peças no menor comprimento (página, rolo ou várias áreas, pela caixa ou pelo contorno), com “Tempo máximo (s)”; o relatório diz qual ordem ganhou.
+
+**Alterado**
+
+- Encaixe pelo contorno: o cálculo roda em segundo plano, sem travar o Corel, com o botão “Cancelar cálculo”; mudar um campo durante o cálculo descarta o resultado em andamento.
+
+_Teste no Corel: 4am — pendente. Detalhes: ARCHITECTURE §70._
+
+### 0.1.0-dev.102
+
+**Implementado**
+
+- Encaixar peças → “Várias áreas (retalhos)”: digite as áreas (uma por linha, largura x altura em cm, com nome opcional, ex.: “Retalho azul: 80 x 60”); o PX enche a 1ª, depois a 2ª com o que sobrou, e assim por diante — pela caixa ou pelo contorno, com quantidades.
+- No Corel as áreas ficam lado a lado a partir do canto da página; “Desenhar as áreas no Corel” cria um retângulo por área e “Ajustar a página ao encaixe” deixa a página do tamanho de todas. O relatório mostra peças e aproveitamento de cada área.
+
+_Teste no Corel: 4al — pendente. Detalhes: ARCHITECTURE §69._
+
+### 0.1.0-dev.101
+
+**Implementado**
+
+- Encaixar peças → “Quantidade por peça”: diga quantas vezes cada peça selecionada entra no encaixe (ex.: 3 frentes, 6 mangas), pela caixa ou pelo contorno; “Em todas” põe o mesmo número em todas e 0 deixa a peça de fora.
+- As cópias extras são criadas no Corel só na hora de encaixar e só se couberem (duplicatas do objeto, com o mesmo conteúdo, PowerClip e marcações); as que não cabem aparecem como “Frente (3/3)” na lista do que não coube. Ctrl+Z desfaz tudo, inclusive as cópias.
+
+_Teste no Corel: 4ak — pendente. Detalhes: ARCHITECTURE §68._
+
+### 0.1.0-dev.100
+
+**Implementado**
+
+- Slice → “Pelas guias da página”: cada guia horizontal ou vertical que cruza a arte vira uma emenda, com a sobreposição dividida meio a meio. Ponha as guias onde quiser cortar (por exemplo, fora de rostos e textos) e clique em “Dividir no Corel”.
+- Slice → “Criar guias do plano”: põe guias “PX Slice” nas emendas da prévia por linhas e colunas ou por dimensão máxima, para você arrastar e depois dividir por elas. “Ler as guias” lê de novo depois de mexer; “Remover guias do Slice” apaga só as guias do PX.
+
+_Teste no Corel: 4aj — pendente. Detalhes: ARCHITECTURE §67._
+
+### 0.1.0-dev.99
+
+**Implementado**
+
+- Encaixar peças → “Pelo contorno real”: usa o formato de cada peça — cavas, decotes, recortes e furos ficam livres para outras peças (ex.: um escudo entre os ombros de duas camisas). Clique em “Calcular encaixe”; “Precisão do contorno” (mm) deixa o encaixe mais justo ou mais rápido.
+- Antes de liberar “Encaixar no Corel”, o PX confere o encaixe pelo contorno nos formatos exatos: peças sobrepostas, mais perto que a distância pedida ou fora da área impedem a aplicação.
+- Giro “Só 180°” (pelo contorno): vira a peça de cabeça para baixo quando isso encurta o comprimento, mantendo a direção do tecido.
+- Num grupo, os objetos se somam (um logo por cima da peça não vira furo). Textos e imagens entram pela caixa deles; o relatório e a mensagem dizem quais peças não foram pelo contorno.
+
+**Alterado**
+
+- O botão de Montagem passou a se chamar “Encaixar peças…” (antes “Encaixar peças (retangular)…”); o giro virou três opções: não girar, só 180° e 90°/180°/270°.
+
+_Teste no Corel: 4ai — pendente. Detalhes: ARCHITECTURE §66._
+
+### 0.1.0-dev.98
+
+**Implementado**
+
+- Montagem → “Encaixar peças (retangular)…”: arruma as peças selecionadas (cada objeto ou grupo, pela caixa dele) na página atual ou num rolo de largura fixa, sem sobrepor, usando o menor comprimento que conseguir. Margem e distância entre peças em cm.
+- Prévia com o desenho do encaixe, comprimento usado, aproveitamento (área das peças ÷ largura × comprimento usado) e a posição de cada peça; “Copiar relatório”. Peças que não cabem ficam onde estão e aparecem na lista.
+- “Permitir girar 90°” (desligado por padrão, porque muda a direção da arte e do tecido): ligado, gira a peça quando isso encurta o comprimento. No rolo, “Ajustar a página ao encaixe” deixa a página com a largura do rolo e o comprimento usado.
+- “Encaixar no Corel” só move (e gira, se for o caso) as peças — tamanho, conteúdo, PowerClips e marcações não mudam. Ctrl+Z desfaz tudo de uma vez.
+
+_Teste no Corel: 4ah — pendente. Detalhes: ARCHITECTURE §65._
+
+### 0.1.0-dev.97
+
+**Implementado**
+
+- Slice: botão “Dividir no Corel” na janela. Cada parte vira um retângulo sem contorno (“Parte L1 C1”…) com uma cópia da arte inteira dentro, como PowerClip — textos, imagens, grupos, cores e marcações não são convertidos. As partes ficam no grupo “Divisão (Slice)”.
+- Slice: “Afastar as partes (cm)” separa as partes depois de dividir (0 = no lugar da arte) e “Apagar a arte original” apaga o original; desmarcado, ele fica oculto no mesmo lugar.
+- Slice: “Usar seleção atual” lê de novo as medidas da seleção sem fechar a janela.
+
+**Alterado**
+
+- O botão de Montagem passou a se chamar “Dividir em partes (Slice)…”.
+- Ctrl+Z desfaz a divisão inteira de uma vez. Se a seleção não tiver a área da prévia, nada é feito e o PX avisa; depois de dividir, o botão fica desligado até algum campo mudar, para não dividir as partes de novo por engano.
+
+_Teste no Corel: 4ag — pendente. Detalhes: ARCHITECTURE §64._
+
+### 0.1.0-dev.96
+
+**Implementado**
+
+- Campo “Buscar ferramenta…” no topo do painel: digite parte do nome ou do que a ferramenta faz (ex.: régua, camada, logo) e o painel mostra só as ferramentas que combinam, agrupadas por seção, prontas para clicar. Clicar no nome da seção abre a seção inteira; ✕ ou Esc volta ao painel normal. Acentos e maiúsculas não importam.
+- Montagem → “Planejar divisão (Slice)…”: prévia de como dividir a área selecionada em partes, por linhas e colunas ou por tamanho máximo da parte, com sobreposição entre as partes em cm. Mostra o desenho da divisão e as medidas e a posição de cada parte, e copia o plano. Só planeja: nada é recortado nem alterado no documento.
+- A janela do Slice pode ficar aberta ao lado do Corel; clicar no botão de novo atualiza as medidas com a seleção atual.
+- “Planejar divisão (Slice)” também pode virar favorito e está no Manual de uso.
+
+_Teste no Corel: 4ae, 4af — pendente. Detalhes: ARCHITECTURE §62._
+
+### 0.1.0-dev.95
+
+**Alterado**
+
+- Régua em tamanho real: a faixa agora é branca (antes amarela), com o mesmo contorno, traços e números.
+
+_Teste no Corel: 4ad — pendente._
+
+### 0.1.0-dev.94
+
+**Implementado**
+
+- Medidas → “Régua da largura”, “Régua da altura” e “Régua da largura e da altura”: régua em tamanho real ao lado da seleção, como uma trena — faixa amarela, traço a cada mm, maior a cada 5 mm, número a cada cm e o total no fim. Fica num grupo na camada RÉGUA; a seleção não muda. Um Ctrl+Z desfaz.
+- Campo “Distância do objeto (mm)” acima dos botões: quanto a régua fica afastada da seleção (começa em 3; 0 = encostada).
+- As três réguas também podem virar favoritos e estão no Manual de uso.
+
+_Teste no Corel: ver ROADMAP. Detalhes: ARCHITECTURE §61._
 
 ### 0.1.0-dev.93
 

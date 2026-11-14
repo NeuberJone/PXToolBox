@@ -1,5 +1,11 @@
 # PX Tool Box — Roadmap de Evolução do Ecossistema
 
+> Atualização 2026-11-10: o inventário das telas SISBolt/eCut e o estado até dev.93 estão em
+> [reference-feature-roadmap.md](reference-feature-roadmap.md). Nesting e Slice são prioritários.
+> O Slice já planeja e divide no documento (PowerClip por parte, dev.97); o encaixe pela caixa
+> (dev.98) e pelo contorno real (dev.99) estão em `PXToolBox.Core.Nesting`, com quantidades (dev.101) e
+> várias áreas digitadas (dev.102, `NestAreas`); retalhos vindos do Nexor dependem de um contrato.
+
 > Documento complementar ao `roadmap.md` principal do projeto.
 >
 > Caminho sugerido no repositório:

@@ -1,0 +1,179 @@
+<Window x:Class="PXToolBoxDev.Nesting.NestingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="PX Tool Box DEV — Encaixar peças"
+        Width="860" Height="720" MinWidth="660" MinHeight="560"
+        WindowStartupLocation="CenterScreen" Background="#1E1E20" Foreground="#E4E4E6"
+        ShowInTaskbar="False"
+        Loaded="Window_Loaded" Closed="Window_Closed" Activated="Window_Activated">
+    <!--
+        "Encaixar peças": prévia pela caixa (Core/Nesting/RectangleNester, recalculada a cada campo) ou
+        pelo contorno real (Core/Nesting/ContourNester, só no botão "Calcular encaixe") e, pelo
+        INestingHost do painel, aplicação no documento (Outputs/Tools/NestingService). Não modal e uma
+        só (ShowFor).
+        Campos digitados dentro do processo do Corel, por isso o ThreadKeyboardRouter.
+    -->
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Margin" Value="0,4,0,4" />
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="CaretBrush" Value="#E4E4E6" />
+            <Setter Property="SelectionBrush" Value="#326AB1" />
+            <Setter Property="BorderBrush" Value="#56565E" />
+            <Setter Property="Padding" Value="6,4" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Background" Value="#2E2E32" />
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="BorderBrush" Value="#56565E" />
+            <Setter Property="Padding" Value="12,6" />
+            <Setter Property="Margin" Value="0,8,8,0" />
+        </Style>
+        <Style TargetType="RadioButton">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="Margin" Value="0,8,0,4" />
+        </Style>
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#E4E4E6" />
+            <Setter Property="Margin" Value="0,8,0,4" />
+        </Style>
+    </Window.Resources>
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="Arruma as peças selecionadas (cada objeto ou grupo é uma peça) na página, num rolo de largura fixa ou em várias áreas (retalhos), sem sobrepor: pela caixa de cada peça (rápido) ou pelo contorno real (aproveita recortes e furos). Medidas em centímetros. As peças só são movidas e, se permitido, giradas; Ctrl+Z desfaz tudo de uma vez." Margin="0,0,0,12" />
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="230" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Margin="0,0,14,0">
+                <StackPanel>
+                    <TextBlock x:Name="SourceText" Foreground="#9A9AA0" />
+                    <Button x:Name="UseSelectionButton" Content="Usar seleção atual" Click="OnUseSelection" Margin="0,0,0,4"
+                            ToolTip="Lê de novo as peças selecionadas e o tamanho da página no Corel." />
+                    <TextBlock Text="Perfis" Margin="0,8,0,0" />
+                    <WrapPanel x:Name="ProfileList"
+                               ToolTip="Clique num perfil para preencher os campos com ele. As quantidades não entram no perfil." />
+                    <DockPanel Margin="0,4,0,0">
+                        <Button x:Name="DeleteProfileButton" DockPanel.Dock="Right" Content="Excluir" Click="OnDeleteProfile" Margin="6,0,0,0" Padding="8,3"
+                                ToolTip="Exclui o perfil com o nome digitado ao lado." />
+                        <Button x:Name="SaveProfileButton" DockPanel.Dock="Right" Content="Salvar" Click="OnSaveProfile" Margin="6,0,0,0" Padding="8,3"
+                                ToolTip="Salva os campos atuais (área, medidas, canto de início, encaixe, giro e busca) com o nome digitado. Mesmo nome = atualiza." />
+                        <TextBox x:Name="ProfileName" ToolTip="Nome do perfil (ex.: Rolo 160 sublimação)." />
+                    </DockPanel>
+                    <TextBlock x:Name="ProfileMessage" Foreground="#9A9AA0" />
+                    <RadioButton x:Name="PageMode" GroupName="Area" IsChecked="True" Content="Página atual" />
+                    <RadioButton x:Name="RollMode" GroupName="Area" Content="Rolo (largura fixa, descendo)" />
+                    <TextBlock Text="Largura do rolo (cm)" />
+                    <TextBox x:Name="RollWidth" Text="160" />
+                    <TextBlock Text="Altura da folha (cm) — vazio: comprimento livre" />
+                    <TextBox x:Name="RollHeight" Text=""
+                             ToolTip="Com altura: o rolo é dividido em folhas de largura × altura; quando uma enche, o encaixe continua numa nova folha logo abaixo. Vazio: um comprimento só, do tamanho que precisar." />
+                    <CheckBox x:Name="SplitByLayer" Content="Separar por camada (um bloco por tecido)" Margin="0,4,0,4"
+                              ToolTip="As peças de cada camada do Corel são encaixadas sozinhas, num rolo (ou folhas) próprio, lado a lado. Use uma camada por tecido ou cor." />
+                    <RadioButton x:Name="AreasMode" GroupName="Area" Content="Várias áreas (retalhos)"
+                                 ToolTip="Preenche a 1ª área, depois a 2ª com o que sobrou, e assim por diante (na ordem escolhida em “Preencher as áreas”)." />
+                    <TextBlock Text="Áreas: largura x altura (cm), uma por linha" />
+                    <TextBox x:Name="AreasText" Text="100 x 150&#x0a;80 x 60" AcceptsReturn="True" TextWrapping="NoWrap" MinHeight="58"
+                             VerticalScrollBarVisibility="Auto"
+                             ToolTip="Ex.: “100 x 150” ou “Retalho azul: 80 x 60”. Até 20 áreas; no Corel ficam lado a lado, a partir do canto da página, com 2 cm entre elas." />
+                    <TextBlock Text="Preencher as áreas" />
+                    <RadioButton x:Name="AreasAsTyped" GroupName="AreaOrder" IsChecked="True" Content="Na ordem digitada" Margin="0,2,0,2" />
+                    <RadioButton x:Name="AreasSmallestFirst" GroupName="AreaOrder" Content="Menores primeiro (gasta retalhos)" Margin="0,2,0,2"
+                                 ToolTip="Começa pela área menor: as sobras pequenas são usadas antes das grandes." />
+                    <RadioButton x:Name="AreasLargestFirst" GroupName="AreaOrder" Content="Maiores primeiro" Margin="0,2,0,2"
+                                 ToolTip="Começa pela área maior: costuma usar menos áreas." />
+                    <CheckBox x:Name="DrawAreas" Content="Desenhar as áreas no Corel" IsChecked="True"
+                              ToolTip="Um retângulo por área (ou por folha do rolo), com o contorno padrão do documento, na camada das peças, para ver os limites." />
+                    <CheckBox x:Name="GroupBlocks" Content="Agrupar por bloco, lado a lado" Margin="0,4,0,0"
+                              ToolTip="Cada área (ou folha do rolo) vira um grupo no Corel, com as peças e o retângulo dela. As folhas do rolo ficam lado a lado, em vez de uma embaixo da outra." />
+                    <CheckBox x:Name="Legends" Content="Legenda em cada bloco (nome, medidas e peças)" Margin="18,2,0,0"
+                              ToolTip="Com “Agrupar por bloco”: um texto acima de cada bloco, dentro do grupo — ex.: “Tactel — Folha 1 · 160 × 300 cm · 12 peça(s)”. Fica fora da área, não cobre peça." />
+                    <TextBlock Text="Distância entre os blocos (cm)" Margin="0,6,0,0" />
+                    <TextBox x:Name="BlockGap" Text="2"
+                             ToolTip="Espaço entre uma área (ou folha, ou tecido) e a seguinte, quando ficam lado a lado. 0 = encostadas." />
+                    <CheckBox x:Name="ResizePage" Content="Ajustar a página ao encaixe"
+                              ToolTip="No rolo: a página passa a ter a largura do rolo e o comprimento usado (em folhas: todas as folhas usadas). Em várias áreas: a página passa a caber todas as áreas." />
+                    <TextBlock Text="Margem (cm)" Margin="0,12,0,4" />
+                    <TextBox x:Name="AreaMargin" Text="0,5" ToolTip="Espaço livre em volta da área inteira." />
+                    <TextBlock Text="Distância entre as peças (cm)" />
+                    <TextBox x:Name="Spacing" Text="0,5" />
+                    <TextBlock Text="Começar pelo canto" Margin="0,12,0,0" />
+                    <UniformGrid Columns="2"
+                                 ToolTip="As peças se juntam neste canto da área (em várias áreas, de cada área). No rolo, só os cantos de cima.">
+                        <RadioButton x:Name="OriginTopLeft" GroupName="Origin" IsChecked="True" Content="↖ Superior esq." Margin="0,2,0,2" />
+                        <RadioButton x:Name="OriginTopRight" GroupName="Origin" Content="↗ Superior dir." Margin="0,2,0,2" />
+                        <RadioButton x:Name="OriginBottomLeft" GroupName="Origin" Content="↙ Inferior esq." Margin="0,2,0,2" />
+                        <RadioButton x:Name="OriginBottomRight" GroupName="Origin" Content="↘ Inferior dir." Margin="0,2,0,2" />
+                    </UniformGrid>
+                    <CheckBox x:Name="UseQuantities" Content="Quantidade por peça" Margin="0,12,0,4"
+                              ToolTip="Desligado: cada peça entra uma vez. Ligado: uma linha por peça para repetir (ou deixar de fora) — com centenas de peças a lista fica longa." />
+                    <StackPanel x:Name="QuantityPanel" Visibility="Collapsed">
+                        <DockPanel Margin="0,0,0,4">
+                            <Button x:Name="QuantityAllButton" DockPanel.Dock="Right" Content="Em todas" Click="OnQuantityAll" Margin="6,0,0,0" Padding="8,3"
+                                    ToolTip="Põe este número em todas as peças." />
+                            <TextBox x:Name="QuantityAll" Text="1" ToolTip="Quantidade para todas as peças (0 a 999)." />
+                        </DockPanel>
+                        <StackPanel x:Name="QuantityList"
+                                    ToolTip="Quantas vezes cada peça entra no encaixe. 0 = fica de fora (não se move). As cópias extras só são criadas no Corel se couberem." />
+                    </StackPanel>
+                    <TextBlock Text="Encaixe" Margin="0,12,0,0" />
+                    <RadioButton x:Name="BoxMethod" GroupName="Method" IsChecked="True" Content="Pela caixa (rápido)"
+                                 ToolTip="Cada peça ocupa o retângulo em volta dela. A prévia acompanha os campos." />
+                    <RadioButton x:Name="ContourMethod" GroupName="Method" Content="Pelo contorno real"
+                                 ToolTip="Usa o formato de cada peça: recortes e furos ficam livres para outras peças. Calcula só no botão “Calcular encaixe”." />
+                    <TextBlock Text="Precisão do contorno (mm)" />
+                    <TextBox x:Name="ContourCell" Text="5"
+                             ToolTip="Tamanho do quadradinho da grade usada no cálculo (0,5 a 50 mm). Menor = encaixe mais justo e mais lento. A distância pedida é sempre respeitada." />
+                    <TextBlock Text="Girar as peças" Margin="0,12,0,0" />
+                    <RadioButton x:Name="NoRotation" GroupName="Rotation" IsChecked="True" Content="Não girar" />
+                    <RadioButton x:Name="HalfTurn" GroupName="Rotation" Content="Só 180°"
+                                 ToolTip="Só pelo contorno. Virar de cabeça para baixo mantém a direção do tecido (e não muda a caixa da peça)." />
+                    <RadioButton x:Name="QuarterTurns" GroupName="Rotation" Content="90°, 180° e 270°"
+                                 ToolTip="Gira quando isso encurta o comprimento. Girar 90° muda a direção da arte e do tecido." />
+                    <CheckBox x:Name="SearchBest" Content="Procurar o melhor encaixe" Margin="0,12,0,4"
+                              ToolTip="Tenta várias ordens de peças (maior lado, maior área, mais largas, mais altas, maior perímetro) e fica com a que encaixa mais peças no menor comprimento. Pelo contorno, leva até 5 vezes mais tempo." />
+                    <TextBlock Text="Tempo máximo (s)" />
+                    <TextBox x:Name="TimeLimit" Text="30"
+                             ToolTip="A busca para de tentar novas ordens depois disso e fica com o melhor resultado até ali (1 a 600 s). A primeira tentativa sempre termina." />
+                    <CheckBox x:Name="ShowOriginal" Content="Mostrar a posição original" Margin="0,12,0,4" Checked="OnShowOriginalChanged" Unchecked="OnShowOriginalChanged"
+                              ToolTip="Desenha na prévia, em cinza tracejado, onde as peças estão agora no Corel. O relatório compara a caixa ocupada hoje com a do encaixe (página ou rolo)." />
+                </StackPanel>
+            </ScrollViewer>
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Viewbox Stretch="Uniform" Margin="4">
+                    <Canvas x:Name="PreviewCanvas" Width="400" Height="300" Background="#151517" />
+                </Viewbox>
+                <TextBox x:Name="ReportText" Grid.Row="1" Height="170" Margin="0,12,0,0"
+                         IsReadOnly="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Disabled" />
+            </Grid>
+        </Grid>
+        <StackPanel Grid.Row="2">
+            <TextBlock x:Name="MessageText" Foreground="#E0A33E" />
+            <WrapPanel>
+                <Button x:Name="CalculateButton" Content="Calcular encaixe" Click="OnCalculate"
+                        ToolTip="Calcula de novo com os campos atuais (pelo contorno, o cálculo só acontece aqui)." />
+                <Button x:Name="CancelButton" Content="Cancelar cálculo" Click="OnCancelCalculation" Visibility="Collapsed"
+                        ToolTip="Interrompe o cálculo pelo contorno. Na busca, fica o melhor resultado já calculado." />
+                <Button x:Name="ApplyButton" Content="Encaixar no Corel" Click="OnApply" IsEnabled="False"
+                        ToolTip="Move (e gira, se for o caso) as peças selecionadas para as posições da prévia." />
+                <Button x:Name="CopyButton" Content="Copiar relatório" Click="OnCopy" IsEnabled="False" />
+                <Button Content="Fechar" Click="OnCloseClick" />
+            </WrapPanel>
+        </StackPanel>
+    </Grid>
+</Window>

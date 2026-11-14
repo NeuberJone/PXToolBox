@@ -42,6 +42,10 @@ namespace PXToolBoxDev
         private readonly MoldDefineService _moldDefine;
         private readonly MoldLogoPropagationService _moldLogos = new MoldLogoPropagationService(() => MoldSettingsStore.Load().Settings);
         private readonly MoldValidationService _moldValidation = new MoldValidationService(() => MoldSettingsStore.Load().Settings);
+        private readonly TapeMeasureService _tapeMeasure = new TapeMeasureService();
+        private readonly SliceCutService _sliceCut = new SliceCutService();
+        private readonly SliceGuideService _sliceGuides = new SliceGuideService();
+        private readonly NestingService _nesting = new NestingService();
         private readonly MoldDuplicationService _moldDuplication = new MoldDuplicationService(() => MoldSettingsStore.Load().Settings);
         private readonly MoldSaveService _moldSave = new MoldSaveService();
         private readonly HorizontalAlignmentLinkService _horizontalAlignmentLink = new HorizontalAlignmentLinkService();
@@ -499,7 +503,7 @@ namespace PXToolBoxDev
             foreach (var entry in ordered)
             {
                 var section = elements[entry.Id];
-                section.Visibility = entry.Visible ? Visibility.Visible : Visibility.Collapsed;
+                section.Visibility = entry.Visible && !IsToolFilterActive ? Visibility.Visible : Visibility.Collapsed;
                 desired.Add(section);
             }
 
@@ -683,6 +687,113 @@ namespace PXToolBoxDev
                 pending.Visibility = Visibility.Collapsed;
                 _hiddenStructure.Add(pending);
             }
+        }
+
+        // ---- Buscar ferramenta (topo do painel) ----
+
+        private bool IsToolFilterActive => ToolFilterBox.Text.Trim().Length > 0;
+
+        private void OnToolFilterChanged(object sender, TextChangedEventArgs e) => ApplyToolFilter();
+
+        private void OnClearToolFilter(object sender, RoutedEventArgs e)
+        {
+            ToolFilterBox.Text = string.Empty;
+            ToolFilterBox.Focus();
+        }
+
+        private void OnToolFilterKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key != System.Windows.Input.Key.Escape || ToolFilterBox.Text.Length == 0) return;
+            ToolFilterBox.Text = string.Empty;
+            e.Handled = true;
+        }
+
+        /// <summary>Com texto: esconde as seções (sem mexer no layout salvo) e mostra os atalhos das
+        /// ferramentas que combinam, por seção, na ordem do painel. Vazio: seções como o layout manda.</summary>
+        private void ApplyToolFilter()
+        {
+            var query = ToolFilterBox.Text.Trim();
+            ToolFilterHint.Visibility = ToolFilterBox.Text.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            ToolFilterClearButton.Visibility = ToolFilterBox.Text.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+
+            var elements = _sectionElements.Concat(_customSectionElements).ToDictionary(p => p.Key, p => p.Value);
+            foreach (var entry in _sectionLayout.Sections.Where(e => elements.ContainsKey(e.Id)))
+            {
+                elements[entry.Id].Visibility = entry.Visible && query.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
+            }
+
+            ToolFilterResults.Children.Clear();
+            ToolFilterResults.Visibility = query.Length == 0 ? Visibility.Collapsed : Visibility.Visible;
+            if (query.Length == 0) return;
+
+            var sectionOrder = _sectionLayout.Sections.Select(s => s.Id).ToList();
+            var catalogOrder = PanelToolCatalog.All.Select(t => t.Id).ToList();
+            int Position(List<string> list, string id) => list.IndexOf(id) is var index && index >= 0 ? index : int.MaxValue;
+            var candidates = _favoriteSources
+                .Select(source =>
+                {
+                    var sectionId = _customization.SectionOf(source.Key);
+                    return new PanelToolFilter.Candidate(source.Key, PanelToolCatalog.Find(source.Key)!.Label, sectionId,
+                        _customization.TitleOf(sectionId), source.Value.ToolTip as string ?? string.Empty);
+                })
+                .OrderBy(c => Position(sectionOrder, c.SectionId))
+                .ThenBy(c => Position(catalogOrder, c.Id));
+            var matches = PanelToolFilter.Filter(candidates, query);
+
+            var muted = (Style)FindResource("Px.MutedText");
+            if (matches.Count == 0)
+            {
+                ToolFilterResults.Children.Add(new TextBlock { Text = $"Nenhuma ferramenta com “{query}”. ✕ ou Esc limpa a busca.", Style = muted, TextWrapping = TextWrapping.Wrap });
+                return;
+            }
+
+            ToolFilterResults.Children.Add(new TextBlock
+            {
+                Text = $"{matches.Count} ferramenta(s) com “{query}”. Clique no nome da seção para abrir a seção inteira (campos como nome e tamanho ficam lá).",
+                Style = muted,
+                TextWrapping = TextWrapping.Wrap,
+            });
+            foreach (var group in matches.GroupBy(m => m.SectionId))
+            {
+                var sectionId = group.Key;
+                var link = new System.Windows.Documents.Hyperlink(new System.Windows.Documents.Run(group.First().SectionTitle))
+                {
+                    ToolTip = "Limpa a busca e abre esta seção.",
+                    Foreground = (System.Windows.Media.Brush)FindResource("Px.Accent"),
+                };
+                link.Click += (_, _) => GoToSection(sectionId);
+                ToolFilterResults.Children.Add(new TextBlock(link) { Style = (Style)FindResource("Px.SectionLabel"), Margin = new Thickness(0, 8, 0, 2) });
+                foreach (var match in group)
+                {
+                    var original = _favoriteSources[match.Id];
+                    var shortcut = FavoriteShortcut.Create(original, match.Label, new TextBlock { Text = match.Label, TextWrapping = TextWrapping.Wrap }, original.Style);
+                    AutomationProperties.SetAutomationId(shortcut, "filter." + match.Id);
+                    ToolFilterResults.Children.Add(shortcut);
+                }
+            }
+        }
+
+        /// <summary>Do resultado da busca para a seção: limpa a busca, abre a seção e rola até ela.</summary>
+        private void GoToSection(string sectionId)
+        {
+            ToolFilterBox.Text = string.Empty;
+            var elements = _sectionElements.Concat(_customSectionElements).ToDictionary(p => p.Key, p => p.Value);
+            if (!elements.TryGetValue(sectionId, out var section) || section.Visibility != Visibility.Visible)
+            {
+                SetStatus($"A seção \"{_customization.TitleOf(sectionId)}\" está oculta — mostre-a em \"Personalizar painel…\".");
+                return;
+            }
+
+            section.IsExpanded = true;
+            Dispatcher.BeginInvoke(new Action(section.BringIntoView), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        /// <summary>Para testes: digita na busca e devolve os Ids mostrados, na ordem.</summary>
+        public IReadOnlyList<string> SearchToolsForTesting(string query)
+        {
+            ToolFilterBox.Text = query;
+            return ToolFilterResults.Children.OfType<Button>()
+                .Select(b => AutomationProperties.GetAutomationId(b).Substring("filter.".Length)).ToList();
         }
 
         /// <summary>Marca do canto do atalho: "−" para remoção; senão a da seção ONDE a
@@ -1443,6 +1554,30 @@ namespace PXToolBoxDev
         private void OnSumHeight(object sender, RoutedEventArgs e) => RunSum("Somar Altura", (sizes, unit) => _measurementSum.SumSelected(sizes, unit, MeasurementSumMode.Height));
         private void OnSumWidth(object sender, RoutedEventArgs e) => RunSum("Somar Largura", (sizes, unit) => _measurementSum.SumSelected(sizes, unit, MeasurementSumMode.Width));
         private void OnSumBoth(object sender, RoutedEventArgs e) => RunSum("Somar Altura e Largura", (sizes, unit) => _measurementSum.SumSelected(sizes, unit, MeasurementSumMode.Both));
+
+        private void OnRulerWidth(object sender, RoutedEventArgs e) => CreateRuler("Régua da largura", TapeMeasureService.Axis.Width);
+
+        private void OnRulerHeight(object sender, RoutedEventArgs e) => CreateRuler("Régua da altura", TapeMeasureService.Axis.Height);
+
+        private void OnRulerBoth(object sender, RoutedEventArgs e) => CreateRuler("Régua da largura e da altura", TapeMeasureService.Axis.Both);
+
+        /// <summary>Distância digitada em mm; o serviço trabalha em mm e recebe quanto vale 1 mm na
+        /// unidade do documento.</summary>
+        private void CreateRuler(string command, TapeMeasureService.Axis axis)
+        {
+            var text = RulerGapTextBox.Text.Trim().Replace(',', '.');
+            if (!double.TryParse(text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var gapMm) || gapMm < 0)
+            {
+                SetStatus($"{command}: distância inválida — use um número em mm (0 = encostada).");
+                return;
+            }
+
+            RunWithWorkspace(command, (ws, doc) =>
+            {
+                var millimeter = _app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _app.ActiveDocument.Unit);
+                return _tapeMeasure.Create(ws.ActiveSelection, doc.ActivePage, millimeter, axis, gapMm);
+            });
+        }
 
         // Inspecionar Shape.Properties — ferramenta de diagnóstico exclusiva da distribuição DEV
         // (ver docs/listforge-classic-parity.md não se aplica; ver docs/ARCHITECTURE.md). Não usa
@@ -2283,6 +2418,331 @@ namespace PXToolBoxDev
 
         private void RunOnSelection(string commandName, Func<ICorelWorkspace, OperationResult> operation) =>
             RunWithWorkspace(commandName, (ws, _) => operation(ws));
+
+        // ---- Montagem → Dividir em partes (Slice): prévia na janela; dividir pelo SliceCutService ----
+
+        private const string SliceCommand = "Dividir em partes (Slice)";
+
+        private void OnSlicePreview(object sender, RoutedEventArgs e)
+        {
+            var size = MeasureSelectionForSlice(out var message);
+            if (size == null)
+            {
+                SetStatus($"{SliceCommand}: {message}");
+                return;
+            }
+
+            Slicing.SlicePreviewWindow.ShowFor(size.Value.Width, size.Value.Height, new SliceHost(this));
+        }
+
+        /// <summary>Caixa da seleção em mm (lida na unidade do documento, como em PageCaptureService):
+        /// a janela só recebe os números.</summary>
+        private (double Width, double Height)? MeasureSelectionForSlice(out string message)
+        {
+            message = string.Empty;
+            try
+            {
+                if (_app == null) Connect();
+                var document = _app?.ActiveDocument;
+                if (_app == null || document == null)
+                {
+                    message = "abra um documento e selecione a arte.";
+                    return null;
+                }
+
+                var shapes = new CorelWorkspaceAdapter(_app).ActiveSelection.Shapes;
+                if (shapes.Count == 0)
+                {
+                    message = "selecione os objetos que formam a área da arte.";
+                    return null;
+                }
+
+                var unit = document.Unit;
+                var left = shapes.Min(s => s.CenterX - s.Width / 2);
+                var right = shapes.Max(s => s.CenterX + s.Width / 2);
+                var bottom = shapes.Min(s => s.CenterY - s.Height / 2);
+                var top = shapes.Max(s => s.CenterY + s.Height / 2);
+                return (_app.ConvertUnits(right - left, unit, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter),
+                    _app.ConvertUnits(top - bottom, unit, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter));
+            }
+            catch (Exception ex)
+            {
+                message = $"não foi possível ler a seleção — {ex.Message}";
+                return null;
+            }
+        }
+
+        // ---- Montagem → Encaixar peças (pela caixa ou pelo contorno): prévia na janela; aplicar pelo NestingService ----
+
+        private const string NestingCommand = "Encaixar peças";
+
+        private void OnNesting(object sender, RoutedEventArgs e)
+        {
+            var selection = ReadNestingSelection(out var message);
+            if (selection == null)
+            {
+                SetStatus($"{NestingCommand}: {message}");
+                return;
+            }
+
+            Nesting.NestingWindow.ShowFor(selection, new NestingHost(this));
+        }
+
+        private Nesting.NestingSelection? ReadNestingSelection(out string message)
+        {
+            message = string.Empty;
+            try
+            {
+                if (_app == null) Connect();
+                var document = _app?.ActiveDocument;
+                if (_app == null || document == null)
+                {
+                    message = "abra um documento e selecione as peças.";
+                    return null;
+                }
+
+                var selection = new CorelWorkspaceAdapter(_app).ActiveSelection;
+                if (selection.Count == 0)
+                {
+                    message = "selecione as peças que vão ser encaixadas (cada objeto ou grupo é uma peça).";
+                    return null;
+                }
+
+                var millimeter = _app.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, document.Unit);
+                var page = document.ActivePage;
+                return new Nesting.NestingSelection(_nesting.ReadItems(selection, millimeter),
+                    page.SizeWidth / millimeter, page.SizeHeight / millimeter,
+                    _nesting.ReadOrigins(selection, new CorelPageAdapter(page, document), millimeter),
+                    _nesting.ReadLayers(selection));
+            }
+            catch (Exception ex)
+            {
+                message = $"não foi possível ler a seleção — {ex.Message}";
+                return null;
+            }
+        }
+
+        private sealed class NestingHost : Nesting.INestingHost
+        {
+            private readonly ControlUI _panel;
+
+            public NestingHost(ControlUI panel) => _panel = panel;
+
+            public Nesting.NestingSelection? ReadSelection(out string message) => _panel.ReadNestingSelection(out message);
+
+            public OperationResult? Apply(IReadOnlyList<PXToolBox.Core.Nesting.NestItem> items, IReadOnlyList<int> sources,
+                PXToolBox.Core.Nesting.NestResult result, bool resizePage) =>
+                _panel.RunWithWorkspace(NestingCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._nesting.Apply(ws.ActiveSelection, doc.ActivePage, millimeter, items, result, resizePage, sources);
+                });
+
+            // Só leitura (sem grupo de desfazer), como medir a seleção.
+            public ContourReading? ReadContours(out string message)
+            {
+                message = string.Empty;
+                try
+                {
+                    if (_panel._app == null) _panel.Connect();
+                    var document = _panel._app?.ActiveDocument;
+                    if (_panel._app == null || document == null)
+                    {
+                        message = "Abra um documento e selecione as peças.";
+                        return null;
+                    }
+
+                    var selection = new CorelWorkspaceAdapter(_panel._app).ActiveSelection;
+                    if (selection.Count == 0)
+                    {
+                        message = "Selecione as peças que vão ser encaixadas.";
+                        return null;
+                    }
+
+                    var millimeter = _panel._app.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, document.Unit);
+                    return _panel._nesting.ReadContours(selection, millimeter);
+                }
+                catch (Exception ex)
+                {
+                    message = $"Não foi possível ler os contornos — {ex.Message}";
+                    return null;
+                }
+            }
+
+            public OperationResult? ApplyContour(ContourReading reading, IReadOnlyList<int> sources, PXToolBox.Core.Nesting.ContourNestResult result,
+                double marginMm, double spacingMm, bool resizePage) =>
+                _panel.RunWithWorkspace(NestingCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._nesting.ApplyContour(ws.ActiveSelection, doc.ActivePage, millimeter, reading, result, marginMm, spacingMm, resizePage, sources);
+                });
+
+            public OperationResult? ApplyAreas(IReadOnlyList<PXToolBox.Core.Nesting.NestItem> items, IReadOnlyList<int> sources,
+                PXToolBox.Core.Nesting.AreaNestResult<PXToolBox.Core.Nesting.NestResult, PXToolBox.Core.Nesting.NestItem> result,
+                bool resizePage, bool drawAreas, bool groupBlocks, bool legends) =>
+                _panel.RunWithWorkspace(NestingCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._nesting.ApplyAreas(ws.ActiveSelection, doc.ActivePage, millimeter, items, result, resizePage, drawAreas, sources, groupBlocks, legends);
+                });
+
+            public OperationResult? ApplyContourAreas(ContourReading reading, IReadOnlyList<int> sources,
+                PXToolBox.Core.Nesting.AreaNestResult<PXToolBox.Core.Nesting.ContourNestResult, PXToolBox.Core.Nesting.ContourPiece> result,
+                double marginMm, double spacingMm, bool resizePage, bool drawAreas, bool groupBlocks, bool legends) =>
+                _panel.RunWithWorkspace(NestingCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._nesting.ApplyContourAreas(ws.ActiveSelection, doc.ActivePage, millimeter, reading, result,
+                        marginMm, spacingMm, resizePage, drawAreas, sources, groupBlocks, legends);
+                });
+        }
+
+        /// <summary>Ponte da janela do Slice com o painel: medir e dividir passam pelo mesmo caminho dos
+        /// botões (RunWithWorkspace: um passo de desfazer e o status do painel).</summary>
+        private sealed class SliceHost : Slicing.ISliceHost
+        {
+            private readonly ControlUI _panel;
+
+            public SliceHost(ControlUI panel) => _panel = panel;
+
+            public (double Width, double Height)? MeasureSelection(out string message) =>
+                _panel.MeasureSelectionForSlice(out message);
+
+            public OperationResult? Apply(PXToolBox.Core.Slicing.SlicePlan plan, double separationMm, bool deleteOriginal) =>
+                _panel.RunWithWorkspace(SliceCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._sliceCut.Apply(ws.ActiveSelection, doc.ActivePage, millimeter, plan, separationMm, deleteOriginal);
+                });
+
+            public OperationResult? ApplyRegions(PXToolBox.Core.Slicing.SliceRegionPlan plan, double separationMm, bool deleteOriginal) =>
+                _panel.RunWithWorkspace(SliceCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._sliceCut.ApplyRegions(ws.ActiveSelection, doc.ActivePage, millimeter, plan, separationMm, deleteOriginal);
+                });
+
+            // Só leitura (sem grupo de desfazer), como medir a seleção.
+            public SliceGuideCuts? ReadGuides(out string message)
+            {
+                message = string.Empty;
+                try
+                {
+                    if (_panel._app == null) _panel.Connect();
+                    var document = _panel._app?.ActiveDocument;
+                    if (_panel._app == null || document == null)
+                    {
+                        message = "Abra um documento e selecione a arte.";
+                        return null;
+                    }
+
+                    var millimeter = _panel._app.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, document.Unit);
+                    var result = _panel._sliceGuides.ReadCuts(new CorelWorkspaceAdapter(_panel._app).ActiveSelection,
+                        new CorelDocumentAdapter(document).ActivePage, millimeter);
+                    message = result.Message;
+                    return result.IsSuccess ? result.Value : null;
+                }
+                catch (Exception ex)
+                {
+                    message = $"Não foi possível ler as guias — {ex.Message}";
+                    return null;
+                }
+            }
+
+            public OperationResult? CreateGuides(IReadOnlyList<double> columns, IReadOnlyList<double> rows) =>
+                _panel.RunWithWorkspace(SliceCommand, (ws, doc) =>
+                {
+                    var millimeter = _panel._app!.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, _panel._app.ActiveDocument.Unit);
+                    return _panel._sliceGuides.CreateGuides(ws.ActiveSelection, doc.ActivePage, millimeter, columns, rows);
+                });
+
+            public OperationResult? RemoveGuides() =>
+                _panel.RunWithWorkspace(SliceCommand, (_, doc) => _panel._sliceGuides.RemoveGuides(doc.ActivePage));
+
+            // Só leitura (sem grupo de desfazer), como medir a seleção.
+            public SliceArtOutline? ReadArtOutline(out string message)
+            {
+                message = string.Empty;
+                try
+                {
+                    if (_panel._app == null) _panel.Connect();
+                    var document = _panel._app?.ActiveDocument;
+                    if (_panel._app == null || document == null)
+                    {
+                        message = "Abra um documento e selecione a arte.";
+                        return null;
+                    }
+
+                    var millimeter = _panel._app.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, document.Unit);
+                    var result = new SliceOutlineService(_panel._nesting).Read(new CorelWorkspaceAdapter(_panel._app).ActiveSelection, millimeter);
+                    message = result.Message;
+                    return result.IsSuccess ? result.Value : null;
+                }
+                catch (Exception ex)
+                {
+                    message = $"Não foi possível ler o contorno da arte — {ex.Message}";
+                    return null;
+                }
+            }
+
+            // Só leitura (sem grupo de desfazer), como ler as guias.
+            public SliceDrawnCuts? ReadDrawnCuts(out string message)
+            {
+                message = string.Empty;
+                try
+                {
+                    if (_panel._app == null) _panel.Connect();
+                    var document = _panel._app?.ActiveDocument;
+                    if (_panel._app == null || document == null)
+                    {
+                        message = "Abra um documento e selecione a arte.";
+                        return null;
+                    }
+
+                    var millimeter = _panel._app.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, document.Unit);
+                    var result = new SliceDrawnCutService().ReadCuts(new CorelWorkspaceAdapter(_panel._app).ActiveSelection,
+                        new CorelDocumentAdapter(document).ActivePage, millimeter);
+                    message = result.Message;
+                    return result.IsSuccess ? result.Value : null;
+                }
+                catch (Exception ex)
+                {
+                    message = $"Não foi possível ler as linhas de corte — {ex.Message}";
+                    return null;
+                }
+            }
+
+            public OperationResult? CreateCutLayer() =>
+                _panel.RunWithWorkspace(SliceCommand, (_, doc) => new SliceDrawnCutService().CreateLayer(doc.ActivePage));
+
+            // Só leitura (sem grupo de desfazer): o PNG vai para a pasta temporária e é apagado logo depois.
+            public SliceThumbnail? ReadArtThumbnail(out string message)
+            {
+                message = string.Empty;
+                try
+                {
+                    if (_panel._app == null) _panel.Connect();
+                    var document = _panel._app?.ActiveDocument;
+                    if (_panel._app == null || document == null)
+                    {
+                        message = "Abra um documento e selecione a arte.";
+                        return null;
+                    }
+
+                    var millimeter = _panel._app.ConvertUnits(1, global::Corel.Interop.VGCore.cdrUnit.cdrMillimeter, document.Unit);
+                    var result = new SliceThumbnailService().Read(new CorelDocumentAdapter(document),
+                        new CorelWorkspaceAdapter(_panel._app).ActiveSelection, millimeter,
+                        System.IO.Path.Combine(System.IO.Path.GetTempPath(), "PXToolBox-Dev"));
+                    message = result.Message;
+                    return result.IsSuccess ? result.Value : null;
+                }
+                catch (Exception ex)
+                {
+                    message = $"Não foi possível gerar a miniatura da arte — {ex.Message}";
+                    return null;
+                }
+            }
+        }
 
         // ---- Ferramentas do SISBolt (docs/sisbolt-tools-investigation.md) ----
 

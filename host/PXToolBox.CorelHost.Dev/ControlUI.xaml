@@ -448,6 +448,24 @@
             </DockPanel>
             <TextBlock x:Name="DocStateText" Style="{StaticResource Px.MutedText}" Margin="0,0,0,8" />
 
+            <!-- Buscar ferramenta: com texto, as seções saem de cena e ToolFilterResults mostra só
+                 as ferramentas que combinam (PanelLayout/PanelToolFilter), agrupadas pela seção onde
+                 estão agora, como atalhos do botão original (iguais aos Favoritos). Vazio = painel
+                 normal. O status do último comando continua visível. -->
+            <DockPanel Margin="0,0,0,8">
+                <Button x:Name="ToolFilterClearButton" DockPanel.Dock="Right" Content="✕" Click="OnClearToolFilter"
+                        Margin="4,0,0,0" Padding="7,2,7,2" Visibility="Collapsed"
+                        ToolTip="Limpa a busca e volta ao painel normal (Esc também)." AutomationProperties.Name="Limpar busca de ferramentas" />
+                <Grid>
+                    <TextBox x:Name="ToolFilterBox" TextChanged="OnToolFilterChanged" KeyDown="OnToolFilterKeyDown"
+                             AutomationProperties.Name="Buscar ferramenta"
+                             ToolTip="Digite parte do nome ou do que a ferramenta faz (ex.: régua, camada, logo). Só ficam as ferramentas com todas as palavras; acentos e maiúsculas não importam." />
+                    <TextBlock x:Name="ToolFilterHint" Text="Buscar ferramenta…" Style="{StaticResource Px.MutedText}"
+                               Margin="8,0,0,0" VerticalAlignment="Center" IsHitTestVisible="False" />
+                </Grid>
+            </DockPanel>
+            <StackPanel x:Name="ToolFilterResults" Visibility="Collapsed" Margin="0,0,0,8" />
+
             <!-- Seções: ordem e visibilidade vêm de "Personalizar painel…" (ApplySectionLayout,
                  ver PanelLayout/). Os MESMOS Expanders são reordenados neste contêiner — nada é
                  recriado, então campos preenchidos e seções abertas/fechadas continuam como
@@ -527,6 +545,14 @@
                         <TextBlock Text="Alternar Mão Livre" TextWrapping="Wrap" />
                     </Button>
                     <Separator />
+                    <Button Click="OnSlicePreview" AutomationProperties.AutomationId="assembly.slice-preview"
+                            ToolTip="Divide a arte selecionada em partes retangulares, por linhas/colunas ou tamanho máximo da parte, com sobreposição em cm. Mostra a prévia e, ao confirmar, cria cada parte como PowerClip com uma cópia da arte (o original fica oculto ou é apagado). Ctrl+Z desfaz.">
+                        <TextBlock Text="Dividir em partes (Slice)…" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnNesting" AutomationProperties.AutomationId="assembly.nesting-rect"
+                            ToolTip="Arruma as peças selecionadas (cada objeto ou grupo) na página ou num rolo de largura fixa, sem sobrepor: pela caixa (rápido) ou pelo contorno real (aproveita recortes e furos). Margem e distância em cm, giro opcional. Mostra a prévia com o aproveitamento e, ao confirmar, move as peças. Ctrl+Z desfaz.">
+                        <TextBlock Text="Encaixar peças…" TextWrapping="Wrap" />
+                    </Button>
                     <Button Click="OnResetRotation" AutomationProperties.AutomationId="grid.sisbolt.reset-rotation"
                             ToolTip="Deixa cada objeto selecionado com rotação 0° sem mudar a aparência. Retângulo e elipse girados viram curva; grupo girado é refeito com os mesmos objetos, na mesma ordem. Nome e marcações (Tamanho Padrão, Esticar…) são mantidos. Texto e bitmap não são alterados. Se a geometria não ficar igual, o objeto volta a ser como era. Desfazível com Ctrl+Z.">
                         <TextBlock Text="Resetar ângulo" TextWrapping="Wrap" />
@@ -808,7 +834,7 @@
 
             <Expander x:Name="MeasuresSection" Header="Medidas" IsExpanded="False">
                 <StackPanel>
-                    <TextBlock Text="Soma de medidas dos objetos selecionados, sempre em metros (copiada para a área de transferência):"
+                    <TextBlock Text="Soma de medidas dos objetos selecionados, sempre em metros (copiada para a área de transferência):" TextWrapping="Wrap"
                                Style="{StaticResource Px.SectionLabel}" />
                     <Button Content="Somar Altura" Click="OnSumHeight" AutomationProperties.AutomationId="tools.measures.sum-height"
                             ToolTip="Soma a altura dos objetos selecionados, em metros." />
@@ -816,6 +842,23 @@
                             ToolTip="Soma a largura dos objetos selecionados, em metros." />
                     <Button Content="Somar Altura e Largura" Click="OnSumBoth" AutomationProperties.AutomationId="tools.measures.sum-both"
                             ToolTip="Soma altura e largura dos objetos selecionados, em metros." />
+                    <Separator />
+                    <TextBlock Text="Régua em tamanho real ao lado da seleção (trena com mm e cm):" Style="{StaticResource Px.SectionLabel}" TextWrapping="Wrap" />
+                    <TextBlock Text="Distância do objeto (mm):" Style="{StaticResource Px.SectionLabel}" />
+                    <TextBox x:Name="RulerGapTextBox" Text="3"
+                             ToolTip="Quanto a régua fica afastada da seleção, em mm. 0 = encostada." />
+                    <Button Click="OnRulerWidth" AutomationProperties.AutomationId="tools.measures.ruler-width"
+                            ToolTip="Cria embaixo da seleção uma régua do tamanho da largura dela, em tamanho real: traço a cada mm, maior a cada 5 mm, número a cada cm e o total no fim. Fica num grupo na camada RÉGUA (criada se não existir), na distância digitada acima. A seleção não muda. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Régua da largura" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnRulerHeight" AutomationProperties.AutomationId="tools.measures.ruler-height"
+                            ToolTip="Cria à esquerda da seleção uma régua do tamanho da altura dela, de baixo para cima, em tamanho real: traço a cada mm, maior a cada 5 mm, número a cada cm e o total no fim. Fica num grupo na camada RÉGUA, na distância digitada acima. A seleção não muda. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Régua da altura" TextWrapping="Wrap" />
+                    </Button>
+                    <Button Click="OnRulerBoth" AutomationProperties.AutomationId="tools.measures.ruler-both"
+                            ToolTip="As duas réguas de uma vez, começando no mesmo canto (inferior esquerdo da seleção): largura embaixo e altura à esquerda. Camada RÉGUA, na distância digitada acima. Desfazível com Ctrl+Z.">
+                        <TextBlock Text="Régua da largura e da altura" TextWrapping="Wrap" />
+                    </Button>
                 </StackPanel>
             </Expander>
 

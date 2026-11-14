@@ -112,7 +112,7 @@ namespace PXToolBox.Tests
                 "layers.toggle-ma", "layers.toggle-fe", "layers.toggle-c", "layers.hide-selected", "layers.restore-last-hidden",
                 "output.prepare-new-grid", "output.prepare-new-mold",
             }, PanelToolCatalog.All.Take(10).Select(t => t.Id));
-            Assert.Equal(81, PanelToolCatalog.All.Count);
+            Assert.Equal(86, PanelToolCatalog.All.Count);
             Assert.Equal(PanelToolCatalog.All.Count, PanelToolCatalog.All.Select(t => t.Id).Distinct().Count());
             Assert.Equal(PanelToolCatalog.All.Count, PanelToolCatalog.All.Select(t => t.Label).Distinct().Count());
             Assert.Contains(PanelToolCatalog.All, t => t.Id == "tools.objects.group-intersection");

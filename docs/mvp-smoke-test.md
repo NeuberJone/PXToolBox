@@ -1555,7 +1555,372 @@ Num documento de moldes montado pelo PX (ex.: `TESTE MOLDES.cdr`, com uma cópia
 5. "Copiar" → colar no Bloco de Notas → o mesmo texto da janela.
 6. Página sem grupos de tamanho → "Nenhum grupo de tamanho…".
 
-### 5. Registrar o resultado
+### 4ad. Régua em tamanho real (dev.94)
+
+1. Desenhar um retângulo de 100 × 50 mm, selecionar → Medidas → "Régua da largura" → embaixo, a 3 mm,
+   faixa branca de 0 a 10 cm, traço a cada mm, números 1…10 e "10 cm (100 mm)" no fim; camada RÉGUA
+   criada; o retângulo não mudou. Ctrl+Z → a régua some inteira.
+2. "Régua da altura" → à esquerda, de baixo para cima, números 1…5. Medir a régua com a ferramenta de
+   dimensão do Corel: 50 mm.
+3. Distância 0 → "Régua da largura e da altura" → as duas encostadas, a partir do canto inferior
+   esquerdo. Distância 10 → afastadas 10 mm. Distância "-1" ou "abc" → mensagem, nada criado.
+4. Documento em polegadas (ou outra unidade) → a régua continua com 100 mm.
+5. Objeto de 2,5 m → números a cada 5 cm; criação sem travar (medir o tempo).
+6. Imprimir em 100% e conferir com uma trena de verdade.
+
+### 4ae. Planejar divisão (Slice) (dev.96)
+
+Primeira etapa de planejamento, ainda sem recorte de objetos.
+
+1. Com um retângulo 200 × 100 cm selecionado, abra Montagem → “Planejar divisão (Slice)…”.
+   Confira dimensões iniciais de 200 × 100 cm. Repita com Document.Unit em mm/cm/polegadas,
+   mantendo as dimensões físicas. O plano em cm deve ser o mesmo.
+2. Escolha 2 linhas, 2 colunas e sobreposição 1,5 cm. As quatro partes têm 100,75 × 50,75 cm;
+   a faixa compartilhada é 1,5 cm e os limites externos permanecem nos 200 × 100 cm.
+3. Escolha dimensão máxima 100 × 60 cm na área 210 × 95 cm e sobreposição 1,5 cm.
+   Espere 3 colunas/2 linhas, avanço horizontal 98,5 cm e vertical 58,5 cm.
+   A última coluna tem 13 cm; a última linha, 36,5 cm.
+4. Teste vírgula/ponto, zero, negativo, vazio, sobreposição excessiva e mais de 1000 partes.
+   Entrada inválida limpa a prévia e o relatório, apresenta o erro e desabilita copiar.
+5. Copie o plano e confira medidas e coordenadas. Com a janela aberta, mude a seleção no Corel e
+   clique de novo no botão: a mesma janela recebe as medidas novas. Feche a janela. Objetos, seleção,
+   Properties, unidade e estado de gravação do documento devem permanecer iguais.
+6. Abra sem documento/seleção. Confira a orientação. Adicione aos favoritos e mova a ferramenta
+   para uma seção personalizada; os acessos devem abrir a mesma janela.
+7. Teste teclado, digitação com hotkeys do Corel, escala 100/125/150%, janela redimensionada
+   e texto grande. Registre qualquer falha de foco/contraste.
+
+Registrar versão do PX/Corel e resultado por passo. As pendências anteriores continuam válidas.
+
+### 4af. Buscar ferramenta (dev.96)
+
+1. Clicar em "Buscar ferramenta…" e digitar "regua" → as letras entram no campo, não no Corel; ficam só
+   as três réguas, sob "Medidas". Clicar em "Régua da largura" com um objeto selecionado → cria a régua
+   como pelo botão da seção; o status aparece.
+2. Digitar "camada" → várias ferramentas, agrupadas por seção, na ordem do painel. "xyzzy" → "Nenhuma
+   ferramenta…".
+3. Renomear uma seção em Personalizar painel e buscar pelo nome novo → as ferramentas dela aparecem.
+4. Clicar no nome de uma seção no resultado → a busca limpa, a seção abre e o painel rola até ela.
+5. ✕ e Esc → painel normal, com as mesmas seções abertas/fechadas de antes e o layout intacto.
+
+### 4ag. Dividir em partes (Slice) no documento (dev.97)
+
+Use um arquivo descartável.
+
+1. Arte de 200 × 100 cm (um retângulo com um texto e um bitmap por cima), tudo selecionado. Montagem →
+   "Dividir em partes (Slice)…", 2 linhas × 2 colunas, sobreposição 1,5 cm, afastamento 1 cm →
+   "Dividir no Corel". Esperado: grupo "Divisão (Slice)" com 4 partes "Parte L1 C1"… sem contorno; cada
+   uma mostra só o seu pedaço (texto continua texto, bitmap continua bitmap); partes afastadas 1 cm; a
+   arte original oculta no lugar. Medir: cada parte 100,75 × 50,75 cm.
+2. Ctrl+Z uma vez → partes somem e a arte original volta visível, igual a antes.
+3. Afastamento 0 e "Apagar a arte original" → as partes ficam exatamente sobre a área da arte (a emenda
+   de 1,5 cm visível nos contornos do PowerClip); o original não existe mais. Ctrl+Z restaura.
+4. Com a janela aberta, selecionar outro objeto e clicar "Dividir no Corel" → aviso "A seleção atual
+   tem … mas o plano é de …", nada criado. "Usar seleção atual" → medidas novas; agora divide.
+5. Depois de dividir, o botão fica desligado; mudar um campo religa.
+6. Dimensão máxima com mais de 50 partes → pergunta antes; "Não" → nada criado. Documento em
+   polegadas → partes com as mesmas medidas em cm.
+7. Abrir uma parte (Editar PowerClip) → a cópia da arte está inteira lá dentro, na posição original.
+
+### 4ah. Encaixar peças (retangular) (dev.98)
+
+Use um arquivo descartável.
+
+1. Página A4 (ou maior) com 6–8 grupos de tamanhos diferentes espalhados, alguns fora da página.
+   Selecionar todos → Montagem → "Encaixar peças (retangular)…". A janela diz quantas peças e o tamanho
+   da página. "Página atual", margem 0,5, distância 0,5, giro desligado → prévia sem sobreposição;
+   "Encaixar no Corel" → as peças ficam como na prévia, a partir do canto superior esquerdo da página,
+   com 5 mm entre elas (medir duas). Tamanhos e conteúdo iguais.
+2. Ctrl+Z uma vez → todas voltam para onde estavam.
+3. "Rolo", largura 160, "Permitir girar 90°" e "Ajustar a página ao encaixe" → página 160 cm × o
+   comprimento do relatório; peças em laranja na prévia saem giradas 90° no Corel, no lugar certo.
+4. Uma peça maior que a página (página atual) → aparece em "Não couberam" e fica onde estava.
+5. Com a janela aberta, mudar a seleção e clicar "Encaixar no Corel" → aviso "A seleção mudou…",
+   nada se move. "Usar seleção atual" → lê de novo.
+6. Grupo com PowerClip e texto → encaixa pela caixa, sem mudar o conteúdo. Documento em polegadas →
+   mesmas medidas em cm.
+
+### 4ai. Encaixar peças pelo contorno real (dev.99)
+
+Use um arquivo descartável com peças reais (frente, costas, mangas, gola, escudo; algumas como
+PowerClip com arte dentro, uma com texto por cima).
+
+1. Selecionar tudo → "Encaixar peças…" → "Pelo contorno real", rolo 160, distância 0,5, "Não girar" →
+   "Calcular encaixe". Anotar o tempo do relatório. A prévia mostra os formatos reais (não retângulos);
+   peças pequenas aproveitam cavas/decotes. Mensagem "conferida: sem sobreposição…".
+2. O relatório lista em "Pela caixa" só o que é texto/imagem ou ilegível — se uma peça normal (curva,
+   PowerClip) aparecer ali, anotar o tipo dela (o contorno não veio do Corel).
+3. "Encaixar no Corel" → as peças ficam como na prévia; medir a menor distância entre duas peças
+   vizinhas (≥ 5 mm). Ctrl+Z uma vez → tudo volta.
+4. "Só 180°" e depois "90°, 180° e 270°" → peças giradas saem giradas no Corel, no lugar da prévia
+   (conferir uma peça assimétrica para ver se o giro foi para o lado certo).
+5. Precisão 2 mm → encaixe mais justo, tempo maior (anotar). Precisão 0,1 → mensagem de limite.
+6. Peça com furo (gola em anel) e uma peça pequena → a pequena pode entrar no furo.
+
+### 4aj. Slice pelas guias da página (dev.100)
+
+Arquivo descartável com uma arte de 200 × 100 cm.
+
+1. Selecionar a arte → "Dividir em partes (Slice)…" → 1 linha × 3 colunas → "Criar guias do plano" →
+   duas guias verticais em 66,67 e 133,33 cm da esquerda da arte, com nome "PX Slice". Ctrl+Z remove.
+2. Criar de novo, arrastar uma guia para outro lugar e acrescentar uma guia horizontal sua → "Pelas
+   guias da página" (ou "Ler as guias") → o texto diz 2 verticais e 1 horizontal; a prévia mostra as
+   emendas nas posições novas.
+3. Uma guia fora da arte e uma inclinada → contadas como ignoradas (a inclinada nem aparece).
+4. "Dividir no Corel" → partes cortadas nas guias, com a sobreposição.
+5. "Remover guias do Slice" → somem só as "PX Slice"; a sua guia horizontal fica. Guias na página
+   mestra (todas as páginas) também são lidas.
+
+### 4ak. Encaixar peças com quantidade (dev.101)
+
+Arquivo descartável com 3 peças (uma PowerClip com arte, uma com texto).
+
+1. "Encaixar peças…" → rolo 160 → "Quantidade por peça": 3, 2 e 0 → a prévia mostra 5 peças, com nomes
+   "(1/3)"… no relatório; a peça com 0 não aparece.
+2. "Encaixar no Corel" → 3 + 2 objetos no lugar da prévia; as cópias têm a mesma arte/PowerClip/texto
+   e as mesmas marcações (inspecionar Properties de uma cópia). A peça com 0 não se moveu.
+3. Ctrl+Z uma vez → as cópias somem e as originais voltam ao lugar.
+4. Página pequena com quantidade que não cabe → "Não couberam: … (n/n)" e nenhuma cópia a mais criada.
+5. Pelo contorno com "Só 180°" e 2 cópias → cada cópia girada só uma vez (conferir a direção da arte).
+
+### 4al. Encaixar peças em várias áreas (dev.102)
+
+Arquivo descartável com 4 a 6 peças de tamanhos diferentes (uma PowerClip com arte).
+
+1. "Encaixar peças…" → "Várias áreas (retalhos)" → áreas `Retalho A: 60 x 40` e `100 x 150` → a prévia
+   mostra as duas áreas lado a lado; o relatório tem uma linha por área com peças e aproveitamento.
+2. Uma área com texto inválido (`60 x`) → mensagem com o número da área; "Encaixar no Corel" desligado.
+3. Áreas válidas, "Desenhar as áreas no Corel" ligado, "Ajustar a página" desligado → "Encaixar no Corel":
+   retângulos "Área: Retalho A (60 × 40 cm)" e "Área: Área 2 (100 × 150 cm)" a partir do canto superior
+   esquerdo da página, 2 cm entre eles; cada peça dentro da área da prévia.
+4. Ctrl+Z uma vez → os retângulos somem e as peças voltam ao lugar.
+5. "Ajustar a página ao encaixe" ligado → página do tamanho das duas áreas (largura = soma + 2 cm) e as
+   áreas encostadas no canto dela.
+6. Pelo contorno, com quantidade 3 numa peça → conferir que cópias que não couberem em nenhuma área não
+   foram criadas.
+
+### 4am. Procurar o melhor encaixe e cancelar (dev.103)
+
+Arquivo descartável com 10 a 20 peças de formatos variados (algumas compridas e finas).
+
+1. Pela caixa, rolo 160: anotar o comprimento usado. Marcar "Procurar o melhor encaixe" → o relatório tem
+   "Busca: 5 de 5 ordem(ns)…" e o comprimento é igual ou menor (ou mais peças couberam numa página).
+2. Pelo contorno, precisão 2 mm, busca ligada → "Calcular encaixe": a mensagem mostra "ordem k de 5", o
+   Corel e a janela continuam respondendo (mover a janela, rolar o documento) e aparece "Cancelar cálculo".
+3. Durante a busca, "Cancelar cálculo" depois da 1ª ordem → fica um resultado com "(cancelada)" no
+   relatório; "Encaixar no Corel" funciona com ele.
+4. "Tempo máximo" 2 s com contorno lento → "(parou no tempo máximo)" no relatório.
+5. Durante o cálculo, mudar a margem → o cálculo é descartado (nenhum resultado aparece depois).
+6. Fechar a janela durante o cálculo → nenhum erro no painel.
+
+### 4an. Ordem de preenchimento das áreas (dev.104)
+
+Arquivo descartável com 6 a 10 peças; "Várias áreas" com "Grande: 140 x 120", "A: 70 x 90", "B: 30 x 30".
+
+1. "Na ordem digitada" → o relatório não tem "Áreas preenchidas"; Grande recebe a maior parte.
+2. "Menores primeiro (gasta retalhos)" → "Áreas preenchidas: menores primeiro"; B e A aparecem antes na
+   prévia e no relatório. "Encaixar no Corel" com "Desenhar as áreas" → retângulos B, A, Grande, da esquerda
+   para a direita, com as peças dentro de cada um. Ctrl+Z desfaz tudo.
+3. "Maiores primeiro" → Grande primeiro.
+4. Trocar para "Página atual" → as três opções ficam desligadas.
+
+### 4ao. Perfis do encaixe (dev.105)
+
+1. "Encaixar peças…" → "Perfis" mostra "Nenhum perfil salvo." (primeira vez).
+2. Rolo 150, distância 1, giro 90°, busca ligada; nome "Teste rolo" → "Salvar" → aparece o botão
+   "Teste rolo"; existe `%LocalAppData%\PXToolBox\Dev\config\nesting-profiles.json`.
+3. Fechar a janela, abrir de novo com outra seleção → clicar em "Teste rolo" → os campos voltam e a prévia
+   é recalculada; as quantidades continuam as da seleção.
+4. Mudar o rolo para 160 e salvar com "teste ROLO" → continua um botão só (atualizado).
+5. "Excluir" com o nome digitado → o botão some.
+6. (Opcional) Estragar o arquivo num editor → ao abrir, aviso "Não foi possível ler os perfis…", Salvar e
+   Excluir desligados, a janela encaixa normalmente e o arquivo não muda.
+
+### 4ap. Perfis do encaixe nas preferências portáteis (dev.106)
+
+Precisa de pelo menos 2 perfis salvos (4ao).
+
+1. Configurações → "Exportar preferências" → abrir o .json: tem "nestingProfiles" com os perfis.
+2. Excluir um perfil na janela do encaixe e deixar a janela aberta. "Importar preferências" com o arquivo do
+   passo 1 → a confirmação lista "Perfis do encaixe (2): …" → "Sim" → "Salvar".
+3. Voltar para a janela do encaixe → o perfil excluído reaparece. Salvar um perfil novo → os importados
+   continuam lá.
+4. Existe o backup `pxtoolbox-dev-preferencias-backup-….json` na pasta de configuração, com os perfis
+   de antes.
+5. (Opcional) Estragar `nesting-profiles.json`, importar e "Salvar" → aviso de que os perfis NÃO foram
+   gravados; o arquivo estragado não muda.
+
+### 4aq. Slice — contorno da arte na prévia (dev.107)
+
+1. Arte com curvas, um grupo com logo, um texto e uma imagem → "Dividir em partes (Slice)…": a prévia mostra
+   o contorno (texto e imagem como retângulos) e "Contorno da arte na prévia (texto, imagem… pela caixa)".
+2. O contorno coincide com a arte: as bordas encostam na caixa da prévia, e as emendas cortam a arte nos
+   mesmos lugares em que cortam no Corel depois de "Dividir no Corel" (conferir 2 linhas × 3 colunas).
+3. Desmarcar "Mostrar o contorno da arte" → só as partes; marcar de novo → volta.
+4. Trocar a seleção no Corel → "Usar seleção atual" → contorno novo.
+5. Arte pesada (muitas curvas): a janela abre em tempo razoável; anotar o tempo. Se aparecer "arte pesada:
+   só parte do contorno aparece", anotar quantos objetos.
+6. Nada muda no documento ao abrir ou ao ler o contorno (Ctrl+Z não tem passo novo).
+
+### 4ar. Slice — corte livre por guias inclinadas (dev.108)
+
+Documento descartável. Arte com curvas, um texto e uma imagem.
+
+1. Criar 2 guias inclinadas cruzando a arte (ex.: arrastar uma guia e girar, ou pelo diálogo de guias) e 1
+   guia inclinada fora da arte. "Dividir em partes (Slice)…" → "Pelas guias da página": "… e 2 inclinada(s)
+   sobre a arte; 1 fora dela", prévia com polígonos sobre o contorno da arte, relatório "linhas de corte livres".
+2. Conferir na prévia que as linhas passam onde as guias estão no Corel (comparar com a tela).
+3. Sobreposição 1,5 cm, afastar 2 cm → "Dividir no Corel": grupo "Divisão (Slice)" com "Parte 1"… polígonos sem
+   contorno, cada um com a arte inteira em PowerClip; as partes afastadas do centro; a arte original oculta.
+4. Juntar as partes de volta (afastar 0): as emendas se sobrepõem 1,5 cm e nada da arte some (texto e imagem
+   continuam editáveis dentro do PowerClip).
+5. Ctrl+Z uma vez → volta tudo; as guias continuam lá.
+6. Duas guias quase juntas (menos de 0,5 mm) → mensagem "fina demais" e "Dividir no Corel" desligado.
+7. Só guias retas (apagar as inclinadas, "Ler as guias") → volta ao plano retangular de antes.
+
+### 4as. Encaixe — canto de início (dev.109)
+
+Documento descartável, A4 em pé, com 3 retângulos e 2 curvas em L (uma delas com texto dentro).
+
+1. "Encaixar peças…" → "Pela caixa", "Começar pelo canto" ↘ Inferior dir. → prévia com as peças no canto de
+   baixo à direita e "Começa pelo canto inferior direito" no relatório → "Encaixar no Corel": no documento as
+   peças ficam no mesmo canto, a 0,5 cm das bordas.
+2. "Pelo contorno real", "90°, 180° e 270°", ↗ Superior dir. → "Calcular encaixe" → "Encaixar no Corel": as L
+   encaixam como na prévia (girada para o lado certo, sem sobrepor), o texto continua dentro da sua L.
+3. Ctrl+Z uma vez → tudo volta.
+4. "Rolo": os cantos de baixo ficam desligados; com um deles marcado, a mensagem pede um canto de cima.
+5. "Várias áreas" com 2 áreas e ↙ Inferior esq.: cada área enche a partir do canto de baixo à esquerda dela.
+6. Salvar um perfil com ↘ e aplicá-lo noutra janela: o canto volta marcado.
+
+Resultado (2026-11-11, dev.110, documento criado por script; posições lidas pelo COM só para conferir): passo 1 —
+peças a 0,50 cm da direita e de baixo, sem sobreposição; passo 2 — a 0,50 cm da direita e do topo, sem
+sobreposição pelo contorno, texto continua no PowerClip (só um retângulo girou; giro de peça assimétrica não
+exercitado); passo 3 — um Ctrl+Z devolve tudo; passo 6 — perfil confirmado pelo usuário. Passos 4–5 sem resposta.
+
+### 4at. Encaixe — comparar com o original (dev.110)
+
+Documento descartável, A4 em pé, com 3 retângulos espalhados (um deles parcialmente fora da página, à esquerda).
+
+1. Selecionar os 3 → "Encaixar peças…": no relatório, "Original: as peças ocupam L × A cm" — conferir L e A com a
+   caixa da seleção no Corel (barra de propriedades), e "no encaixe, …".
+2. "Mostrar a posição original": caixas cinza tracejadas exatamente onde os retângulos estão no Corel (inclusive o
+   que sai da página); desmarcar some com elas sem recalcular.
+3. "Pelo contorno real" → "Calcular encaixe" → marcar/desmarcar: o resultado continua e "Encaixar no Corel" segue
+   ligado.
+4. Quantidade 2 numa peça: a linha diz "só quando cada peça entra uma vez e todas cabem".
+
+### 4au. Encaixe — rolo em folhas e quantidade opcional (dev.111)
+
+Documento descartável com 6 a 10 peças (uma PowerClip com arte).
+
+1. "Encaixar peças…": "Quantidade por peça" desligado e sem lista; ligar → uma linha por peça; desligar → some e
+   cada peça volta a entrar uma vez.
+2. "Rolo", largura 160, "Altura da folha" vazia: a prévia fica em pé mesmo com poucas peças.
+3. "Altura da folha" 60 (ou o que obrigue 2+ folhas): relatório "Rolo de 160 cm em folhas de 60 cm: N folha(s),
+   comprimento total …"; a prévia mostra as folhas uma embaixo da outra; os 4 cantos ficam disponíveis.
+4. "Desenhar as áreas" e "Ajustar a página" ligados → "Encaixar no Corel": página 160 × N·60, retângulos
+   "Área: Folha 1 (160 × 60 cm)"… empilhados a partir do topo, cada peça dentro da sua folha. Ctrl+Z desfaz tudo.
+5. Pelo contorno com folhas: o mesmo, e "conferida: sem sobreposição".
+6. Salvar perfil com altura 60, aplicar noutra janela: a altura volta.
+
+### 4av. Encaixe — fileiras alinhadas e últimas opções (dev.112)
+
+As mesmas peças G/GG da comparação com o eCut (2026-11-11).
+
+1. "Encaixar peças…" → "Várias áreas" `175 x 1000` (3 linhas), "Pelo contorno real", distância 1,2, "Só 180°" →
+   "Calcular encaixe": as peças em fileiras de 2, sem a peça sozinha no meio; anotar quantas peças e o
+   aproveitamento por área e comparar com o eCut (folha 170 × 1000, 12 mm, 180°).
+2. Anotar o tempo do cálculo (relatório).
+3. Fechar a janela e abrir de novo: várias áreas, contorno, 1,2 e 180° continuam marcados; quantidades desligadas.
+4. "Página atual" numa página menor que as peças: a mensagem diz o tamanho da página, o da maior peça e sugere
+   "Rolo" ou "Várias áreas".
+
+### 4aw. Encaixe — agrupar por bloco, lado a lado (dev.113)
+
+1. "Encaixar peças…" → "Rolo" com largura e "Altura da folha" pequena o bastante para dar 2+ folhas; "Desenhar as
+   áreas no Corel" e "Agrupar por bloco, lado a lado" marcados: a prévia mostra as folhas lado a lado; desmarcar
+   volta a empilhar, sem recalcular.
+2. "Aplicar": no Corel, as folhas lado a lado (2 cm entre elas); no Gerenciador de objetos, um grupo
+   "Bloco: Folha 1", "Bloco: Folha 2"… com o retângulo e as peças de cada folha. Ctrl+Z desfaz tudo de uma vez.
+3. "Várias áreas" com a opção: um grupo por área usada ("Bloco: Área 1"…); áreas sem peça não viram grupo.
+4. Sem "Desenhar as áreas": os grupos só com as peças; uma folha com uma peça só também vira grupo.
+5. Peças com PowerClip continuam intactas dentro do grupo.
+
+Resultado (2026-11-11, documento criado por script — 5 retângulos de 40 × 30 cm; rolo 100, folha 70, sem giro;
+conferência por COM, só leitura): passo 2 com áreas (dev.116) — "Bloco: Folha 1" (retângulo + 4 peças) e
+"Bloco: Folha 2" (retângulo + 1 peça), lado a lado em X 0 e 102, sem sobreposição; Ctrl+Z uma vez devolve tudo.
+Passo 4 (dev.116) — **falhou**: a folha 2, de uma peça só, ficou solta (sem grupo, sem nome): `Shape.Group()` de um
+item dá `E_FAIL` no Corel 2025 (`docs/ARCHITECTURE.md`, 84). Corrigido na dev.117 e repetido: "Bloco: Folha 2" é
+grupo com a P5; cada peça dentro da sua folha (canto ↘, margem 0, espaçamento 0,12); "2 blocos agrupados"; Ctrl+Z
+uma vez devolve tudo, sem sobra do auxiliar. Passos 3 e 5 não exercitados.
+
+### 4ax. Encaixe — separar por camada (dev.114)
+
+1. Documento com duas camadas ("Tactel", "Dry fit") e peças nas duas; selecionar todas.
+2. "Encaixar peças…" → "Rolo", "Separar por camada" marcado: o relatório mostra "Tactel — Rolo" e "Dry fit — Rolo",
+   cada um com as peças da sua camada; a prévia mostra os dois rolos lado a lado.
+3. "Desenhar as áreas" e "Agrupar por bloco" marcados → "Aplicar": no Gerenciador de objetos, o grupo
+   "Bloco: Tactel — Rolo" dentro da camada Tactel e "Bloco: Dry fit — Rolo" dentro da Dry fit. Ctrl+Z desfaz tudo.
+4. Com "Altura da folha": "Tactel — Folha 1", "Tactel — Folha 2"…; com "Agrupar por bloco", todas numa fileira.
+5. Pelo contorno, o mesmo (conferido, sem sobreposição).
+
+Resultado (2026-11-11/13, documento criado por script — camadas Tactel (3 peças) e Dry fit (2), 40 × 30 cm; rolo
+100, altura da folha 200; conferência por COM, só leitura): dev.117 — **falhou**: os dois blocos foram agrupados e
+ficaram lado a lado, mas o do Tactel foi parar na camada Dry fit (o Corel põe o grupo na camada do último objeto
+selecionado; `docs/ARCHITECTURE.md`, 85). Corrigido na dev.118 e repetido com a mesma ordem de seleção: cada
+camada só com o seu bloco ("Bloco: Dry fit — Folha 1" e "Bloco: Tactel — Folha 1"), retângulo dentro do bloco, em
+X 0 e 102, sem sobreposição pelas posições; Ctrl+Z uma vez devolve tudo às camadas de origem. Passo 5 (contorno)
+não exercitado.
+
+### 4ay. Slice — linhas desenhadas (dev.115)
+
+1. Arte qualquer (ex.: banner 200 × 100 cm). "Dividir em partes (Slice)…" → "Criar camada de cortes": a camada
+   "Cortes (Slice)" aparece no Gerenciador de objetos. Anotar se ficou ativa.
+2. Nessa camada, desenhar: uma linha vertical de cima a baixo da arte; uma horizontal da borda esquerda até a
+   vertical (parando nela); uma curva (Bézier) de cima a baixo na metade direita.
+3. Selecionar só a arte → "Pelas linhas desenhadas" (ou "Ler as linhas"): "3 linha(s) lida(s)"; a prévia mostra 4
+   partes e as linhas tracejadas em vermelho; a curva é seguida.
+4. Sobreposição 2 cm → as partes avançam 1 cm além de cada linha, não além das bordas da arte.
+5. "Dividir no Corel": 4 PowerClips "Parte 1"…, com a arte dentro, nas formas da prévia; Ctrl+Z desfaz tudo. A
+   camada de cortes continua lá, intacta.
+6. Uma linha solta no meio da arte: o relatório diz que não separa nada.
+
+Resultado (2026-11-13, dev.118, documento criado por script — grupo "Arte" 200 × 100 cm em (10, 10); as 3 linhas
+desenhadas por script na camada criada pelo botão; conferência por COM, só leitura): passo 1 — "Criar camada de
+cortes" criou a camada vazia, acima da arte, e a "Camada 1" continuou ativa. Passos 3 e 5, com os valores padrão
+(sobreposição 1,5 cm, afastamento 1 cm) — 4 PowerClips "Parte 1"…"Parte 4" com a arte dentro, arte original oculta,
+camada de cortes intacta. Nós lidos e descontado o afastamento (cada parte 1 cm para fora do centro da arte): as
+partes compartilham 1,5 cm em cada linha (0,75 de cada lado), inclusive na curva (15 nós por lado); a horizontal
+só divide a metade esquerda; as bordas de fora coincidem com as da arte. Ctrl+Z uma vez devolve a arte visível e
+some com as partes. Passos 4 (com 2 cm) e 6 não exercitados.
+
+### 4az. Slice — arte em cores na prévia (dev.116)
+
+1. Arte colorida com imagem, texto e PowerClip; "Dividir em partes (Slice)…": a miniatura não aparece (desmarcada).
+2. Marcar "Mostrar a arte em cores": a arte aparece em cores por baixo das partes, alinhada com o contorno cinza
+   (anotar qualquer deslocamento ou margem) e com fundo transparente. Anotar o tempo.
+3. Mudar linhas/colunas: a miniatura continua, sem nova espera. "Usar seleção atual" com outra arte: troca.
+4. Conferir que nada mudou no documento (Ctrl+Z não tem passo novo) e que não sobrou PNG em
+   `%TEMP%\PXToolBox-Dev`.
+
+Resultado (2026-11-13, dev.118; documentos criados por script; o que aparece na janela foi observado pelo usuário,
+o documento e a pasta temporária conferidos por COM/arquivos): grupo "Arte" (fundo bege 200 × 100 + círculo +
+texto) — a arte aparece em cores, na hora, alinhada com o contorno cinza; mudar colunas não gera de novo; o
+documento não mudou e não sobrou PNG (a pasta foi modificada no momento — o arquivo foi criado e apagado). Grupo
+"Arte vazada" (círculo e quadrado em cantos opostos, sem fundo) — o vazio entre eles mostra o fundo escuro da
+prévia, só tingido pelo azul translúcido das partes: a miniatura é transparente. Passos com imagem/PowerClip,
+"Usar seleção atual" com outra arte e o histórico de desfazer não exercitados; arte pesada não medida.
+
+### 4ba. Encaixe — distância entre blocos e legenda (dev.119)
+
+1. Peças selecionadas; "Encaixar peças…" → "Rolo" em folhas (ou "Várias áreas") com pelo menos 2 blocos,
+   "Agrupar por bloco" marcado. "Legenda em cada bloco" fica habilitada; desmarcar "Agrupar por bloco" a desabilita.
+2. "Distância entre os blocos (cm)" = 10: a prévia afasta os blocos; "-1" mostra o erro e desabilita "Aplicar".
+3. Aplicar com legenda: cada grupo "Bloco: …" contém "Legenda: …", em preto, acima do bloco e encostada na
+   esquerda dele, com nome, medidas em cm e número de peças certos; os blocos ficam a 10 cm um do outro.
+4. Um Ctrl+Z desfaz tudo (peças voltam, legendas e grupos somem).
+5. Repetir com "Separar por camada": a legenda de cada tecido fica na camada dele.
+
 
 Depois de rodar este roteiro, atualize esta seção (ou abra uma issue) com:
 - O que funcionou exatamente como esperado.

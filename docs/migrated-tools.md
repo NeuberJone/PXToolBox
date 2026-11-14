@@ -1,5 +1,12 @@
 # Ferramentas migradas — de onde vêm e o que mudou
 
+Desde a dev.96: **Dividir em partes (Slice)…** em Montagem (até a dev.96, "Planejar divisão"), com
+`SlicePlanner` próprio (`PXToolBox.Core.Slicing`) e janela de prévia. A caixa da seleção é
+dividida por tabela ou dimensão máxima com sobreposição. Desde a dev.97 divide no documento
+(`SliceCutService`: uma parte por PowerClip com cópia da arte). Referência funcional: telas eCut
+enviadas em 2026-11-10. Fórmula de sobreposição escolhida no PX, com comparação com eCut pendente;
+ver `docs/reference-feature-roadmap.md`, S1/S2, e roteiros 4ae e 4ag.
+
 Duas fontes, nesta ordem de autoridade:
 
 1. **`Referência/Macros/` (revisão candidata)** — apareceu na raiz deste repositório durante o
