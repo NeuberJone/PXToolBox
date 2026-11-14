@@ -1014,3 +1014,8 @@ Commit sugerido:
 ```text
 docs: add assembly and nesting engine roadmap
 ```
+
+
+## Complemento de planejamento — 2026-11-13
+
+O plano de rotação persistente por objeto (herança por tecido, restrições obrigatórias, montagem mista, testes de persistência), PX Validator, contratos de produção, racionalização de motores e PX Ecosystem Manager está detalhado em [ecosystem-evolution-proposals.md](ecosystem-evolution-proposals.md). Esses itens são **planejados**, não implementados.
