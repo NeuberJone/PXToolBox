@@ -930,3 +930,15 @@ Não implementadas nesta entrega; apenas registradas na arquitetura (ver
    sincronização presumida de melhorias entre os dois).
 4. Servidor de licenças, sincronização em nuvem e cliente de atualização automática completo
    — pontos de extensão documentados, não implementados.
+
+
+## Planejamento futuro — evolução integrada do ecossistema (2026-11-13)
+
+- [ ] **Nesting:** propriedades persistentes de rotação por objeto, herdadas do perfil do tecido quando ausentes; peças com rotações diferentes na mesma montagem, respeitando restrições obrigatórias do tecido.
+- [ ] **Produção:** fluxo guiado Preparação → Personalização → Montagem → Validação → Nesting → Exportação, mantendo ferramentas individuais.
+- [ ] **PX Validator:** validações configuráveis com erros, avisos e informações.
+- [ ] **Integração Nexor:** contratos versionados para tecidos/retalhos, mapas e comparação planejado × impresso.
+- [ ] **PX Ecosystem Manager:** instalador modular e gerenciamento posterior de componentes, sem dependência de execução dos aplicativos.
+- [ ] **Arquitetura:** reutilização seletiva de motores/contratos, sem duplicação de regras ou integração direta de bancos de dados.
+
+Especificação, prioridades, restrições e critérios de aceitação: [docs/ecosystem-evolution-proposals.md](docs/ecosystem-evolution-proposals.md). **Todos os itens acima são propostas, não funcionalidades entregues.**
