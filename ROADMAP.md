@@ -1,5 +1,7 @@
 # Roadmap — PX Tool Box
 
+> **Ordem de implementação consolidada:** consulte o [Roadmap mestre priorizado](docs/roadmap-master-prioritized.md). Este arquivo preserva o histórico detalhado e os status das entregas.
+
 Documento vivo. Separa o que está nesta entrega (MVP DEV) do que vem depois.
 
 ## MVP DEV (esta entrega)
